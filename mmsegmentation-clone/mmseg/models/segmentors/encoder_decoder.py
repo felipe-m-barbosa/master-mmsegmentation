@@ -120,7 +120,7 @@ class EncoderDecoder(BaseSegmentor):
 
         return seg_logit
 
-    def forward_train(self, img, img_metas, gt_semantic_seg):
+    def forward_train(self, img, img_metas, gt_semantic_seg, **kwargs):
         """Forward function for training.
 
         Args:
