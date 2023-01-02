@@ -67,6 +67,21 @@ class EncoderDecoder(BaseSegmentor):
         if self.with_neck:
             x = self.neck(x)
         return x
+    
+    def extract_feat_seq(self, img, s1_img, s2_img):
+        """Extract features from images.""" 
+        x = self.backbone(img)
+
+        # for the image sequence
+        s1 = self.backbone(s1_img)
+        s2 = self.backbone(s2_img)
+
+        if self.with_neck:
+            x = self.neck(x)
+            # for the image sequence
+            s1 = self.neck(s1)
+            s2 = self.neck(s2)
+        return x, s1, s2
 
     def encode_decode(self, img, img_metas):
         """Encode images with backbone and decode into a semantic segmentation
@@ -97,22 +112,23 @@ class EncoderDecoder(BaseSegmentor):
         seg_logits = self.decode_head.forward_test(x, img_metas, self.test_cfg)
         return seg_logits
 
-    def _auxiliary_head_forward_train(self, x, img_metas, gt_semantic_seg):
+    def _auxiliary_head_forward_train(self, x, img_metas, gt_semantic_seg, s1, s2):
         """Run forward function and calculate loss for auxiliary head in
         training."""
         losses = dict()
         if isinstance(self.auxiliary_head, nn.ModuleList):
             for idx, aux_head in enumerate(self.auxiliary_head):
-                loss_aux = aux_head.forward_train(x, img_metas,
+                loss_aux, s1_logits, s2_logits = aux_head.forward_train(x, img_metas,
                                                   gt_semantic_seg,
-                                                  self.train_cfg)
+                                                  self.train_cfg,
+                                                  {'s1':s1, 's2':s2})
                 losses.update(add_prefix(loss_aux, f'aux_{idx}'))
         else:
-            loss_aux = self.auxiliary_head.forward_train(
-                x, img_metas, gt_semantic_seg, self.train_cfg)
+            loss_aux, s1_logits, s2_logits = self.auxiliary_head.forward_train(
+                x, img_metas, gt_semantic_seg, self.train_cfg, {'s1':s1, 's2':s2})
             losses.update(add_prefix(loss_aux, 'aux'))
 
-        return losses
+        return losses, s1_logits, s2_logits
 
     def forward_dummy(self, img):
         """Dummy forward function."""
@@ -137,7 +153,7 @@ class EncoderDecoder(BaseSegmentor):
             dict[str, Tensor]: a dictionary of loss components
         """
 
-        x = self.extract_feat(img)
+        x, s1, s2 = self.extract_feat_seq(img, s1_img=kwargs['s1_img'], s2_img=kwargs['s2_img'])
 
         losses = dict()
 
@@ -146,9 +162,15 @@ class EncoderDecoder(BaseSegmentor):
         losses.update(loss_decode)
 
         if self.with_auxiliary_head:
-            loss_aux = self._auxiliary_head_forward_train(
-                x, img_metas, gt_semantic_seg)
+            loss_aux, s1_logits, s2_logits = self._auxiliary_head_forward_train(
+                x, img_metas, gt_semantic_seg, s1, s2)
             losses.update(loss_aux)
+
+        # ADD AUXILIARY HEAD FOR TEMPORAL CONSISTENCY
+        # which is based on the outputs of the previous auxiliary head
+        # (s1_logits, s2_logits)
+        
+
 
         return losses
 

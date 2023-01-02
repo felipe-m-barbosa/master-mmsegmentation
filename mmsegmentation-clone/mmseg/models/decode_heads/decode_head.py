@@ -213,7 +213,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         """Placeholder of forward function."""
         pass
 
-    def forward_train(self, inputs, img_metas, gt_semantic_seg, train_cfg):
+    def forward_train(self, inputs, img_metas, gt_semantic_seg, train_cfg, **kwargs):
         """Forward function for training.
         Args:
             inputs (list[Tensor]): List of multi-level img features.
@@ -230,8 +230,17 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             dict[str, Tensor]: a dictionary of loss components
         """
         seg_logits = self(inputs)
+        
         losses = self.losses(seg_logits, gt_semantic_seg)
-        return losses
+        
+        # verify if sequence images where passed
+        if 's1' in kwargs: # we assume that s1 and s2 always appear together
+            s1_logits = self(kwargs['s1'])
+            s2_logits = self(kwargs['s2'])
+        
+            return losses, s1_logits, s2_logits
+        else:
+            return losses
 
     def forward_test(self, inputs, img_metas, test_cfg):
         """Forward function for testing.
