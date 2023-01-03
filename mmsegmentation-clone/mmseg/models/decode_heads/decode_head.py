@@ -231,15 +231,18 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         """
         seg_logits = self(inputs)
         
-        losses = self.losses(seg_logits, gt_semantic_seg)
-        
         # verify if sequence images where passed
         if 's1' in kwargs: # we assume that s1 and s2 always appear together
             s1_logits = self(kwargs['s1'])
             s2_logits = self(kwargs['s2'])
-        
+
+            losses = self.losses(seg_logits, gt_semantic_seg, s1_logits, s2_logits)
+
             return losses, s1_logits, s2_logits
+
         else:
+            losses = self.losses(seg_logits, gt_semantic_seg)
+
             return losses
 
     def forward_test(self, inputs, img_metas, test_cfg):
@@ -267,7 +270,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         return output
 
     @force_fp32(apply_to=('seg_logit', ))
-    def losses(self, seg_logit, seg_label):
+    def losses(self, seg_logit, seg_label, **kwargs):
         """Compute segmentation loss."""
         loss = dict()
         seg_logit = resize(
@@ -286,16 +289,24 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         else:
             losses_decode = self.loss_decode
         for loss_decode in losses_decode:
+            # temporal consistency loss
+            if loss_decode.loss_name == 'loss_tc':
+                input_1 = kwargs['s1_logit']
+                input_2 = torch.argmax(kwargs['s2_logits'], dim=1)
+            else:
+                input_1 = seg_logit
+                input_2 = seg_label
+
             if loss_decode.loss_name not in loss:
                 loss[loss_decode.loss_name] = loss_decode(
-                    seg_logit,
-                    seg_label,
+                    input_1,
+                    input_2,
                     weight=seg_weight,
                     ignore_index=self.ignore_index)
             else:
                 loss[loss_decode.loss_name] += loss_decode(
-                    seg_logit,
-                    seg_label,
+                    input_1,
+                    input_2,
                     weight=seg_weight,
                     ignore_index=self.ignore_index)
 
