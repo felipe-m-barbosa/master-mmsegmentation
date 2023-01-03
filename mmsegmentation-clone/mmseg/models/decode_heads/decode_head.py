@@ -236,14 +236,14 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             s1_logits = self(kwargs['s1'])
             s2_logits = self(kwargs['s2'])
 
-            losses = self.losses(seg_logits, gt_semantic_seg, s1_logits, s2_logits)
-
-            return losses, s1_logits, s2_logits
+            losses = self.losses(seg_logits, gt_semantic_seg, {'s1_logits': s1_logits, 's2_logits':s2_logits, 'opt_flow':kwargs['opt_flow']})
 
         else:
             losses = self.losses(seg_logits, gt_semantic_seg)
 
-            return losses
+        
+        return losses
+
 
     def forward_test(self, inputs, img_metas, test_cfg):
         """Forward function for testing.
@@ -291,24 +291,30 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         for loss_decode in losses_decode:
             # temporal consistency loss
             if loss_decode.loss_name == 'loss_tc':
-                input_1 = kwargs['s1_logit']
-                input_2 = torch.argmax(kwargs['s2_logits'], dim=1)
+                input_1 = kwargs['s1_logits']
+                # input_2 = torch.argmax(kwargs['s2_logits'], dim=1)
+                input_2 = kwargs['s2_logits']
+
+                tmp_loss = loss_decode(
+                    input_1,
+                    input_2,
+                    weight=seg_weight,
+                    ignore_index=self.ignore_index,
+                    opt_flow = kwargs['opt_flow'])
             else:
                 input_1 = seg_logit
                 input_2 = seg_label
 
+                tmp_loss = loss_decode(
+                    input_1,
+                    input_2,
+                    weight=seg_weight,
+                    ignore_index=self.ignore_index)
+
             if loss_decode.loss_name not in loss:
-                loss[loss_decode.loss_name] = loss_decode(
-                    input_1,
-                    input_2,
-                    weight=seg_weight,
-                    ignore_index=self.ignore_index)
+                loss[loss_decode.loss_name] = tmp_loss
             else:
-                loss[loss_decode.loss_name] += loss_decode(
-                    input_1,
-                    input_2,
-                    weight=seg_weight,
-                    ignore_index=self.ignore_index)
+                loss[loss_decode.loss_name] += tmp_loss
 
         loss['acc_seg'] = accuracy(
             seg_logit, seg_label, ignore_index=self.ignore_index)

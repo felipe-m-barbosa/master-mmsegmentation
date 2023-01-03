@@ -112,23 +112,27 @@ class EncoderDecoder(BaseSegmentor):
         seg_logits = self.decode_head.forward_test(x, img_metas, self.test_cfg)
         return seg_logits
 
-    def _auxiliary_head_forward_train(self, x, img_metas, gt_semantic_seg, s1, s2):
+    def _auxiliary_head_forward_train(self, x, img_metas, gt_semantic_seg, **kwargs):
         """Run forward function and calculate loss for auxiliary head in
         training."""
         losses = dict()
         if isinstance(self.auxiliary_head, nn.ModuleList):
             for idx, aux_head in enumerate(self.auxiliary_head):
-                loss_aux, s1_logits, s2_logits = aux_head.forward_train(x, img_metas,
+                loss_aux = aux_head.forward_train(x, img_metas,
                                                   gt_semantic_seg,
                                                   self.train_cfg,
-                                                  {'s1':s1, 's2':s2})
+                                                  {'s1':kwargs['s1'], 
+                                                    's2':kwargs['s2'], 
+                                                    'opt_flow':kwargs['opt_flow']})
                 losses.update(add_prefix(loss_aux, f'aux_{idx}'))
         else:
-            loss_aux, s1_logits, s2_logits = self.auxiliary_head.forward_train(
-                x, img_metas, gt_semantic_seg, self.train_cfg, {'s1':s1, 's2':s2})
+            loss_aux = self.auxiliary_head.forward_train(
+                x, img_metas, gt_semantic_seg, self.train_cfg, {'s1':kwargs['s1'], 
+                                                                's2':kwargs['s2'], 
+                                                                'opt_flow':kwargs['opt_flow']})
             losses.update(add_prefix(loss_aux, 'aux'))
 
-        return losses, s1_logits, s2_logits
+        return losses
 
     def forward_dummy(self, img):
         """Dummy forward function."""
@@ -162,14 +166,14 @@ class EncoderDecoder(BaseSegmentor):
         losses.update(loss_decode)
 
         if self.with_auxiliary_head:
-            loss_aux, s1_logits, s2_logits = self._auxiliary_head_forward_train(
-                x, img_metas, gt_semantic_seg, s1, s2)
+            loss_aux = self._auxiliary_head_forward_train(
+                x, img_metas, gt_semantic_seg, {'s1':s1, 's2':s2, 'opt_flow':kwargs['opt_flow']})
             losses.update(loss_aux)
 
         # ADD AUXILIARY HEAD FOR TEMPORAL CONSISTENCY
         # which is based on the outputs of the previous auxiliary head
         # (s1_logits, s2_logits)
-        
+        # ACTUALLY, NOT NEEDED ... the implementation should be done inside _auxiliary_head_forward_train
 
 
         return losses
