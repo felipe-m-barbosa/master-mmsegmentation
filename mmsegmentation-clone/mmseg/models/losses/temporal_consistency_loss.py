@@ -89,10 +89,10 @@ def temporal_miou(preds,
     non_ignore_mask = (gt_labels != ignore_index).long()
     non_ignore_mask = non_ignore_mask.unsqueeze(1)
 
-    print("aqui")
+    # print("aqui")
     # print(gt_labels.shape)
-    print('preds_shape: ', preds.shape)
-    print('targets shape: ', targets.shape)
+    # print('preds_shape: ', preds.shape)
+    # print('targets shape: ', targets.shape)
     # print(non_ignore_mask.shape)
 
     targets = targets * non_ignore_mask
@@ -161,8 +161,8 @@ class TCLoss(nn.Module):
 
         # prediction WARPING from frame at time t to frame at time t+1 (t -> t+1)
         opt_flow = kwargs['opt_flow']
-        print(preds.shape)
-        print(opt_flow.shape)
+        # print(preds.shape)
+        # print(opt_flow.shape)
         preds_to_targets, valid_mask = warp(preds, opt_flow)
 
         # COMPUTE (WEIGHTED) LOSS
