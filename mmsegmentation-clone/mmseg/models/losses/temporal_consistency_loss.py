@@ -163,9 +163,8 @@ class TCLoss(nn.Module):
             class_weight=class_weight,
             reduction=reduction,
             avg_factor=avg_factor,
-            avg_non_ignore=self.avg_non_ignore,
             ignore_index=ignore_index,
-            **kwargs)
+            avg_non_ignore=self.avg_non_ignore)
 
         return loss_cls
 
