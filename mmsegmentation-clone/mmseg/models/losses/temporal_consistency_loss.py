@@ -31,6 +31,7 @@ def warp(x, flo):
 
     if x.is_cuda:
         grid = grid.cuda()
+        flo = flo.cuda()
 
     # vgrid = Variable(grid) + flo # sums the flow field displacements over x and y
     vgrid = grid + flo # adds the flow field displacements over x and y
