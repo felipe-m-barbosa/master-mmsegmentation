@@ -54,6 +54,10 @@ def warp(x, flo):
     # this implementation only accounts for misaligned borders
     # that is, occlusions caused by regions in the image borders
     mask = torch.autograd.Variable(torch.ones(x.size()))
+
+    if x.is_cuda():
+        mask = mask.cuda()
+
     mask = torch.nn.functional.grid_sample(mask, vgrid)
     
     mask[mask<0.9999]=0
