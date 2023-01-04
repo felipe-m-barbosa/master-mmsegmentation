@@ -278,6 +278,19 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             size=seg_label.shape[2:],
             mode='bilinear',
             align_corners=self.align_corners)
+        
+        s1_logits = resize(
+            input=kwargs['s1_logits'],
+            size=seg_label.shape[2:],
+            mode='bilinear',
+            align_corners=self.align_corners)
+
+        s2_logits = resize(
+            input=kwargs['s2_logits'],
+            size=seg_label.shape[2:],
+            mode='bilinear',
+            align_corners=self.align_corners)
+
         if self.sampler is not None:
             seg_weight = self.sampler.sample(seg_logit, seg_label)
         else:
@@ -291,9 +304,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         for loss_decode in losses_decode:
             # temporal consistency loss
             if loss_decode.loss_name == 'loss_tc':
-                input_1 = kwargs['s1_logits']
+                input_1 = s1_logits
                 # input_2 = torch.argmax(kwargs['s2_logits'], dim=1)
-                input_2 = kwargs['s2_logits']
+                input_2 = s2_logits
 
                 tmp_loss = loss_decode(
                     input_1,
