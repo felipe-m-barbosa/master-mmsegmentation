@@ -163,7 +163,7 @@ class TCLoss(nn.Module):
         opt_flow = kwargs['opt_flow']
         print(preds.shape)
         print(opt_flow.shape)
-        preds_to_targets = warp(preds, opt_flow)
+        preds_to_targets, valid_mask = warp(preds, opt_flow)
 
         # COMPUTE (WEIGHTED) LOSS
         loss_cls = self.loss_weight * self.cls_criterion(preds_to_targets, 
