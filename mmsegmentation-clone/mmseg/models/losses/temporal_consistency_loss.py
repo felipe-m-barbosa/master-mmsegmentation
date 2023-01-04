@@ -90,9 +90,10 @@ def temporal_miou(preds,
     non_ignore_mask = non_ignore_mask.unsqueeze(1)
 
     print("aqui")
-    print(gt_labels.shape)
-    print(targets.shape)
-    print(non_ignore_mask.shape)
+    # print(gt_labels.shape)
+    print('preds_shape: ', preds.shape)
+    print('targets shape: ', targets.shape)
+    # print(non_ignore_mask.shape)
 
     targets = targets * non_ignore_mask
 
