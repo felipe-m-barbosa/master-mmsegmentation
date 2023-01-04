@@ -165,7 +165,10 @@ class EncoderDecoder(BaseSegmentor):
         losses = dict()
 
         loss_decode = self._decode_head_forward_train(x, img_metas,
-                                                      gt_semantic_seg)
+                                                      gt_semantic_seg,
+                                                      s1=s1, 
+                                                      s2=s2, 
+                                                      opt_flow=kwargs['opt_flow'])
         losses.update(loss_decode)
 
         if self.with_auxiliary_head:
