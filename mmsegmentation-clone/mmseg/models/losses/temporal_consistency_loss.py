@@ -147,6 +147,7 @@ class TCLoss(nn.Module):
 
         # prediction WARPING from frame at time t to frame at time t+1 (t -> t+1)
         opt_flow = kwargs['opt_flow']
+        print(opt_flow.shape)
         preds_to_targets = warp(preds, opt_flow)
 
         # COMPUTE (WEIGHTED) LOSS
