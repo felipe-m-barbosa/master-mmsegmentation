@@ -158,6 +158,9 @@ class TCLoss(nn.Module):
         else:
             class_weight = None
 
+        # apply softmax to preds and targets logits
+        preds = F.softmax(preds, dim=1)
+        targets = F.softmax(targets, dim=1)
 
         # prediction WARPING from frame at time t to frame at time t+1 (t -> t+1)
         opt_flow = kwargs['opt_flow']
