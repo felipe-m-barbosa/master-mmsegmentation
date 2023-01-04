@@ -87,6 +87,7 @@ def temporal_miou(preds,
 
 
     non_ignore_mask = (gt_labels != ignore_index).long()
+    non_ignore_mask = non_ignore_mask.unsqueeze(1)
 
     print("aqui")
     print(gt_labels.shape)
