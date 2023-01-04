@@ -236,7 +236,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             s1_logits = self(kwargs['s1'])
             s2_logits = self(kwargs['s2'])
 
-            losses = self.losses(seg_logits, gt_semantic_seg, {'s1_logits': s1_logits, 's2_logits':s2_logits, 'opt_flow':kwargs['opt_flow']})
+            losses = self.losses(seg_logits, gt_semantic_seg, s1_logits=s1_logits, s2_logits=s2_logits, opt_flow=kwargs['opt_flow'])
 
         else:
             losses = self.losses(seg_logits, gt_semantic_seg)
