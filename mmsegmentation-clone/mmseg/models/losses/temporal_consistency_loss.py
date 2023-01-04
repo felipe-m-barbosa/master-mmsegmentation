@@ -71,6 +71,7 @@ def warp(x, flo):
 
 def temporal_miou(preds, 
                   targets, 
+                  gt_labels,
                   weight=None,
                   class_weight=None,
                   reduction='mean',
@@ -85,9 +86,10 @@ def temporal_miou(preds,
     """
 
 
-    non_ignore_mask = (targets.argmax(1) != ignore_index).long()
+    non_ignore_mask = (gt_labels != ignore_index).long()
 
     print("aqui")
+    print(gt_labels.shape)
     print(targets.shape)
     print(non_ignore_mask.shape)
 
@@ -164,6 +166,7 @@ class TCLoss(nn.Module):
         # COMPUTE (WEIGHTED) LOSS
         loss_cls = self.loss_weight * self.cls_criterion(preds_to_targets, 
             targets,
+            kwargs['gt_labels'],
             weight,
             class_weight=class_weight,
             reduction=reduction,

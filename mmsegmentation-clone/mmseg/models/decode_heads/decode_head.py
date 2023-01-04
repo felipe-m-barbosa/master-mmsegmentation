@@ -313,7 +313,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                     input_2,
                     weight=seg_weight,
                     ignore_index=self.ignore_index,
-                    opt_flow = kwargs['opt_flow'])
+                    opt_flow = kwargs['opt_flow'],
+                    gt_labels=seg_label)
             else:
                 input_1 = seg_logit
                 input_2 = seg_label
