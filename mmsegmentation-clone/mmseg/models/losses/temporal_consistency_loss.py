@@ -86,6 +86,11 @@ def temporal_miou(preds,
 
 
     non_ignore_mask = (targets.argmax(1) != ignore_index).long()
+
+    print("aqui")
+    print(targets.shape)
+    print(non_ignore_mask.shape)
+
     targets = targets * non_ignore_mask
 
     # TENTAR IMPLEMENTAR COMO DICE LOSS
