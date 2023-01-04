@@ -104,7 +104,7 @@ def temporal_miou(preds,
     den = torch.sum(torch.abs(preds + targets - (preds * targets)), dim=(2,3))
 
     num_classes = targets.shape[1]
-    print(num_classes)
+    # print(num_classes)
     miou = torch.sum((num/den), dim=1)/num_classes
 
     # miou = torch.sum((num/den))/num_classes
