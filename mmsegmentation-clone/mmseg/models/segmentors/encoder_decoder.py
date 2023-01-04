@@ -121,15 +121,15 @@ class EncoderDecoder(BaseSegmentor):
                 loss_aux = aux_head.forward_train(x, img_metas,
                                                   gt_semantic_seg,
                                                   self.train_cfg,
-                                                  {'s1':kwargs['s1'], 
-                                                    's2':kwargs['s2'], 
-                                                    'opt_flow':kwargs['opt_flow']})
+                                                  s1=kwargs['s1'], 
+                                                  s2=kwargs['s2'], 
+                                                  opt_flow=kwargs['opt_flow'])
                 losses.update(add_prefix(loss_aux, f'aux_{idx}'))
         else:
             loss_aux = self.auxiliary_head.forward_train(
-                x, img_metas, gt_semantic_seg, self.train_cfg, {'s1':kwargs['s1'], 
-                                                                's2':kwargs['s2'], 
-                                                                'opt_flow':kwargs['opt_flow']})
+                x, img_metas, gt_semantic_seg, self.train_cfg, s1=kwargs['s1'], 
+                                                               s2=kwargs['s2'], 
+                                                               opt_flow=kwargs['opt_flow'])
             losses.update(add_prefix(loss_aux, 'aux'))
 
         return losses
