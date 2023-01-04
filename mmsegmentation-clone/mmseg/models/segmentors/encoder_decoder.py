@@ -167,7 +167,7 @@ class EncoderDecoder(BaseSegmentor):
 
         if self.with_auxiliary_head:
             loss_aux = self._auxiliary_head_forward_train(
-                x, img_metas, gt_semantic_seg, {'s1':s1, 's2':s2, 'opt_flow':kwargs['opt_flow']})
+                x, img_metas, gt_semantic_seg, s1=s1, s2=s2, opt_flow=kwargs['opt_flow'])
             losses.update(loss_aux)
 
         # ADD AUXILIARY HEAD FOR TEMPORAL CONSISTENCY
