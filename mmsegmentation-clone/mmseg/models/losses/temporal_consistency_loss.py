@@ -103,12 +103,14 @@ def temporal_miou(preds,
     num = torch.sum(torch.abs(preds * targets), dim=(2,3))
     den = torch.sum(torch.abs(preds + targets - (preds * targets)), dim=(2,3))
 
-    # miou2 = torch.sum((num/den), dim=1)/num_classes
+    num_classes = targets.shape[1]
+    print(num_classes)
+    miou = torch.sum((num/den), dim=1)/num_classes
 
     # miou = torch.sum((num/den))/num_classes
     # miou = miou / batch_size
 
-    miou = torch.sum((num/den))
+    # miou = torch.sum((num/den))
     loss = 1-miou
 
     if weight is not None:
