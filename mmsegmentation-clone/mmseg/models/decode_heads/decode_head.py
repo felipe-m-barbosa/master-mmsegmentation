@@ -335,9 +335,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         loss['acc_seg'] = accuracy(
             seg_logit, seg_label, ignore_index=self.ignore_index)
 
-        jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes, ignore_index=255)
+        jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes, ignore_index=255).to('cuda')
         # seg_logit = F.softmax(seg_logit, dim=1)
         # print(seg_logit.shape)
-        loss['miou'] = jaccard(seg_logit, seg_label.cuda())
+        loss['miou'] = jaccard(seg_logit, seg_label)
 
         return loss
