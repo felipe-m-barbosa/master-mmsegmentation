@@ -11,6 +11,7 @@ from mmseg.ops import resize
 from ..builder import build_loss
 from ..losses import accuracy
 from torchmetrics import JaccardIndex
+import torch.nn.functional as F
 
 
 class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
@@ -335,6 +336,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             seg_logit, seg_label, ignore_index=self.ignore_index)
 
         jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes)
+        seg_logit = F.softmax(seg_logit, dim=1)
         loss['miou'] = jaccard(seg_logit, seg_label)
 
         return loss
