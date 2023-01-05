@@ -10,6 +10,7 @@ from mmseg.core import build_pixel_sampler
 from mmseg.ops import resize
 from ..builder import build_loss
 from ..losses import accuracy
+from torchmetrics import JaccardIndex
 
 
 class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
@@ -332,4 +333,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
 
         loss['acc_seg'] = accuracy(
             seg_logit, seg_label, ignore_index=self.ignore_index)
+
+        jaccard = JaccardIndex(num_classes=self.num_classes)
+        loss['miou'] = jaccard(seg_logit, seg_label)
+        
         return loss
