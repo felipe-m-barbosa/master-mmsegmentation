@@ -337,6 +337,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
 
         jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes)
         seg_logit = F.softmax(seg_logit, dim=1)
+        print(torch.unique(seg_label))
         loss['miou'] = jaccard(seg_logit, seg_label)
 
         return loss
