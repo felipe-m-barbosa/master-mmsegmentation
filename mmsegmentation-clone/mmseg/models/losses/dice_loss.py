@@ -9,6 +9,66 @@ from ..builder import LOSSES
 from .utils import get_class_weight, weighted_loss
 
 
+def warp(x, flo):
+    """
+    Args:
+        x: the input prediction, to be warped using the optical flow
+        flo: optical flow field, with shape (B, H, W, C)
+            C accounts for the number of channels, 
+              which correspond to the pixel displacements in x and y directions
+    """
+
+    B,C,H,W = x.size()
+
+    xx = torch.arange(0,W).view(1,-1).repeat(H,1) # H lines, each with W elements (int)
+    yy = torch.arange(0,H).view(-1,1).repeat(1,W) # W columns, each with H elements (int)
+     
+    xx = xx.view(1,H,W,1).repeat(B,1,1,1) # change shape and repeat over the batch dimension
+    yy = yy.view(1,H,W,1).repeat(B,1,1,1) # change shape and repeat over the batch dimension
+
+    grid = torch.cat((xx,yy),3).float() # concatenates the given sequence of seq tensors in the given dimension
+    # grid.shape: (B,H,W,2), where 2 corresponds to [x_idx, y_idx]
+
+    if x.is_cuda:
+        grid = grid.cuda()
+        flo = flo.cuda()
+
+    # vgrid = Variable(grid) + flo # sums the flow field displacements over x and y
+    vgrid = grid + flo # adds the flow field displacements over x and y
+
+    ## scale grid to [-1,1]
+    vgrid[:,:,:,0] = 2.0*vgrid[:,:,:,0].clone()/max(W-1,1)-1.0 # x
+    vgrid[:,:,:,1] = 2.0*vgrid[:,:,:,1].clone()/max(H-1,1)-1.0 # y
+     
+    #  x = x.permute(0,3,1,2)
+    x = x.type(torch.float32)
+
+    #  print(f"Img type: {x.dtype}")
+    #  print(f"Grid type: {vgrid.dtype}")
+
+    # WARPING
+    output = torch.nn.functional.grid_sample(x, vgrid)
+    
+    # VALIDITY MASK
+
+    # this implementation only accounts for misaligned borders
+    # that is, occlusions caused by regions in the image borders
+    mask = torch.autograd.Variable(torch.ones(x.size()))
+
+    if x.is_cuda:
+        mask = mask.cuda()
+
+    mask = torch.nn.functional.grid_sample(mask, vgrid)
+    
+    mask[mask<0.9999]=0
+    mask[mask>0]=1
+    
+    output = output*mask
+    output = output.type(torch.float32)
+
+    return output, mask
+
+
 @weighted_loss
 def dice_loss(pred,
               target,
@@ -103,7 +163,17 @@ class DiceLoss(nn.Module):
         else:
             class_weight = None
 
+        # warp prediction from t to t+1 (used in tc_loss)
+        if 'tc' in self._loss_name:
+            opt_flow = kwargs['opt_flow']
+            pred, _ = warp(pred, opt_flow)
+
         pred = F.softmax(pred, dim=1)
+        target = F.softmax(target, dim=1)
+
+        if 'tc' in self._loss_name:
+            target = torch.argmax(target, dim=1)
+        
         num_classes = pred.shape[1]
         one_hot_target = F.one_hot(
             torch.clamp(target.long(), 0, num_classes - 1),
