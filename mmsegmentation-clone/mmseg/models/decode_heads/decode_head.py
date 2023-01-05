@@ -338,6 +338,6 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes, ignore_index=255)
         # seg_logit = F.softmax(seg_logit, dim=1)
         # print(seg_logit.shape)
-        loss['miou'] = jaccard(seg_logit, seg_label)
+        loss['miou'] = jaccard(seg_logit, seg_label.cuda())
 
         return loss
