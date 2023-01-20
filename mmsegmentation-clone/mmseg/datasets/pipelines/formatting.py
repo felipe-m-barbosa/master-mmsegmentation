@@ -287,3 +287,66 @@ class Collect(object):
     def __repr__(self):
         return self.__class__.__name__ + \
                f'(keys={self.keys}, meta_keys={self.meta_keys})'
+
+
+
+# CUSTOM PIPELINES
+@PIPELINES.register_module()
+class newDefaultFormatBundle(object):
+    """Default formatting bundle.
+    It simplifies the pipeline of formatting common fields, including "img"
+    and "gt_semantic_seg". These fields are formatted as follows.
+    - img: (1)transpose, (2)to tensor, (3)to DataContainer (stack=True)
+    - gt_semantic_seg: (1)unsqueeze dim-0 (2)to tensor,
+                       (3)to DataContainer (stack=True)
+    """
+
+    def __call__(self, results):
+        """Call function to transform and format common fields in results.
+        Args:
+            results (dict): Result dict contains the data to convert.
+        Returns:
+            dict: The result dict contains the data that is formatted with
+                default bundle.
+        """
+
+        if 'img' in results:
+            img = results['img']
+            if len(img.shape) < 3:
+                img = np.expand_dims(img, -1)
+            img = np.ascontiguousarray(img.transpose(2, 0, 1))
+            results['img'] = DC(to_tensor(img), stack=True)
+        
+        if 's1_img' in results:
+            s1_img = results['s1_img']
+            if len(s1_img.shape) < 3:
+                  s1_img = np.expand_dims(s1_img, -1)
+            s1_img = np.ascontiguousarray(s1_img.transpose(2, 0, 1))
+            results['s1_img'] = DC(to_tensor(s1_img), stack=True)
+        
+        if 's2_img' in results:
+            s2_img = results['s2_img']
+            if len(s2_img.shape) < 3:
+                  s2_img = np.expand_dims(s2_img, -1)
+            s2_img = np.ascontiguousarray(s2_img.transpose(2, 0, 1))
+            results['s2_img'] = DC(to_tensor(s2_img), stack=True)
+        
+        if 'optflow' in results:
+            optflow_img = results['optflow']
+            if len(optflow_img.shape) < 3:
+                  optflow_img = np.expand_dims(optflow_img, -1)
+            # optflow_img = np.ascontiguousarray(optflow_img.transpose(2, 0, 1))
+            optflow_img = np.ascontiguousarray(optflow_img) # optical flow preserves channels in the last dimension
+            results['opt_flow'] = DC(to_tensor(optflow_img), stack=True)
+
+
+        if 'gt_semantic_seg' in results:
+            # convert to long
+            results['gt_semantic_seg'] = DC(
+                to_tensor(results['gt_semantic_seg'][None,
+                                                     ...].astype(np.int64)),
+                stack=True)
+        return results
+
+    def __repr__(self):
+        return self.__class__.__name__
