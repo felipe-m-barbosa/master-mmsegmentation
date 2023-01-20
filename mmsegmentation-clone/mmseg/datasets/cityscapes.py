@@ -7,6 +7,7 @@ from mmcv.utils import print_log
 from mmseg.utils import get_root_logger
 from PIL import Image
 import random
+import os
 
 from .builder import DATASETS
 from .custom import CustomDataset, newCustomDataset
