@@ -116,6 +116,7 @@ data
 work_dirs/
 mmseg/.mim
 checkpoints/
+datasets/
 
 # Pytorch
 *.pth
