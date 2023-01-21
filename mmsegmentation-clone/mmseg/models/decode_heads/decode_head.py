@@ -282,6 +282,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             mode='bilinear',
             align_corners=self.align_corners)
         
+        print('Seg logit shape: ', seg_logit.shape)
+
         s1_logits = resize(
             input=kwargs['s1_logits'],
             size=seg_label.shape[2:],
