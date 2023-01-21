@@ -99,12 +99,18 @@ class EncoderDecoder(BaseSegmentor):
         """Run forward function and calculate loss for decode head in
         training."""
         losses = dict()
-        loss_decode = self.decode_head.forward_train(x, img_metas,
-                                                     gt_semantic_seg,
-                                                     self.train_cfg,
-                                                     s1=kwargs['s1'], 
-                                                     s2=kwargs['s2'], 
-                                                     opt_flow=kwargs['opt_flow'])
+
+        if 's1' in kwargs:
+            loss_decode = self.decode_head.forward_train(x, img_metas,
+                                                        gt_semantic_seg,
+                                                        self.train_cfg,
+                                                        s1=kwargs['s1'], 
+                                                        s2=kwargs['s2'], 
+                                                        opt_flow=kwargs['opt_flow'])
+        else:
+            loss_decode = self.decode_head.forward_train(x, img_metas,
+                                                        gt_semantic_seg,
+                                                        self.train_cfg)
 
         losses.update(add_prefix(loss_decode, 'decode'))
         return losses
@@ -121,18 +127,29 @@ class EncoderDecoder(BaseSegmentor):
         losses = dict()
         if isinstance(self.auxiliary_head, nn.ModuleList):
             for idx, aux_head in enumerate(self.auxiliary_head):
-                loss_aux = aux_head.forward_train(x, img_metas,
-                                                  gt_semantic_seg,
-                                                  self.train_cfg,
-                                                  s1=kwargs['s1'], 
-                                                  s2=kwargs['s2'], 
-                                                  opt_flow=kwargs['opt_flow'])
+                if 's1' in kwargs:
+                    loss_aux = aux_head.forward_train(x, img_metas,
+                                                    gt_semantic_seg,
+                                                    self.train_cfg,
+                                                    s1=kwargs['s1'], 
+                                                    s2=kwargs['s2'], 
+                                                    opt_flow=kwargs['opt_flow'])
+                else:
+                    loss_aux = aux_head.forward_train(x, img_metas,
+                                                    gt_semantic_seg,
+                                                    self.train_cfg)
+
                 losses.update(add_prefix(loss_aux, f'aux_{idx}'))
         else:
-            loss_aux = self.auxiliary_head.forward_train(
-                x, img_metas, gt_semantic_seg, self.train_cfg, s1=kwargs['s1'], 
-                                                               s2=kwargs['s2'], 
-                                                               opt_flow=kwargs['opt_flow'])
+            if 's1' in kwargs:
+                loss_aux = self.auxiliary_head.forward_train(
+                    x, img_metas, gt_semantic_seg, self.train_cfg, s1=kwargs['s1'], 
+                                                                s2=kwargs['s2'], 
+                                                                opt_flow=kwargs['opt_flow'])
+            else:
+                loss_aux = self.auxiliary_head.forward_train(
+                    x, img_metas, gt_semantic_seg, self.train_cfg)
+
             losses.update(add_prefix(loss_aux, 'aux'))
 
         return losses
@@ -160,20 +177,30 @@ class EncoderDecoder(BaseSegmentor):
             dict[str, Tensor]: a dictionary of loss components
         """
 
-        x, s1, s2 = self.extract_feat_seq(img, s1_img=kwargs['s1_img'], s2_img=kwargs['s2_img'])
-
         losses = dict()
 
-        loss_decode = self._decode_head_forward_train(x, img_metas,
+        if 's1_img' in kwargs:
+            x, s1, s2 = self.extract_feat_seq(img, s1_img=kwargs['s1_img'], s2_img=kwargs['s2_img'])
+
+            loss_decode = self._decode_head_forward_train(x, img_metas,
                                                       gt_semantic_seg,
                                                       s1=s1, 
                                                       s2=s2, 
                                                       opt_flow=kwargs['opt_flow'])
+        else:
+            loss_decode = self._decode_head_forward_train(x, img_metas,
+                                                      gt_semantic_seg)
+
         losses.update(loss_decode)
 
         if self.with_auxiliary_head:
-            loss_aux = self._auxiliary_head_forward_train(
-                x, img_metas, gt_semantic_seg, s1=s1, s2=s2, opt_flow=kwargs['opt_flow'])
+            if 's1_img' in kwargs:
+                loss_aux = self._auxiliary_head_forward_train(
+                    x, img_metas, gt_semantic_seg, s1=s1, s2=s2, opt_flow=kwargs['opt_flow'])
+            else:
+                loss_aux = self._auxiliary_head_forward_train(
+                    x, img_metas, gt_semantic_seg)
+
             losses.update(loss_aux)
 
         # ADD AUXILIARY HEAD FOR TEMPORAL CONSISTENCY
