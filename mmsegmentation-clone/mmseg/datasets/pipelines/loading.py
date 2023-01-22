@@ -133,6 +133,9 @@ class LoadAnnotations(object):
         gt_semantic_seg = mmcv.imfrombytes(
             img_bytes, flag='unchanged',
             backend=self.imdecode_backend).squeeze().astype(np.uint8)
+        
+        gt_semantic_seg = gt_semantic_seg[:,:,0] # isolate red channel (it could be any channel)
+        
         # modify if custom classes
         if results.get('label_map', None) is not None:
             # Add deep copy to solve bug of repeatedly

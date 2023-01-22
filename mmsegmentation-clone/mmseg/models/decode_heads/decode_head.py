@@ -279,7 +279,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         # print('Seg label shape: ', seg_label.shape)
         seg_logit = resize(
             input=seg_logit,
-            size=seg_label.shape[2:4],
+            size=seg_label.shape[2:],
             mode='bilinear',
             align_corners=self.align_corners)
         
@@ -288,14 +288,14 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         if 's1_logits' in kwargs:
             s1_logits = resize(
                 input=kwargs['s1_logits'],
-                size=seg_label.shape[2:4],
+                size=seg_label.shape[2:],
                 mode='bilinear',
                 align_corners=self.align_corners)
 
         if 's2_logits' in kwargs:
             s2_logits = resize(
                 input=kwargs['s2_logits'],
-                size=seg_label.shape[2:4],
+                size=seg_label.shape[2:],
                 mode='bilinear',
                 align_corners=self.align_corners)
 
