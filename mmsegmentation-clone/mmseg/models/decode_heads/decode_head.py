@@ -279,23 +279,25 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         # print('Seg label shape: ', seg_label.shape)
         seg_logit = resize(
             input=seg_logit,
-            size=seg_label.shape[2:],
+            size=seg_label.shape[2:4],
             mode='bilinear',
             align_corners=self.align_corners)
         
         # print('Seg logit shape: ', seg_logit.shape)
 
-        s1_logits = resize(
-            input=kwargs['s1_logits'],
-            size=seg_label.shape[2:],
-            mode='bilinear',
-            align_corners=self.align_corners)
+        if 's1_logits' in kwargs:
+            s1_logits = resize(
+                input=kwargs['s1_logits'],
+                size=seg_label.shape[2:4],
+                mode='bilinear',
+                align_corners=self.align_corners)
 
-        s2_logits = resize(
-            input=kwargs['s2_logits'],
-            size=seg_label.shape[2:4],
-            mode='bilinear',
-            align_corners=self.align_corners)
+        if 's2_logits' in kwargs:
+            s2_logits = resize(
+                input=kwargs['s2_logits'],
+                size=seg_label.shape[2:4],
+                mode='bilinear',
+                align_corners=self.align_corners)
 
         if self.sampler is not None:
             seg_weight = self.sampler.sample(seg_logit, seg_label)
