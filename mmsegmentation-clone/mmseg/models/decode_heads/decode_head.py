@@ -293,7 +293,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
 
         s2_logits = resize(
             input=kwargs['s2_logits'],
-            size=seg_label.shape[2:],
+            size=seg_label.shape[2:4],
             mode='bilinear',
             align_corners=self.align_corners)
 
