@@ -134,8 +134,15 @@ class LoadAnnotations(object):
             img_bytes, flag='unchanged',
             backend=self.imdecode_backend).squeeze().astype(np.uint8)
         
-        gt_semantic_seg = gt_semantic_seg[:,:,0] # isolate red channel (it could be any channel)
-        
+        # convert label ids to trainIds
+        lbl_ids = gt_semantic_seg[:,:,0] # isolate red channel (it could be any channel)
+
+        train_ids = np.zeros_like(lbl_ids)
+        for lbl_id, label in CSLabels.id2label.items():
+          train_ids[lbl_ids==lbl_id] = label.trainId
+
+        gt_semantic_seg = train_ids
+
         # modify if custom classes
         if results.get('label_map', None) is not None:
             # Add deep copy to solve bug of repeatedly
