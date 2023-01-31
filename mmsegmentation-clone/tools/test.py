@@ -284,12 +284,13 @@ def main():
             args.opacity,
             pre_eval=pre_eval,
             format_only=args.format_only or eval_on_format_results,
-            format_args=eval_kwargs) # after modifications, the method returns a dict -> we need to change it back to a list
+            format_args=eval_kwargs) # returns either a dict {seg_preds, img_names, optflows} or a list of results
 
-        optflow_list = results['optflows']
-        names_list = results['img_names']
+        if isinstance(results, dict):
+            optflow_list = results['optflows']
+            names_list = results['img_names']
+            results = results['seg_preds']
 
-        results = results['seg_preds']
     else:
         model = build_ddp(
             model,
