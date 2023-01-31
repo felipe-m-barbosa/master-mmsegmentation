@@ -9,6 +9,8 @@ from .. import builder
 from ..builder import SEGMENTORS
 from .base import BaseSegmentor
 
+import time
+
 
 @SEGMENTORS.register_module()
 class EncoderDecoder(BaseSegmentor):
@@ -63,6 +65,7 @@ class EncoderDecoder(BaseSegmentor):
 
     def extract_feat(self, img):
         """Extract features from images."""
+
         x = self.backbone(img)
         if self.with_neck:
             x = self.neck(x)
@@ -88,6 +91,7 @@ class EncoderDecoder(BaseSegmentor):
         map of the same size as input."""
         x = self.extract_feat(img)
         out = self._decode_head_forward_test(x, img_metas)
+
         out = resize(
             input=out,
             size=img.shape[2:],
@@ -274,6 +278,14 @@ class EncoderDecoder(BaseSegmentor):
                 resize_shape = img_meta[0]['img_shape'][:2]
                 seg_logit = seg_logit[:, :, :resize_shape[0], :resize_shape[1]]
                 size = img_meta[0]['ori_shape'][:2]
+
+            # print("\n\n\n")
+            # print(f"Seg_logit shape: {seg_logit.shape}")
+            # print(f"Size to rescale to: {size}")
+            # print("\n\n\n")
+
+            # time.sleep(50)
+
             seg_logit = resize(
                 seg_logit,
                 size=size,
@@ -321,7 +333,7 @@ class EncoderDecoder(BaseSegmentor):
 
         return output
 
-    def simple_test(self, img, img_meta, rescale=True):
+    def simple_test(self, img, img_meta, rescale=True, **kwargs):
         """Simple test with single image."""
         seg_logit = self.inference(img, img_meta, rescale)
         if self.out_channels == 1:
@@ -336,6 +348,7 @@ class EncoderDecoder(BaseSegmentor):
         seg_pred = seg_pred.cpu().numpy()
         # unravel batch dim
         seg_pred = list(seg_pred)
+
         return seg_pred
 
     def simple_test_logits(self, img, img_metas, rescale=True):
@@ -347,7 +360,7 @@ class EncoderDecoder(BaseSegmentor):
         seg_logit = seg_logit.cpu().numpy()
         return seg_logit
 
-    def aug_test(self, imgs, img_metas, rescale=True):
+    def aug_test(self, imgs, img_metas, rescale=True, **kwargs):
         """Test with augmentations.
 
         Only rescale=True is supported.

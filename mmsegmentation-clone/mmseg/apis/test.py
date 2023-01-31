@@ -10,6 +10,7 @@ from mmcv.engine import collect_results_cpu, collect_results_gpu
 from mmcv.image import tensor2imgs
 from mmcv.runner import get_dist_info
 
+import time
 
 def np2tmp(array, temp_file_name=None, tmpdir=None):
     """Save ndarray to local numpy file.
@@ -86,9 +87,22 @@ def single_gpu_test(model,
     # we use batch_sampler to get correct data idx
     loader_indices = data_loader.batch_sampler
 
+    img_names = []
+    img_optflows = []
+
     for batch_indices, data in zip(loader_indices, data_loader):
         with torch.no_grad():
+            # print(data)
+            # time.sleep(50)
+            # print(data['optflow'][0].shape)
+            # time.sleep(50)
             result = model(return_loss=False, **data)
+
+        img_name = data['img_metas'][0].data[0][0]['filename']
+        img_optflow = data['optflow'][0]
+
+        img_names.append(img_name)
+        img_optflows.append(img_optflow)
 
         if show or out_dir:
             img_tensor = data['img'][0]
@@ -134,7 +148,8 @@ def single_gpu_test(model,
         for _ in range(batch_size):
             prog_bar.update()
 
-    return results
+
+    return {'seg_preds': results, 'img_names': img_names, 'optflows': img_optflows}
 
 
 def multi_gpu_test(model,

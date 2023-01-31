@@ -63,7 +63,7 @@ class ToTensor(object):
     def __repr__(self):
         return self.__class__.__name__ + f'(keys={self.keys})'
 
-
+# TODO: define newImageToTensor class, in order to keep the original ImageToTensor unchanged
 @PIPELINES.register_module()
 class ImageToTensor(object):
     """Convert image to :obj:`torch.Tensor` by given keys.
@@ -93,9 +93,18 @@ class ImageToTensor(object):
 
         for key in self.keys:
             img = results[key]
-            if len(img.shape) < 3:
-                img = np.expand_dims(img, -1)
-            results[key] = to_tensor(img.transpose(2, 0, 1))
+            if img is not None:
+                img_tmp = img
+                if len(img.shape) < 3:
+                    img = np.expand_dims(img, -1)
+                
+                if key == 'optflow':
+                    results[key] = to_tensor(img) # optical flow preserves channels in the last dimension
+                else:
+                    results[key] = to_tensor(img.transpose(2, 0, 1))
+            else:
+                results[key] = torch.zeros_like(torch.from_numpy(img_tmp))
+
         return results
 
     def __repr__(self):
@@ -337,7 +346,7 @@ class newDefaultFormatBundle(object):
                   optflow_img = np.expand_dims(optflow_img, -1)
             # optflow_img = np.ascontiguousarray(optflow_img.transpose(2, 0, 1))
             optflow_img = np.ascontiguousarray(optflow_img) # optical flow preserves channels in the last dimension
-            results['opt_flow'] = DC(to_tensor(optflow_img), stack=True)
+            results['opt_flow'] = DC(to_tensor(optflow_img), stack=True) # here, we adopt 'opt_flow' instead of 'optflow'
 
 
         if 'gt_semantic_seg' in results:

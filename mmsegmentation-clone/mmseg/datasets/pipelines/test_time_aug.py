@@ -6,6 +6,7 @@ import mmcv
 from ..builder import PIPELINES
 from .compose import Compose
 
+import time
 
 @PIPELINES.register_module()
 class MultiScaleFlipAug(object):
@@ -109,6 +110,7 @@ class MultiScaleFlipAug(object):
            dict[str: list]: The augmented data, where each value is wrapped
                into a list.
         """
+       
 
         aug_data = []
         if self.img_scale is None and mmcv.is_list_of(self.img_ratios, float):
@@ -125,6 +127,8 @@ class MultiScaleFlipAug(object):
                     _results['scale'] = scale
                     _results['flip'] = flip
                     _results['flip_direction'] = direction
+                    
+                    
                     data = self.transforms(_results)
                     aug_data.append(data)
         # list of dict to dict of list

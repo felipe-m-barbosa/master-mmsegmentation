@@ -116,6 +116,8 @@ data
 work_dirs/
 mmseg/.mim
 checkpoints/
+manually_eval*
+eval_pspnet_pt_*
 datasets/
 
 # Pytorch

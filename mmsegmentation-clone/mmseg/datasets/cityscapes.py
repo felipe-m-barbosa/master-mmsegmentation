@@ -4,6 +4,7 @@ import os.path as osp
 import mmcv
 import numpy as np
 from mmcv.utils import print_log
+from mmseg.core import eval_metrics, intersect_and_union, pre_eval_to_metrics
 from mmseg.utils import get_root_logger
 from PIL import Image
 import random
@@ -13,7 +14,10 @@ from .builder import DATASETS
 from .custom import CustomDataset, newCustomDataset
 from .pipelines import newLoadAnnotations
 
+from collections import OrderedDict
+from prettytable import PrettyTable
 
+import time
 
 @DATASETS.register_module()
 class CityscapesDataset(CustomDataset):
@@ -219,7 +223,7 @@ class CityscapesDataset(CustomDataset):
         return eval_results
 
 
-@DATASETS.register_module()
+@DATASETS.register_module(name='newCityscapesDataset')
 class newCityscapesDataset(newCustomDataset):
     """Cityscapes dataset.
     The ``img_suffix`` is fixed to '_leftImg8bit.png' and ``seg_map_suffix`` is
@@ -416,33 +420,34 @@ class newCityscapesDataset(newCustomDataset):
 from mmseg.core.evaluation import get_palette
 
 
-@DATASETS.register_module()
+@DATASETS.register_module(name='newCityscapesDataset1')
 class newCityscapesDataset1(newCityscapesDataset):
-  CLASSES = ('road', 'sidewalk', 'building', 'wall', 'fence', 'pole',
-               'traffic light', 'traffic sign', 'vegetation', 'terrain', 'sky',
-               'person', 'rider', 'car', 'truck', 'bus', 'train', 'motorcycle',
-               'bicycle')
-  PALETTE = get_palette('cityscapes')
+    CLASSES = ('road', 'sidewalk', 'building', 'wall', 'fence', 'pole',
+                'traffic light', 'traffic sign', 'vegetation', 'terrain', 'sky',
+                'person', 'rider', 'car', 'truck', 'bus', 'train', 'motorcycle',
+                'bicycle')
+    PALETTE = get_palette('cityscapes')
 
-  def __init__(self, img_suffix='.png', seg_map_suffix='.png', **kwargs):
-    super().__init__(img_suffix=img_suffix, seg_map_suffix=seg_map_suffix, **kwargs)
-    assert osp.exists(self.img_dir) and self.split is not None
+    def __init__(self, img_suffix='.png', seg_map_suffix='.png', **kwargs):
+        super(newCityscapesDataset1, self).__init__(img_suffix=img_suffix, seg_map_suffix=seg_map_suffix, **kwargs)
+        assert osp.exists(self.img_dir) #and self.split is not None
 
-    self.gt_seg_map_loader = newLoadAnnotations()
-    self.seqs_list = [] # stores the filenames of images inside the sequences folder
-    self.seq_dir = kwargs['seq_dir'] # comes from kwargs (I think)
-    self.optflow_dir = kwargs['optflow_dir'] # comes from kwargs (I think)
+        self.gt_seg_map_loader = newLoadAnnotations()
+        self.seqs_list = [] # stores the filenames of images inside the sequences folder
+        self.seq_dir = kwargs.get('seq_dir', None) # comes from kwargs (I think)
+        self.optflow_dir = kwargs.get('optflow_dir', None) # comes from kwargs (I think)
+        self.tc_eval = kwargs.get('tc_eval', False) # when tc_eval=True, opt_flow refers directly to images in img_dir
 
 
-    # load annotations
-    self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
+        # load annotations
+        self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
                                             self.ann_dir,
-                                            self.seg_map_suffix, self.seq_dir, self.optflow_dir, self.split)
+                                            self.seg_map_suffix, self.seq_dir, self.optflow_dir, self.split, self.tc_eval)
   
 
 
-  # here, we only set the filenames
-  def load_annotations(self, img_dir, img_suffix, ann_dir, seg_map_suffix, seq_dir, optflow_dir, split):
+    # here, we only set the filenames
+    def load_annotations(self, img_dir, img_suffix, ann_dir, seg_map_suffix, seq_dir, optflow_dir, split, tc_eval=False):
         """Load annotation from directory.
         Args:
             img_dir (str): Path to image directory
@@ -471,20 +476,22 @@ class newCityscapesDataset1(newCityscapesDataset):
                 
 
                 if seq_dir is not None:
-                  self.seqs_list = sorted(os.listdir(seq_dir))
-                  idx = random.randint(0,len(self.seqs_list)-2)
-                  # sequences information
-                  img_info['s1'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx]))
-                  img_info['s2'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx+1]))
-                
-                  if optflow_dir is not None:
-                    self.optflow_list = sorted(os.listdir(optflow_dir))
-                    img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
-                    # hence, we select the optical flow corresponding to frame t (in this case, idx)
+                    self.seqs_list = sorted(os.listdir(seq_dir))
+                    idx = random.randint(0,len(self.seqs_list)-2)
+                    # sequences information
+                    img_info['s1'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx]))
+                    img_info['s2'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx+1]))
+                    
+                    if optflow_dir is not None:
+                        self.optflow_list = sorted(os.listdir(optflow_dir))
+                        img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
+                        # hence, we select the optical flow corresponding to frame t (in this case, idx)
 
                 img_infos.append(img_info)
 
         else: #TO DO (DOING ... DONE)
+            filenames = sorted(os.listdir(img_dir))
+
             for img in self.file_client.list_dir_or_file(
                     dir_path=img_dir,
                     list_dir=False,
@@ -496,17 +503,25 @@ class newCityscapesDataset1(newCityscapesDataset):
                     seg_map = img.replace('leftImg8bit', 'gtFine_labelIds')
                     img_info['ann'] = dict(seg_map=seg_map)
                 
-                if seq_dir is not None:
-                  self.seqs_list = sorted(os.listdir(seq_dir))
-                  idx = random.randint(0,len(self.seqs_list)-2)
-                  # sequences information
-                  img_info['s1'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx]))
-                  img_info['s2'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx+1]))
-                
-                  if optflow_dir is not None:
-                    self.optflow_list = sorted(os.listdir(optflow_dir))
-                    img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
-                    # hence, we select the optical flow corresponding to frame t (in this case, idx)
+                if tc_eval: # in tc_eval, we evaluate the overall temporal consistency of the input sequence
+                    idx = filenames.index(img) # find index corresponding to current image name
+                    if idx < len(filenames)-1:
+                        # img_info['optflow'] = img.replace('leftImg8bit.png', 'opt_flow.flo')
+                        img_info['optflow'] = dict(filename=osp.join(optflow_dir, img.replace('leftImg8bit.png', 'opt_flow.flo')))
+                    else: # the last image in the sequence doesn't have a neighboring frame, neither optical flow associated with it
+                        img_info['optflow'] = None
+                else:
+                    if seq_dir is not None:
+                        self.seqs_list = sorted(os.listdir(seq_dir))
+                        idx = random.randint(0,len(self.seqs_list)-2)
+                        # sequences information
+                        img_info['s1'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx]))
+                        img_info['s2'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx+1]))
+                        
+                        if optflow_dir is not None:
+                            self.optflow_list = sorted(os.listdir(optflow_dir))
+                            img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
+                            # hence, we select the optical flow corresponding to frame t (in this case, idx)
 
                 img_infos.append(img_info)
 
@@ -514,3 +529,112 @@ class newCityscapesDataset1(newCityscapesDataset):
 
         print_log(f'Loaded {len(img_infos)} images', logger=get_root_logger())
         return img_infos
+
+    def evaluate(self,
+                results,
+                metric='mIoU',
+                logger=None,
+                gt_seg_maps=None,
+                **kwargs):
+        """Evaluate the dataset.
+        Args:
+            results (list[tuple[torch.Tensor]] | list[str]): per image pre_eval
+                results or predict segmentation map for computing evaluation
+                metric.
+            metric (str | list[str]): Metrics to be evaluated. 'mIoU',
+                'mDice' and 'mFscore' are supported.
+            logger (logging.Logger | None | str): Logger used for printing
+                related information during evaluation. Default: None.
+            gt_seg_maps (generator[ndarray]): Custom gt seg maps as input,
+                used in ConcatDataset
+        Returns:
+            dict[str, float]: Default metrics.
+        """
+        if isinstance(metric, str):
+            metric = [metric]
+        allowed_metrics = ['mIoU', 'mDice', 'mFscore', 'TC(mDice)', 'TC(mIoU)']
+        if not set(metric).issubset(set(allowed_metrics)):
+            raise KeyError('metric {} is not supported'.format(metric))
+
+
+        optflows = kwargs.get('optflows', None)
+        names = kwargs.get('names', None)
+
+        eval_results = {}
+        # test a list of files
+        if mmcv.is_list_of(results, np.ndarray) or mmcv.is_list_of(
+                results, str):
+            
+            if len(set(metric).intersection({'mIoU','mDice','mFscore'})) > 0:
+                if gt_seg_maps is None:
+                    gt_seg_maps = self.get_gt_seg_maps()
+
+            num_classes = len(self.CLASSES)
+            ret_metrics = eval_metrics(
+                results,
+                gt_seg_maps,
+                num_classes,
+                self.ignore_index,
+                metric,
+                label_map=dict(),
+                reduce_zero_label=self.reduce_zero_label,
+                tc_eval = self.tc_eval,
+                optflows = optflows,
+                names = names)
+        # test a list of pre_eval_results
+        else:
+            ret_metrics = pre_eval_to_metrics(results, metric)
+
+        # Because dataset.CLASSES is required for per-eval.
+        if self.CLASSES is None:
+            class_names = tuple(range(num_classes))
+        else:
+            class_names = self.CLASSES
+
+        # summary table
+        ret_metrics_summary = OrderedDict({
+            ret_metric: np.round(np.nanmean(ret_metric_value) * 100, 2)
+            for ret_metric, ret_metric_value in ret_metrics.items()
+        })
+
+        # each class table
+        ret_metrics.pop('aAcc', None)
+        ret_metrics_class = OrderedDict({
+            ret_metric: np.round(ret_metric_value * 100, 2)
+            for ret_metric, ret_metric_value in ret_metrics.items()
+        })
+        ret_metrics_class.update({'Class': class_names})
+        ret_metrics_class.move_to_end('Class', last=False)
+
+        # for logger
+        class_table_data = PrettyTable()
+        for key, val in ret_metrics_class.items():
+            class_table_data.add_column(key, val)
+
+        summary_table_data = PrettyTable()
+        for key, val in ret_metrics_summary.items():
+            if key == 'aAcc':
+                summary_table_data.add_column(key, [val])
+            else:
+                summary_table_data.add_column('m' + key, [val])
+
+        print_log('per class results:', logger)
+        print_log('\n' + class_table_data.get_string(), logger=logger)
+        print_log('Summary:', logger)
+        print_log('\n' + summary_table_data.get_string(), logger=logger)
+
+        # each metric dict
+        for key, value in ret_metrics_summary.items():
+            if key == 'aAcc':
+                eval_results[key] = value / 100.0
+            else:
+                eval_results['m' + key] = value / 100.0
+
+        ret_metrics_class.pop('Class', None)
+        for key, value in ret_metrics_class.items():
+            eval_results.update({
+                key + '.' + str(name): value[idx] / 100.0
+                for idx, name in enumerate(class_names)
+            })
+
+        return eval_results

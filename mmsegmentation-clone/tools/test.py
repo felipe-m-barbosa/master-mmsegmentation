@@ -260,6 +260,10 @@ def main():
         tmpdir = None
 
     cfg.device = get_device()
+
+    optflow_list = None
+    names_list = None
+
     if not distributed:
         warnings.warn(
             'SyncBN is only supported with DDP. To be compatible with DP, '
@@ -270,6 +274,7 @@ def main():
                 'Please use MMCV >= 1.4.4 for CPU training!'
         model = revert_sync_batchnorm(model)
         model = build_dp(model, cfg.device, device_ids=cfg.gpu_ids)
+        pre_eval = (len(set(args.eval).intersection({'mIoU','mDice','mFscore'})) > 0) and not eval_on_format_results
         results = single_gpu_test(
             model,
             data_loader,
@@ -277,9 +282,14 @@ def main():
             args.show_dir,
             False,
             args.opacity,
-            pre_eval=args.eval is not None and not eval_on_format_results,
+            pre_eval=pre_eval,
             format_only=args.format_only or eval_on_format_results,
-            format_args=eval_kwargs)
+            format_args=eval_kwargs) # after modifications, the method returns a dict -> we need to change it back to a list
+
+        optflow_list = results['optflows']
+        names_list = results['img_names']
+
+        results = results['seg_preds']
     else:
         model = build_ddp(
             model,
@@ -292,7 +302,7 @@ def main():
             args.tmpdir,
             args.gpu_collect,
             False,
-            pre_eval=args.eval is not None and not eval_on_format_results,
+            pre_eval=pre_eval,
             format_only=args.format_only or eval_on_format_results,
             format_args=eval_kwargs)
 
@@ -308,6 +318,13 @@ def main():
             mmcv.dump(results, args.out)
         if args.eval:
             eval_kwargs.update(metric=args.eval)
+
+            # print(eval_kwargs)
+            # time.sleep(50)
+
+            eval_kwargs['optflows'] = optflow_list
+            eval_kwargs['names'] = names_list
+
             metric = dataset.evaluate(results, **eval_kwargs)
             metric_dict = dict(config=args.config, metric=metric)
             mmcv.dump(metric_dict, json_file, indent=4)

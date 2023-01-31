@@ -10,7 +10,6 @@ from mmcv.utils.parrots_wrapper import _BatchNorm
 from ..builder import BACKBONES
 from ..utils import ResLayer
 
-
 class BasicBlock(BaseModule):
     """Basic block for ResNet."""
 
@@ -658,6 +657,7 @@ class ResNet(BaseModule):
 
     def forward(self, x):
         """Forward function."""
+
         if self.deep_stem:
             x = self.stem(x)
         else:

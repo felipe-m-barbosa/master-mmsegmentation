@@ -5,6 +5,9 @@ import mmcv
 import numpy as np
 import torch
 
+from mmseg.ops import resize
+
+import time
 
 def f_score(precision, recall, beta=1):
     """calculate the f-score value.
@@ -175,7 +178,8 @@ def mean_dice(results,
               ignore_index,
               nan_to_num=None,
               label_map=dict(),
-              reduce_zero_label=False):
+              reduce_zero_label=False,
+              **kwargs):
     """Calculate Mean Dice (mDice)
 
     Args:
@@ -254,6 +258,97 @@ def mean_fscore(results,
     return fscore_result
 
 
+
+
+def warp(x, flo):
+    """
+    Args:
+        x: the input prediction, to be warped using the optical flow
+        flo: optical flow field, with shape (B, H, W, C)
+            C accounts for the number of channels, 
+              which correspond to the pixel displacements in x and y directions
+    """
+
+    # print(x.shape)
+    # time.sleep(50)
+    H,W = x.shape
+    B=1
+
+    xx = torch.arange(0,W).view(1,-1).repeat(H,1) # H lines, each with W elements (int)
+    yy = torch.arange(0,H).view(-1,1).repeat(1,W) # W columns, each with H elements (int)
+     
+    xx = xx.view(1,H,W,1).repeat(B,1,1,1) # change shape and repeat over the batch dimension
+    yy = yy.view(1,H,W,1).repeat(B,1,1,1) # change shape and repeat over the batch dimension
+
+    grid = torch.cat((xx,yy),3).float() # concatenates the given sequence of seq tensors in the given dimension
+    # grid.shape: (B,H,W,2), where 2 corresponds to [x_idx, y_idx]
+
+    x = torch.from_numpy(x)
+    if x.is_cuda:
+        grid = grid.cuda()
+        flo = flo.cuda()
+    else:
+        grid = grid.to('cpu')
+        flo = flo.to('cpu')
+
+    # print(x.shape, end='\n')
+    # print(flo.shape, end='\n')
+    # print(grid.shape, end='\n')
+    # time.sleep(50)
+
+    # vgrid = Variable(grid) + flo # sums the flow field displacements over x and y
+    vgrid = grid + flo # adds the flow field displacements over x and y
+
+    ## scale grid to [-1,1]
+    vgrid[:,:,:,0] = 2.0*vgrid[:,:,:,0].clone()/max(W-1,1)-1.0 # x
+    vgrid[:,:,:,1] = 2.0*vgrid[:,:,:,1].clone()/max(H-1,1)-1.0 # y
+     
+    #  x = x.permute(0,3,1,2)
+    x = x.type(torch.float32)
+
+    #  print(f"Img type: {x.dtype}")
+    #  print(f"Grid type: {vgrid.dtype}")
+
+    # WARPING
+    x = x.unsqueeze(0).unsqueeze(0) # create batch and channels dimensions
+    # print(f"x device: {x.device}")
+    # print(f"vgrid device: {vgrid.device}", end="\n\n\n\n")
+    # time.sleep(50)
+    x = x.to('cuda')
+    vgrid = vgrid.to('cuda')
+    output = torch.nn.functional.grid_sample(x, vgrid)
+
+
+    # VALIDITY MASK
+
+    # this implementation only accounts for misaligned borders
+    # that is, occlusions caused by regions in the image borders
+    mask = torch.autograd.Variable(torch.ones(x.size()))
+    mask = mask.to('cuda')
+
+    if x.is_cuda:
+        mask = mask.cuda()
+
+    mask = torch.nn.functional.grid_sample(mask, vgrid)
+    
+    mask[mask<0.9999]=0
+    mask[mask>0]=1
+    
+    output = output*mask
+    output = output.type(torch.float32)
+
+    output = output.squeeze(0).squeeze(0) # recover original shape of prediction
+
+    output = output.to('cpu')
+    mask = mask.to('cpu')
+
+    output = output.numpy()
+    mask = mask.numpy()
+
+    # print(f"warp-output.shape: {output.shape}")
+
+    return output, mask
+
 def eval_metrics(results,
                  gt_seg_maps,
                  num_classes,
@@ -262,7 +357,9 @@ def eval_metrics(results,
                  nan_to_num=None,
                  label_map=dict(),
                  reduce_zero_label=False,
-                 beta=1):
+                 beta=1,
+                 tc_eval=False,
+                 **kwargs):
     """Calculate evaluation metrics
     Args:
         results (list[ndarray] | list[str]): List of prediction segmentation
@@ -282,14 +379,55 @@ def eval_metrics(results,
         ndarray: Per category evaluation metrics, shape (num_classes, ).
     """
 
-    total_area_intersect, total_area_union, total_area_pred_label, \
+    ret_metrics = {}
+
+    if gt_seg_maps is not None:
+        total_area_intersect, total_area_union, total_area_pred_label, \
+            total_area_label = total_intersect_and_union(
+                results, gt_seg_maps, num_classes, ignore_index, label_map,
+                reduce_zero_label)
+
+        # first, compute only non-TC metrics
+        metrics = [m for m in metrics if 'TC' not in m]
+        ret_metrics = total_area_to_metrics(total_area_intersect, total_area_union,
+                                            total_area_pred_label,
+                                            total_area_label, metrics, nan_to_num,
+                                            beta)
+    
+    # Compute Temporal Consistency metrics
+    if ('TC(mDice)' in metrics) or ('TC(mIoU)' in metrics):
+        optflows = kwargs.get('optflows', None)
+        names = kwargs.get('names', None)
+        assert (tc_eval and (optflows is not None)) or (not(tc_eval) and (optflows is None))
+        
+        tc_metrics = [m for m in metrics if 'TC' in m]
+        
+        # generating (warped) predictions and targets for temporal consistency computation
+        # optical flow-based seg-pred warping
+        preds = []
+        for r1, r2, optf in zip(results[:-1], results[1:], optflows[:-1]):
+            pred, _ = warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
+            preds.append(pred)
+
+        print(f"preds.shape: {preds[0].shape}")
+        # time.sleep(50)
+
+        targets = results[1:]
+
+        # compute losses similar to what was previously done, but for TC metrics
+        total_area_intersect, total_area_union, total_area_pred_label, \
         total_area_label = total_intersect_and_union(
-            results, gt_seg_maps, num_classes, ignore_index, label_map,
+            preds, targets, num_classes, ignore_index, label_map,
             reduce_zero_label)
-    ret_metrics = total_area_to_metrics(total_area_intersect, total_area_union,
+        ret_metrics_2 = total_area_to_metrics(total_area_intersect, total_area_union,
                                         total_area_pred_label,
-                                        total_area_label, metrics, nan_to_num,
+                                        total_area_label, tc_metrics, nan_to_num,
                                         beta)
+        
+        # as ret_metrics2 only contains TC metrics, we need to add those to the main ret_metrics dict
+        for met, val in ret_metrics_2.items():
+            ret_metrics[met] = val
+        
 
     return ret_metrics
 
@@ -357,7 +495,7 @@ def total_area_to_metrics(total_area_intersect,
     """
     if isinstance(metrics, str):
         metrics = [metrics]
-    allowed_metrics = ['mIoU', 'mDice', 'mFscore']
+    allowed_metrics = ['mIoU', 'mDice', 'mFscore', 'TC(mDice)', 'TC(mIoU)']
     if not set(metrics).issubset(set(allowed_metrics)):
         raise KeyError('metrics {} is not supported'.format(metrics))
 
@@ -369,7 +507,7 @@ def total_area_to_metrics(total_area_intersect,
             acc = total_area_intersect / total_area_label
             ret_metrics['IoU'] = iou
             ret_metrics['Acc'] = acc
-        elif metric == 'mDice':
+        elif metric == 'mDice': # TODO: modify the function so that it handles the temporal consistency calculation
             dice = 2 * total_area_intersect / (
                 total_area_pred_label + total_area_label)
             acc = total_area_intersect / total_area_label
@@ -383,6 +521,18 @@ def total_area_to_metrics(total_area_intersect,
             ret_metrics['Fscore'] = f_value
             ret_metrics['Precision'] = precision
             ret_metrics['Recall'] = recall
+        elif metric == 'TC(mIoU)':
+            iou = total_area_intersect / total_area_union
+            acc = total_area_intersect / total_area_label
+            ret_metrics['TC(IoU)'] = iou
+            ret_metrics['TC(IoUAcc)'] = acc
+        elif metric == 'TC(Dice)':
+            dice = 2 * total_area_intersect / (
+                total_area_pred_label + total_area_label)
+            acc = total_area_intersect / total_area_label
+            ret_metrics['TC(Dice)'] = dice
+            ret_metrics['TC(DiceAcc)'] = acc
+        
 
     ret_metrics = {
         metric: value.numpy()

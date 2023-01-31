@@ -8,6 +8,7 @@ from numpy import random
 
 from ..builder import PIPELINES
 
+import time
 
 @PIPELINES.register_module()
 class ResizeToMultiple(object):
@@ -321,6 +322,7 @@ class Resize(object):
         return repr_str
 
 
+# TODO: define newRandomFlip class, in order to keep the original RandomFlip unchanged
 @PIPELINES.register_module()
 class RandomFlip(object):
     """Flip the image & seg.
@@ -364,6 +366,9 @@ class RandomFlip(object):
             # flip image
             results['img'] = mmcv.imflip(
                 results['img'], direction=results['flip_direction'])
+            
+            results['optflow'] = mmcv.imflip(
+                results['optflow'], direction=results['flip_direction'])
 
             # flip segs
             for key in results.get('seg_fields', []):
@@ -1522,14 +1527,19 @@ class newResize(object):
                 results['img'], results['scale'], return_scale=True)
             
             # for the sequential images
-            s1_img, scale_factor = mmcv.imrescale(
-                results['s1_img'], results['scale'], return_scale=True)
-            s2_img, scale_factor = mmcv.imrescale(
-                results['s2_img'], results['scale'], return_scale=True)
+            if 's1_img' in results:
+                s1_img, scale_factor = mmcv.imrescale(
+                    results['s1_img'], results['scale'], return_scale=True)
+                s2_img, scale_factor = mmcv.imrescale(
+                    results['s2_img'], results['scale'], return_scale=True)
 
-            # optflow
-            optflow_img, scale_factor = mmcv.imrescale(
-                results['optflow'], results['scale'], return_scale=True)
+            # optflow: we do not rescale optflow, since it will be used in full resolution in a final step
+            if results['optflow'] is not None:
+                optflow_img = results['optflow']
+                # optflow_img, scale_factor = mmcv.imrescale(
+                #     results['optflow'], results['scale'], return_scale=True)
+            else:
+                optflow_img = None
 
             # the w_scale and h_scale has minor difference
             # a real fix should be done in the mmcv.imrescale in the future
@@ -1542,14 +1552,18 @@ class newResize(object):
                 results['img'], results['scale'], return_scale=True)
         
             # for the sequential images
-            s1_img, w_scale, h_scale = mmcv.imresize(
-                results['s1_img'], results['scale'], return_scale=True)
-            s2_img, w_scale, h_scale = mmcv.imresize(
-                results['s2_img'], results['scale'], return_scale=True)
+            if 's1_img' in results:
+                s1_img, w_scale, h_scale = mmcv.imresize(
+                    results['s1_img'], results['scale'], return_scale=True)
+                s2_img, w_scale, h_scale = mmcv.imresize(
+                    results['s2_img'], results['scale'], return_scale=True)
             
             # optflow
-            optflow_img, w_scale, h_scale = mmcv.imresize(
-                results['optflow'], results['scale'], return_scale=True)
+            if results['optflow'] is not None:
+                optflow_img, w_scale, h_scale = mmcv.imresize(
+                    results['optflow'], results['scale'], return_scale=True)
+            else:
+                None
 
         scale_factor = np.array([w_scale, h_scale, w_scale, h_scale],
                                 dtype=np.float32)
@@ -1559,22 +1573,23 @@ class newResize(object):
         results['scale_factor'] = scale_factor
         results['keep_ratio'] = self.keep_ratio
 
-        results['s1_img'] = s1_img
-        results['s1_img_shape'] = s1_img.shape
-        results['s1_pad_shape'] = s1_img.shape  # in case that there is no padding
-        results['s1_scale_factor'] = scale_factor
-        results['s1_keep_ratio'] = self.keep_ratio
+        if 's1_img' in results:
+            results['s1_img'] = s1_img
+            results['s1_img_shape'] = s1_img.shape
+            results['s1_pad_shape'] = s1_img.shape  # in case that there is no padding
+            results['s1_scale_factor'] = scale_factor
+            results['s1_keep_ratio'] = self.keep_ratio
 
-        results['s2_img'] = s2_img
-        results['s2_img_shape'] = s2_img.shape
-        results['s2_pad_shape'] = s2_img.shape  # in case that there is no padding
-        results['s2_scale_factor'] = scale_factor
-        results['s2_keep_ratio'] = self.keep_ratio
+            results['s2_img'] = s2_img
+            results['s2_img_shape'] = s2_img.shape
+            results['s2_pad_shape'] = s2_img.shape  # in case that there is no padding
+            results['s2_scale_factor'] = scale_factor
+            results['s2_keep_ratio'] = self.keep_ratio
 
         # optflow
         results['optflow'] = optflow_img
-        results['optflow_shape'] = optflow_img.shape
-        results['optflow_pad_shape'] = optflow_img.shape  # in case that there is no padding
+        results['optflow_shape'] = optflow_img.shape if optflow_img is not None else None
+        results['optflow_pad_shape'] = optflow_img.shape if optflow_img is not None else None
         results['optflow_scale_factor'] = scale_factor
         results['optflow_keep_ratio'] = self.keep_ratio
 
@@ -1675,17 +1690,18 @@ class newRandomCrop(object):
         results['img_shape'] = img_shape
 
         # crop the sequence
-        s1_img = results['s1_img']
-        s1_img = self.crop(s1_img, crop_bbox)
-        s1_img_shape = s1_img.shape
-        results['s1_img'] = s1_img
-        results['s1_img_shape'] = s1_img_shape
+        if 's1_img' in results:
+            s1_img = results['s1_img']
+            s1_img = self.crop(s1_img, crop_bbox)
+            s1_img_shape = s1_img.shape
+            results['s1_img'] = s1_img
+            results['s1_img_shape'] = s1_img_shape
 
-        s2_img = results['s2_img']
-        s2_img = self.crop(s2_img, crop_bbox)
-        s2_img_shape = s2_img.shape
-        results['s2_img'] = s2_img
-        results['s2_img_shape'] = s2_img_shape
+            s2_img = results['s2_img']
+            s2_img = self.crop(s2_img, crop_bbox)
+            s2_img_shape = s2_img.shape
+            results['s2_img'] = s2_img
+            results['s2_img_shape'] = s2_img_shape
 
         # optflow
         optflow_img = results['optflow']
@@ -1735,12 +1751,12 @@ class newNormalize(object):
         results['img_norm_cfg'] = dict(
             mean=self.mean, std=self.std, to_rgb=self.to_rgb)
         
-
-        results['s1_img'] = mmcv.imnormalize(results['s1_img'], self.mean, self.std,
-                                          self.to_rgb)
-        
-        results['s2_img'] = mmcv.imnormalize(results['s2_img'], self.mean, self.std,
-                                          self.to_rgb)
+        if 's1_img' in results:
+            results['s1_img'] = mmcv.imnormalize(results['s1_img'], self.mean, self.std,
+                                            self.to_rgb)
+            
+            results['s2_img'] = mmcv.imnormalize(results['s2_img'], self.mean, self.std,
+                                            self.to_rgb)
 
 
         return results
@@ -1784,19 +1800,21 @@ class newPad(object):
         if self.size is not None:
             padded_img = mmcv.impad(
                 results['img'], shape=self.size, pad_val=self.pad_val)
-            padded_s1_img = mmcv.impad(
-                results['s1_img'], shape=self.size, pad_val=self.pad_val)
-            padded_s2_img = mmcv.impad(
-                results['s2_img'], shape=self.size, pad_val=self.pad_val)
+            if 's1_img' in results:
+                padded_s1_img = mmcv.impad(
+                    results['s1_img'], shape=self.size, pad_val=self.pad_val)
+                padded_s2_img = mmcv.impad(
+                    results['s2_img'], shape=self.size, pad_val=self.pad_val)
             padded_optflow_img = mmcv.impad(
                 results['optflow'], shape=self.size, pad_val=self.pad_val)
         elif self.size_divisor is not None:
             padded_img = mmcv.impad_to_multiple(
                 results['img'], self.size_divisor, pad_val=self.pad_val)
-            padded_s1_img = mmcv.impad_to_multiple(
-                results['s1_img'], self.size_divisor, pad_val=self.pad_val)
-            padded_s2_img = mmcv.impad_to_multiple(
-                results['s2_img'], self.size_divisor, pad_val=self.pad_val)
+            if 's1_img' in results:
+                padded_s1_img = mmcv.impad_to_multiple(
+                    results['s1_img'], self.size_divisor, pad_val=self.pad_val)
+                padded_s2_img = mmcv.impad_to_multiple(
+                    results['s2_img'], self.size_divisor, pad_val=self.pad_val)
             padded_optflow_img = mmcv.impad_to_multiple(
                 results['optflow'], self.size_divisor, pad_val=self.pad_val)
 
@@ -1806,15 +1824,16 @@ class newPad(object):
         results['pad_fixed_size'] = self.size
         results['pad_size_divisor'] = self.size_divisor
 
-        results['s1_img'] = padded_s1_img
-        results['s1_pad_shape'] = padded_s1_img.shape
-        results['s1_pad_fixed_size'] = self.size
-        results['s1_pad_size_divisor'] = self.size_divisor
+        if 's1_img' in results:
+            results['s1_img'] = padded_s1_img
+            results['s1_pad_shape'] = padded_s1_img.shape
+            results['s1_pad_fixed_size'] = self.size
+            results['s1_pad_size_divisor'] = self.size_divisor
 
-        results['s2_img'] = padded_s2_img
-        results['s2_pad_shape'] = padded_s2_img.shape
-        results['s2_pad_fixed_size'] = self.size
-        results['s2_pad_size_divisor'] = self.size_divisor
+            results['s2_img'] = padded_s2_img
+            results['s2_pad_shape'] = padded_s2_img.shape
+            results['s2_pad_fixed_size'] = self.size
+            results['s2_pad_size_divisor'] = self.size_divisor
 
         # optflow
         results['optflow'] = padded_optflow_img

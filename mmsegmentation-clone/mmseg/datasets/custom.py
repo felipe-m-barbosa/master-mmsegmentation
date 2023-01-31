@@ -91,7 +91,8 @@ class CustomDataset(Dataset):
                  classes=None,
                  palette=None,
                  gt_seg_map_loader_cfg=None,
-                 file_client_args=dict(backend='disk')):
+                 file_client_args=dict(backend='disk'),
+                 **kwargs):
         self.pipeline = Compose(pipeline)
         self.img_dir = img_dir
         self.img_suffix = img_suffix
@@ -487,7 +488,7 @@ class CustomDataset(Dataset):
         return eval_results
 
 
-@DATASETS.register_module()
+@DATASETS.register_module(name='newCustomDataset')
 class newCustomDataset(Dataset):
     """Custom dataset for semantic segmentation. An example of file structure
     is as followed.
@@ -560,7 +561,8 @@ class newCustomDataset(Dataset):
                  classes=None,
                  palette=None,
                  gt_seg_map_loader_cfg=None,
-                 file_client_args=dict(backend='disk')):
+                 file_client_args=dict(backend='disk'),
+                 tc_eval=False):
         self.pipeline = Compose(pipeline)
         self.img_dir = img_dir
         self.img_suffix = img_suffix
