@@ -453,6 +453,8 @@ def pre_eval_to_metrics(pre_eval_results,
     # convert list of tuples to tuple of lists, e.g.
     # [(A_1, B_1, C_1, D_1), ...,  (A_n, B_n, C_n, D_n)] to
     # ([A_1, ..., A_n], ..., [D_1, ..., D_n])
+    print("\n\n\n", pre_eval_results, end="\n\n\n")
+
     pre_eval_results = tuple(zip(*pre_eval_results))
     assert len(pre_eval_results) == 4
 
