@@ -367,8 +367,9 @@ class RandomFlip(object):
             results['img'] = mmcv.imflip(
                 results['img'], direction=results['flip_direction'])
             
-            results['optflow'] = mmcv.imflip(
-                results['optflow'], direction=results['flip_direction'])
+            if 'optflow' in results:
+                results['optflow'] = mmcv.imflip(
+                    results['optflow'], direction=results['flip_direction'])
 
             # flip segs
             for key in results.get('seg_fields', []):
