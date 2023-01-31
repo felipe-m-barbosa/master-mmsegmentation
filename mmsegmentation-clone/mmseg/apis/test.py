@@ -154,8 +154,10 @@ def single_gpu_test(model,
         for _ in range(batch_size):
             prog_bar.update()
 
-
-    return {'seg_preds': results, 'img_names': img_names, 'optflows': img_optflows}
+    if sum([_ is not None for _ in img_optflows]) > 0:
+        return {'seg_preds': results, 'img_names': img_names, 'optflows': img_optflows}
+    else:
+        return results
 
 
 def multi_gpu_test(model,
