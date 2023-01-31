@@ -99,7 +99,13 @@ def single_gpu_test(model,
             result = model(return_loss=False, **data)
 
         img_name = data['img_metas'][0].data[0][0]['filename']
-        img_optflow = data['optflow'][0]
+
+        if 'optflow' in data:
+            img_optflow = data['optflow'][0]
+        elif 'opt_flow' in data:
+            img_optflow = data['opt_flow'][0]
+        else:
+            img_optflow = None
 
         img_names.append(img_name)
         img_optflows.append(img_optflow)
