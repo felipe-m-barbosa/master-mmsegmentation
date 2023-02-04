@@ -104,7 +104,7 @@ class PSPHead(BaseDecodeHead):
                 H, W) which is feature map for last layer of decoder head.
         """
 
-        print("INFORMACAO QUE EU QUERO: ", inputs.shape)
+        print("INFORMACAO QUE EU QUERO: ", inputs)
 
 
         x = self._transform_inputs(inputs)
