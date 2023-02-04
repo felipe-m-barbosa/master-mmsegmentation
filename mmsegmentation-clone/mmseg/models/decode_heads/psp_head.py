@@ -103,6 +103,10 @@ class PSPHead(BaseDecodeHead):
             feats (Tensor): A tensor of shape (batch_size, self.channels,
                 H, W) which is feature map for last layer of decoder head.
         """
+
+        print("INFORMACAO QUE EU QUERO: ", inputs.shape)
+
+
         x = self._transform_inputs(inputs)
         psp_outs = [x]
         psp_outs.extend(self.psp_modules(x))
