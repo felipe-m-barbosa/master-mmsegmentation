@@ -92,16 +92,36 @@ class ImageToTensor(object):
         """
 
         for key in self.keys:
-            img = results[key]
-            if img is not None:
-                img_tmp = img
-                if len(img.shape) < 3:
-                    img = np.expand_dims(img, -1)
+            imgs = results[key]
+            if imgs is not None:
                 
                 if key == 'optflow':
-                    results[key] = to_tensor(img) # optical flow preserves channels in the last dimension
+                    img_tmp = img
+                    if len(img.shape) < 3:
+                        img = np.expand_dims(img, -1)
+
+                    converted_imgs = to_tensor(img) # optical flow preserves channels in the last dimension
+
                 else:
-                    results[key] = to_tensor(img.transpose(2, 0, 1))
+                    if isinstance(imgs, list):
+                        is_order_pred = True
+                        converted_imgs = []
+                    else:
+                        is_order_pred = False
+                        imgs = [imgs]
+
+                    for img in imgs:
+                        if len(img.shape) < 3:
+                            img = np.expand_dims(img, -1)
+
+                        img = to_tensor(img.transpose(2, 0, 1))
+
+                        if is_order_pred:
+                            converted_imgs.append(img)
+                        else:
+                            converted_imgs = img
+
+                results[key] = converted_imgs
             else:
                 results[key] = torch.zeros_like(torch.from_numpy(img_tmp))
 
@@ -207,18 +227,39 @@ class DefaultFormatBundle(object):
                 default bundle.
         """
 
+        is_order_pred = False
+
         if 'img' in results:
-            img = results['img']
-            if len(img.shape) < 3:
-                img = np.expand_dims(img, -1)
-            img = np.ascontiguousarray(img.transpose(2, 0, 1))
-            results['img'] = DC(to_tensor(img), stack=True)
+            imgs = results['img']
+            is_order_pred = True
+
+            if isinstance(imgs, list):
+                formatted_imgs = []
+            else:
+                imgs = [imgs]
+                is_order_pred = False
+            
+            for img in imgs:
+                if len(img.shape) < 3:
+                    img = np.expand_dims(img, -1)
+                img = np.ascontiguousarray(img.transpose(2, 0, 1))
+                img = DC(to_tensor(img), stack=True)
+
+                if is_order_pred:
+                    formatted_imgs.append(img)
+                else:
+                    formatted_imgs = img
+
+            results['img'] = formatted_imgs
+        
         if 'gt_semantic_seg' in results:
-            # convert to long
-            results['gt_semantic_seg'] = DC(
-                to_tensor(results['gt_semantic_seg'][None,
-                                                     ...].astype(np.int64)),
-                stack=True)
+            if not(is_order_pred):
+                # convert to long
+                results['gt_semantic_seg'] = DC(
+                    to_tensor(results['gt_semantic_seg'][None,
+                                                        ...].astype(np.int64)),
+                    stack=True)
+        
         return results
 
     def __repr__(self):
