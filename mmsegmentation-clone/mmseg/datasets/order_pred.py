@@ -37,11 +37,12 @@ class OrderPredDataset(CustomDataset):
 
     def __init__(self, img_suffix='.png',
                  seg_map_suffix='.png',
+                 window_size=4,
                  **kwargs):
         super(OrderPredDataset, self).__init__(img_suffix=img_suffix, seg_map_suffix=seg_map_suffix, **kwargs)
         self.img_dirs = self.img_dir
         self.optflow_dirs = kwargs['optflow_dir']
-        self.window_size = kwargs['window_size']
+        self.window_size = window_size
 
         # if not(isinstance(self.img_dirs, list)):
         #     self.img_dirs = [self.img_dirs]
