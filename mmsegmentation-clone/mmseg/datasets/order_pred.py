@@ -51,7 +51,7 @@ class OrderPredDataset(CustomDataset):
 
 
     # here, we only set the filenames
-    def load_annotations(self, img_dirs: list, optflow_dirs: list = None, img_suffix: str = '.png', window_size: int = 4):
+    def load_annotations(self, img_dirs, optflow_dirs, window_size = 4):
         """Load image and optical flow infos from directory.
         Args:
             img_dir (str): Path to image directory
