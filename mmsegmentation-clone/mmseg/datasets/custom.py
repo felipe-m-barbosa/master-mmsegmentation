@@ -128,12 +128,6 @@ class CustomDataset(Dataset):
 
         # load annotations
 
-        print("AQUI")
-        print(self.img_dir)
-        print(kwargs['optflow_dir'])
-        print("\n\n")
-
-
         self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
                                                self.ann_dir,
                                                self.seg_map_suffix, self.split)
