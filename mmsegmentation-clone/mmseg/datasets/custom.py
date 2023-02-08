@@ -127,8 +127,8 @@ class CustomDataset(Dataset):
                 self.split = osp.join(self.data_root, self.split)
 
         # load annotations
-
-        self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
+        if self.__class__.__name__ != 'OrderPredDataset':
+            self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
                                                self.ann_dir,
                                                self.seg_map_suffix, self.split)
 
