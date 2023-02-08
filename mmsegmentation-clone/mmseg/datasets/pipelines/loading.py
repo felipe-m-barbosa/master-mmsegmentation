@@ -56,12 +56,13 @@ class LoadImageFromFile(object):
         if self.file_client is None:
             self.file_client = mmcv.FileClient(**self.file_client_args)
 
-        if 'video_name' in results:
+        # MODIFY FROM HERE
+        if 'video_name' in results['img_info']: 
             images_list = []
             optflows_list = []
-            for idx in range(len(results['img_filenames'])):
-                filename = osp.join(results['video_name'], results['img_filenames'][idx])
-                optflow_filename = results['optflow_filenames'][idx]
+            for idx in range(len(results['img_info']['img_filenames'])):
+                filename = osp.join(results['img_info']['video_name'], results['img_info']['img_filenames'][idx])
+                optflow_filename = results['img_info']['optflow_filenames'][idx]
 
                 img_bytes = self.file_client.get(filename)
                 img = mmcv.imfrombytes(
