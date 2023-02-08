@@ -40,6 +40,12 @@ class OrderPredDataset(CustomDataset):
         self.img_dirs = kwargs['img_dirs']
         self.optflow_dirs = kwargs['optflow_dirs']
 
+        if not(isinstance(self.img_dirs, list)):
+            self.img_dirs = [self.img_dirs]
+        
+        if not(isinstance(self.optflow_dirs, list)):
+            self.optflow_dirs = [self.optflow_dirs]
+
         # load annotations
         self.img_infos = self.load_annotations(self.img_dirs, self.optflow_dirs)
 
