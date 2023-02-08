@@ -35,11 +35,11 @@ class OrderPredDataset(CustomDataset):
 
     PALETTE = None
 
-    def __init__(self, img_dir, optflow_dirs, **kwargs):
+    def __init__(self, img_dir, optflow_dirs, window_size=4, **kwargs):
         super(OrderPredDataset, self).__init__(**kwargs)
         self.img_dirs = img_dir
         self.optflow_dirs = optflow_dirs
-        self.window_size = kwargs['window_size']
+        self.window_size = window_size
 
         if not(isinstance(self.img_dirs, list)):
             self.img_dirs = [self.img_dirs]
@@ -76,8 +76,8 @@ class OrderPredDataset(CustomDataset):
             optflow_filenames = sorted(os.listdir(optflow_dir))
 
             # loop over filenames, considering the window size passed as argument
-            for i in range(len(filenames)//window_size): # guarantees that we don't access windows shorter than the required window_size
-                window_list = filenames[(i)*window_size:(i+1)*window_size]
+            for i in range(len(filenames)//self.window_size): # guarantees that we don't access windows shorter than the required window_size
+                window_list = filenames[(i)*self.window_size:(i+1)*self.window_size]
             
                 img_info = dict(filename=window_list[0]) # the name of first frame in the window
                 img_info['video_name'] = img_dir # we use the original img_dir path as the video name
