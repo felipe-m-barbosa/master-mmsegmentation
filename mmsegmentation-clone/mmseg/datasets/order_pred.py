@@ -35,10 +35,11 @@ class OrderPredDataset(CustomDataset):
 
     PALETTE = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, img_dir, optflow_dirs, **kwargs):
         super(OrderPredDataset, self).__init__(**kwargs)
-        self.img_dirs = kwargs['img_dir']
-        self.optflow_dirs = kwargs['optflow_dirs']
+        self.img_dirs = img_dir
+        self.optflow_dirs = optflow_dirs
+        self.window_size = kwargs['window_size']
 
         if not(isinstance(self.img_dirs, list)):
             self.img_dirs = [self.img_dirs]
@@ -56,7 +57,7 @@ class OrderPredDataset(CustomDataset):
 
 
     # here, we only set the filenames
-    def load_annotations(self, img_dirs, optflow_dirs, window_size = 4):
+    def load_annotations(self, img_dirs, optflow_dirs):
         """Load image and optical flow infos from directory.
         Args:
             img_dir (str): Path to image directory
