@@ -46,6 +46,11 @@ class OrderPredDataset(CustomDataset):
         if not(isinstance(self.optflow_dirs, list)):
             self.optflow_dirs = [self.optflow_dirs]
 
+        print("AQUI")
+        print(self.img_dirs)
+        print(self.optflow_dirs)
+        print("\n\n")
+
         # load annotations
         self.img_infos = self.load_annotations(self.img_dirs, self.optflow_dirs)
 
