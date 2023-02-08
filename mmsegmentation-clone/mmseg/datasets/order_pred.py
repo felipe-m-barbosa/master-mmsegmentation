@@ -37,7 +37,7 @@ class OrderPredDataset(CustomDataset):
 
     def __init__(self, **kwargs):
         super(OrderPredDataset, self).__init__(**kwargs)
-        self.img_dirs = kwargs['img_dirs']
+        self.img_dirs = kwargs['img_dir']
         self.optflow_dirs = kwargs['optflow_dirs']
 
         if not(isinstance(self.img_dirs, list)):
