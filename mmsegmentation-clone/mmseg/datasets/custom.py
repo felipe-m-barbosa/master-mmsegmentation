@@ -129,7 +129,7 @@ class CustomDataset(Dataset):
         # load annotations
 
         print("AQUI")
-        print(self.img_dirs)
+        print(self.img_dir)
         print(kwargs['optflow_dirs'])
         print("\n\n")
 
