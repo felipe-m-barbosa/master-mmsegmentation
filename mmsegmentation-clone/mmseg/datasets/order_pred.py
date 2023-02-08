@@ -88,10 +88,10 @@ class OrderPredDataset(CustomDataset):
     
 
                 img_info['optflow_filenames'] = [osp.join(optflow_dir, img.replace('leftImg8bit.png', 'opt_flow.flo')) for img in window_list]
-                if i == len(filenames)//window_size - 1: # in the last sequence, we need to make an additional verification, because the last image of the video sequence doesn't have an associated optical flow 
-                    idx = filenames.index(window_list[window_size-1]) # find index corresponding to last image in the window
+                if i == len(filenames)//self.window_size - 1: # in the last sequence, we need to make an additional verification, because the last image of the video sequence doesn't have an associated optical flow 
+                    idx = filenames.index(window_list[self.window_size-1]) # find index corresponding to last image in the window
                     if idx == len(filenames)-1:
-                        img_info['optflow_filenames'][window_size-1] = None
+                        img_info['optflow_filenames'][self.window_size-1] = None
                 
                 # randomly chooses the sequence order for shuffling
                 class_idx = random.randint(0,len(self.CLASSES)-1)
