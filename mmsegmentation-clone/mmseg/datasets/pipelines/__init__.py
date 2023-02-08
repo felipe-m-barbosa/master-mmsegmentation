@@ -10,6 +10,8 @@ from .transforms import (CLAHE, AdjustGamma, Normalize, Pad,
                          RandomFlip, RandomMosaic, RandomRotate, Rerange,
                          Resize, RGB2Gray, SegRescale, newNormalize, newPad, 
                          newRandomCrop, newResize)
+from .selection import MotionAwareCropSelection
+from .shuffling import SequenceShuffle
 
 __all__ = [
     'Compose', 'to_tensor', 'ToTensor', 'ImageToTensor', 'ToDataContainer',
@@ -18,5 +20,5 @@ __all__ = [
     'Normalize', 'SegRescale', 'PhotoMetricDistortion', 'RandomRotate',
     'AdjustGamma', 'CLAHE', 'Rerange', 'RGB2Gray', 'RandomCutOut',
     'RandomMosaic', 'newNormalize', 'newPad', 'newRandomCrop', 'newResize', 'newDefaultFormatBundle',
-    'newLoadAnnotations', 'newLoadImageFromFile', 'read_flow'
+    'newLoadAnnotations', 'newLoadImageFromFile', 'read_flow', 'MotionAwareCropSelection', 'SequenceShuffle'
 ]
