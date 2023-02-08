@@ -78,6 +78,8 @@ class LoadImageFromFile(object):
             results['img'] = images_list # we keep the singular in order to avoid changing the downstream code
             results['optflows'] = optflows_list
 
+            results['gt_semantic_seg'] = results['ann_info']
+
             results['img_shape'] = img.shape
             results['ori_shape'] = img.shape
             # Set initial values for default meta_keys
