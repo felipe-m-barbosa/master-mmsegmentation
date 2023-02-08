@@ -6,6 +6,8 @@ import cityscapesscripts.helpers.labels as CSLabels
 
 from ..builder import PIPELINES
 
+import mmcv
+
 import time
 
 @PIPELINES.register_module()
@@ -54,30 +56,67 @@ class LoadImageFromFile(object):
         if self.file_client is None:
             self.file_client = mmcv.FileClient(**self.file_client_args)
 
-        if results.get('img_prefix') is not None:
-            filename = osp.join(results['img_prefix'],
-                                results['img_info']['filename'])
-        else:
-            filename = results['img_info']['filename']
-        img_bytes = self.file_client.get(filename)
-        img = mmcv.imfrombytes(
-            img_bytes, flag=self.color_type, backend=self.imdecode_backend)
-        if self.to_float32:
-            img = img.astype(np.float32)
+        if 'video_name' in results:
+            images_list = []
+            optflows_list = []
+            for idx in range(len(results['img_filenames'])):
+                filename = osp.join(results['video_name'], results['img_filenames'][idx])
+                optflow_filename = results['optflow_filenames'][idx]
 
-        results['filename'] = filename
-        results['ori_filename'] = results['img_info']['filename']
-        results['img'] = img
-        results['img_shape'] = img.shape
-        results['ori_shape'] = img.shape
-        # Set initial values for default meta_keys
-        results['pad_shape'] = img.shape
-        results['scale_factor'] = 1.0
-        num_channels = 1 if len(img.shape) < 3 else img.shape[2]
-        results['img_norm_cfg'] = dict(
-            mean=np.zeros(num_channels, dtype=np.float32),
-            std=np.ones(num_channels, dtype=np.float32),
-            to_rgb=False)
+                img_bytes = self.file_client.get(filename)
+                img = mmcv.imfrombytes(
+                    img_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                if self.to_float32:
+                    img = img.astype(np.float32)
+                
+                images_list.append(img)
+                
+                optflow = mmcv.flowread(optflow_filename)
+                optflows_list.append(optflow)
+            
+            # remember that img is a list of images, actually
+            results['img'] = images_list # we keep the singular in order to avoid changing the downstream code
+            results['optflows'] = optflows_list
+
+            results['img_shape'] = img.shape
+            results['ori_shape'] = img.shape
+            # Set initial values for default meta_keys
+            results['pad_shape'] = img.shape
+            results['scale_factor'] = 1.0
+            num_channels = 1 if len(img.shape) < 3 else img.shape[2]
+            results['img_norm_cfg'] = dict(
+                mean=np.zeros(num_channels, dtype=np.float32),
+                std=np.ones(num_channels, dtype=np.float32),
+                to_rgb=False)
+
+        else:
+
+            if results.get('img_prefix') is not None:
+                filename = osp.join(results['img_prefix'],
+                                    results['img_info']['filename'])
+            else:
+                filename = results['img_info']['filename']
+            img_bytes = self.file_client.get(filename)
+            img = mmcv.imfrombytes(
+                img_bytes, flag=self.color_type, backend=self.imdecode_backend)
+            if self.to_float32:
+                img = img.astype(np.float32)
+
+            results['filename'] = filename
+            results['ori_filename'] = results['img_info']['filename']
+            results['img'] = img
+            results['img_shape'] = img.shape
+            results['ori_shape'] = img.shape
+            # Set initial values for default meta_keys
+            results['pad_shape'] = img.shape
+            results['scale_factor'] = 1.0
+            num_channels = 1 if len(img.shape) < 3 else img.shape[2]
+            results['img_norm_cfg'] = dict(
+                mean=np.zeros(num_channels, dtype=np.float32),
+                std=np.ones(num_channels, dtype=np.float32),
+                to_rgb=False)
+        
+        
         return results
 
     def __repr__(self):

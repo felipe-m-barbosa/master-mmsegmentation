@@ -231,6 +231,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         Returns:
             dict[str, Tensor]: a dictionary of loss components
         """
+
         seg_logits = self(inputs)
         
         # verify if sequence images where passed
@@ -241,7 +242,10 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             losses = self.losses(seg_logits, gt_semantic_seg, s1_logits=s1_logits, s2_logits=s2_logits, opt_flow=kwargs['opt_flow'])
 
         else:
-            losses = self.losses(seg_logits, gt_semantic_seg)
+            if isinstance(inputs, list): # order prediction task
+                losses = self.losses(seg_logits, gt_semantic_seg, is_order_pred=True)
+            else:
+                losses = self.losses(seg_logits, gt_semantic_seg)
 
         
         return losses
@@ -303,7 +307,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             seg_weight = self.sampler.sample(seg_logit, seg_label)
         else:
             seg_weight = None
-        seg_label = seg_label.squeeze(1)
+
+        if not ('is_order_pred' in kwargs):
+            seg_label = seg_label.squeeze(1) # PQ ISSO? NO CASO DA DETECÇÃO DE ORDEM NÃO PRECISA...
 
         if not isinstance(self.loss_decode, nn.ModuleList):
             losses_decode = [self.loss_decode]
@@ -344,6 +350,6 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes, ignore_index=255).to('cuda')
         # seg_logit = F.softmax(seg_logit, dim=1)
         # print(seg_logit.shape)
-        loss['miou'] = jaccard(seg_logit, seg_label)
+        loss['miou'] = jaccard(seg_logit, seg_label) # what you put in loss dict will be shown by the TextLogger
 
         return loss

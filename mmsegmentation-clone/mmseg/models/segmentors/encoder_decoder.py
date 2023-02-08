@@ -66,9 +66,18 @@ class EncoderDecoder(BaseSegmentor):
     def extract_feat(self, img):
         """Extract features from images."""
 
-        x = self.backbone(img)
-        if self.with_neck:
-            x = self.neck(x)
+        if isinstance(img, list):
+            x = []
+            for i in img:
+                if self.with_neck:
+                    x.append(self.neck(self.backbone(i)))
+                else:
+                    x.append(self.backbone(i))
+        else:
+            x = self.backbone(img)
+            if self.with_neck:
+                x = self.neck(x)
+        
         return x
     
     def extract_feat_seq(self, img, s1_img, s2_img):
@@ -114,7 +123,7 @@ class EncoderDecoder(BaseSegmentor):
         else:
             loss_decode = self.decode_head.forward_train(x, img_metas,
                                                         gt_semantic_seg,
-                                                        self.train_cfg)
+                                                        self.train_cfg) # x is a list in order prediction task
 
         losses.update(add_prefix(loss_decode, 'decode'))
         return losses
@@ -192,7 +201,7 @@ class EncoderDecoder(BaseSegmentor):
                                                       s2=s2, 
                                                       opt_flow=kwargs['opt_flow'])
         else:
-            x = self.extract_feat(img)
+            x = self.extract_feat(img) # x is a list in order prediction task
             loss_decode = self._decode_head_forward_train(x, img_metas,
                                                       gt_semantic_seg)
 

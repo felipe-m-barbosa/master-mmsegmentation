@@ -357,6 +357,15 @@ class RandomFlip(object):
                 result dict.
         """
 
+        is_order_pred = True
+        if isinstance(results['img'], list):
+            imgs = results['img']
+            flipped_imgs = []
+        else:
+            is_order_pred = False
+            imgs = [results['img']]
+
+
         if 'flip' not in results:
             flip = True if np.random.rand() < self.prob else False
             results['flip'] = flip
@@ -364,18 +373,29 @@ class RandomFlip(object):
             results['flip_direction'] = self.direction
         if results['flip']:
             # flip image
-            results['img'] = mmcv.imflip(
-                results['img'], direction=results['flip_direction'])
+            for img in imgs:
+                if is_order_pred: # flip the entire sequence
+                    img = mmcv.imflip(
+                        img, direction=results['flip_direction'])
+                    flipped_imgs.append(img)
+                else:
+                    results['img'] = mmcv.imflip(
+                        img, direction=results['flip_direction'])
             
+            if is_order_pred:
+                results['img'] = flipped_imgs
+
             if 'optflow' in results:
                 results['optflow'] = mmcv.imflip(
                     results['optflow'], direction=results['flip_direction'])
 
             # flip segs
-            for key in results.get('seg_fields', []):
-                # use copy() to make numpy stride positive
-                results[key] = mmcv.imflip(
-                    results[key], direction=results['flip_direction']).copy()
+            if not(is_order_pred): # if is_order_pred, then the target is a one-hot one-dimensional vector representing a given order -> pointless to flip it
+                for key in results.get('seg_fields', []):
+                    # use copy() to make numpy stride positive
+                    results[key] = mmcv.imflip(
+                        results[key], direction=results['flip_direction']).copy()
+                    
         return results
 
     def __repr__(self):
@@ -413,24 +433,54 @@ class Pad(object):
 
     def _pad_img(self, results):
         """Pad images according to ``self.size``."""
-        if self.size is not None:
-            padded_img = mmcv.impad(
-                results['img'], shape=self.size, pad_val=self.pad_val)
-        elif self.size_divisor is not None:
-            padded_img = mmcv.impad_to_multiple(
-                results['img'], self.size_divisor, pad_val=self.pad_val)
-        results['img'] = padded_img
-        results['pad_shape'] = padded_img.shape
+        
+        imgs = results['img']
+        is_order_pred = True
+
+        if not(isinstance(imgs, list)):
+            imgs = [imgs]
+            is_order_pred = False
+        else:
+            padded_imgs = []
+
+        for img in imgs:
+            if self.size is not None:
+                img = mmcv.impad(
+                    img, shape=self.size, pad_val=self.pad_val)
+
+            elif self.size_divisor is not None:
+                img = mmcv.impad_to_multiple(
+                    img, self.size_divisor, pad_val=self.pad_val)
+            
+            if is_order_pred:
+                padded_imgs.append(img)
+            else:
+                padded_imgs = img
+
+
+        
+        results['img'] = padded_imgs
+
+        if is_order_pred:
+            padded_img = padded_imgs[0]
+        else:
+            padded_img = padded_imgs
+
+        results['pad_shape'] = padded_img.shape # in the case of order prediction task, this represents the pad shape of the entire sequence... that's why we store a single value
         results['pad_fixed_size'] = self.size
         results['pad_size_divisor'] = self.size_divisor
 
     def _pad_seg(self, results):
         """Pad masks according to ``results['pad_shape']``."""
-        for key in results.get('seg_fields', []):
-            results[key] = mmcv.impad(
-                results[key],
-                shape=results['pad_shape'][:2],
-                pad_val=self.seg_pad_val)
+
+        # when results['img'] is a list, we are dealing with order prediction task
+        # thus, padding makes no sense
+        if not(isinstance(results['img'], list)):
+            for key in results.get('seg_fields', []):
+                results[key] = mmcv.impad(
+                    results[key],
+                    shape=results['pad_shape'][:2],
+                    pad_val=self.seg_pad_val)
 
     def __call__(self, results):
         """Call function to pad images, masks, semantic segmentation maps.
@@ -444,6 +494,7 @@ class Pad(object):
 
         self._pad_img(results)
         self._pad_seg(results)
+        
         return results
 
     def __repr__(self):
@@ -482,10 +533,30 @@ class Normalize(object):
                 result dict.
         """
 
-        results['img'] = mmcv.imnormalize(results['img'], self.mean, self.std,
+        imgs = results['img']
+        is_order_pred = True
+
+        if not(isinstance(imgs, list)):
+            imgs = [imgs]
+            is_order_pred = False
+        else:
+            normalized_imgs = []
+
+        
+        for img in imgs:
+
+            img = mmcv.imnormalize(img, self.mean, self.std,
                                           self.to_rgb)
+            
+            if is_order_pred:
+                normalized_imgs.append(img)
+            else:
+                normalized_imgs = img
+            
+        results['img'] = normalized_imgs
         results['img_norm_cfg'] = dict(
             mean=self.mean, std=self.std, to_rgb=self.to_rgb)
+        
         return results
 
     def __repr__(self):
@@ -630,28 +701,49 @@ class RandomCrop(object):
                 updated according to crop size.
         """
 
-        img = results['img']
-        crop_bbox = self.get_crop_bbox(img)
-        if self.cat_max_ratio < 1.:
-            # Repeat 10 times
-            for _ in range(10):
-                seg_temp = self.crop(results['gt_semantic_seg'], crop_bbox)
-                labels, cnt = np.unique(seg_temp, return_counts=True)
-                cnt = cnt[labels != self.ignore_index]
-                if len(cnt) > 1 and np.max(cnt) / np.sum(
-                        cnt) < self.cat_max_ratio:
-                    break
-                crop_bbox = self.get_crop_bbox(img)
+        imgs = results['img']
+        is_order_pred = True
 
-        # crop the image
-        img = self.crop(img, crop_bbox)
-        img_shape = img.shape
-        results['img'] = img
+        # imgs not being list means the task is semantic segmentation,
+        # while when it is a list, the task is sequence order prediction,
+        # so that it makes no sense to crop the target, since it is a one-dimensional vector representing the possible classes
+        if not(isinstance(imgs, list)):
+            is_order_pred = False
+            imgs = [imgs]
+            cropped_imgs = []
+
+        for img in imgs:
+            crop_bbox = self.get_crop_bbox(img)
+            if not(is_order_pred):
+                if self.cat_max_ratio < 1.:
+                    # Repeat 10 times
+                    for _ in range(10):
+                        seg_temp = self.crop(results['gt_semantic_seg'], crop_bbox)
+                        labels, cnt = np.unique(seg_temp, return_counts=True)
+                        cnt = cnt[labels != self.ignore_index]
+                        if len(cnt) > 1 and np.max(cnt) / np.sum(
+                                cnt) < self.cat_max_ratio:
+                            break
+                        crop_bbox = self.get_crop_bbox(img)
+
+            # crop the image
+            img = self.crop(img, crop_bbox)
+            img_shape = img.shape
+
+            if is_order_pred:
+                cropped_imgs.append(img)
+            else:
+                results['img'] = img
+            
+        if is_order_pred:
+            results['img'] = cropped_imgs
+        
         results['img_shape'] = img_shape
 
         # crop semantic seg
-        for key in results.get('seg_fields', []):
-            results[key] = self.crop(results[key], crop_bbox)
+        if not(is_order_pred):
+            for key in results.get('seg_fields', []):
+                results[key] = self.crop(results[key], crop_bbox)
 
         return results
 
@@ -948,27 +1040,43 @@ class PhotoMetricDistortion(object):
             dict: Result dict with images distorted.
         """
 
-        img = results['img']
-        # random brightness
-        img = self.brightness(img)
+        imgs = results['img']
+        is_order_pred = True
 
-        # mode == 0 --> do random contrast first
-        # mode == 1 --> do random contrast last
-        mode = random.randint(2)
-        if mode == 1:
-            img = self.contrast(img)
+        if not(isinstance(imgs, list)):
+            imgs = [imgs]
+            is_order_pred = False
+        else:
+            distorted_imgs = []
 
-        # random saturation
-        img = self.saturation(img)
 
-        # random hue
-        img = self.hue(img)
+        for img in imgs:
+            # random brightness
+            img = self.brightness(img)
 
-        # random contrast
-        if mode == 0:
-            img = self.contrast(img)
+            # mode == 0 --> do random contrast first
+            # mode == 1 --> do random contrast last
+            mode = random.randint(2)
+            if mode == 1:
+                img = self.contrast(img)
 
-        results['img'] = img
+            # random saturation
+            img = self.saturation(img)
+
+            # random hue
+            img = self.hue(img)
+
+            # random contrast
+            if mode == 0:
+                img = self.contrast(img)
+            
+            if is_order_pred:
+                distorted_imgs.append(img)
+            else:
+                distorted_imgs = img
+
+        results['img'] = distorted_imgs
+
         return results
 
     def __repr__(self):
