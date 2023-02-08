@@ -127,6 +127,13 @@ class CustomDataset(Dataset):
                 self.split = osp.join(self.data_root, self.split)
 
         # load annotations
+
+        print("AQUI")
+        print(self.img_dirs)
+        print(kwargs['optflow_dirs'])
+        print("\n\n")
+
+
         self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
                                                self.ann_dir,
                                                self.seg_map_suffix, self.split)
