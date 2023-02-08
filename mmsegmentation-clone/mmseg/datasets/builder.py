@@ -30,6 +30,7 @@ def _concat_dataset(cfg, default_args=None):
     """Build :obj:`ConcatDataset by."""
     from .dataset_wrappers import ConcatDataset
     img_dir = cfg['img_dir']
+    optflow_dir = cfg.get('optflow_dir', None)
     ann_dir = cfg.get('ann_dir', None)
     split = cfg.get('split', None)
     # pop 'separate_eval' since it is not a valid key for common datasets.
@@ -55,6 +56,8 @@ def _concat_dataset(cfg, default_args=None):
         data_cfg = copy.deepcopy(cfg)
         if isinstance(img_dir, (list, tuple)):
             data_cfg['img_dir'] = img_dir[i]
+        if isinstance(optflow_dir, (list, tuple)):
+            data_cfg['optflow_dir'] = optflow_dir[i]
         if isinstance(ann_dir, (list, tuple)):
             data_cfg['ann_dir'] = ann_dir[i]
         if isinstance(split, (list, tuple)):

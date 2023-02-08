@@ -130,7 +130,7 @@ class CustomDataset(Dataset):
 
         print("AQUI")
         print(self.img_dir)
-        print(kwargs['optflow_dirs'])
+        print(kwargs['optflow_dir'])
         print("\n\n")
 
 
