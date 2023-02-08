@@ -695,6 +695,11 @@ class newCustomDataset(Dataset):
         ann_info = self.get_ann_info(idx)
         results = dict(img_info=img_info, ann_info=ann_info)
         self.pre_pipeline(results)
+
+        print("OLHA OS RESULTS: ")
+        print(results)
+        print("\n\n\n")
+
         return self.pipeline(results)
 
     def prepare_test_img(self, idx):

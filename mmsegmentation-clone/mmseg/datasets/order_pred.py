@@ -97,7 +97,7 @@ class OrderPredDataset(CustomDataset):
                 class_idx = random.randint(0,len(self.CLASSES)-1)
                 img_info['str_cls'] = self.CLASSES[class_idx] # the class name (for visualization and debugging)
                 # although labels are now one-hot encoded tensors representing the sequence order, we keep the name as 'gt_semantic_seg' to avoid modifying the downstream code
-                img_info['gt_semantic_seg'] = self.ONE_HOT_CLASSES[class_idx] # the one-hot encoded class
+                img_info['ann'] = self.ONE_HOT_CLASSES[class_idx] # the one-hot encoded class
 
 
                 img_infos.append(img_info)
