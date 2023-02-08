@@ -55,7 +55,7 @@ class OrderPredDataset(CustomDataset):
         print("\n\n")
 
         # load annotations
-        self.img_infos = self.load_annotations(self.img_dirs, self.optflow_dirs)
+        # self.img_infos = self.load_annotations(self.img_dirs, self.optflow_dirs)
 
 
     # here, we only set the filenames
