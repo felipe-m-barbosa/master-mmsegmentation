@@ -40,7 +40,7 @@ class MotionAwareCropSelection(object):
 
         # calculating the kernel sizes, according to the num_crops required
         # notice that we aim at extracting the same number of crops in vertical and horizontal directions
-        kh, kw = results['img_shape'][0]//(self.num_crops/2), results['img_shape'][1]//(self.num_crops/2)
+        kh, kw = results['img_shape'][0]//(self.num_crops//2), results['img_shape'][1]//(self.num_crops//2)
         dh, dw = kh, kw # stride values are equal to kernel values (crop dimension) so that they don't overlap
 
         # computes magnitudes from optical flow displacements in x and y axis
