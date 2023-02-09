@@ -94,12 +94,12 @@ class MotionAwareCropSelection(object):
 
         # Finally, we select the corresponding crop in all four frames of the window
         # cropping imgs
-        unfold_imgs = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw) # channels-last
+        unfold_imgs = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw)
         # unfold_imgs = lambda img: [img[:, :kh, :kw], img[:, :kh, kw:], img[:, kh:, :kw], img[:, kh:, kw:]]
 
         print("RESULTS['IMG'][0].SHAPE: ", results['img'][0].shape, end="\n\n\n")
         
-        cropped_imgs = list(map(unfold_imgs, results['img'])) # list of (C,i,j,kh,kw) elements
+        cropped_imgs = list(map(unfold_imgs, results['img'])) # list of (i,j,C,kh,kw) elements
 
         print(cropped_imgs[0].shape)
         print(cropped_imgs[1].shape)
@@ -107,7 +107,7 @@ class MotionAwareCropSelection(object):
         print(cropped_imgs[3].shape)
 
         # selecting the appropriate crop, according to our previous reasoning 
-        list_selected_crops = [crop[:,i,j,...] for crop in cropped_imgs]
+        list_selected_crops = [crop[i,j,...] for crop in cropped_imgs]
                     
                     
         # Finally!!! We replace the list of images under 'imgs' by their selected crops :D
