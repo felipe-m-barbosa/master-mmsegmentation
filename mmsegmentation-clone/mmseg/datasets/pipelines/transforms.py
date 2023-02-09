@@ -1086,12 +1086,12 @@ class PhotoMetricDistortion(object):
             # random saturation
             img = self.saturation(img)
 
-            print("IMG SHAPE: ", img.shape)
+            print("AFTER SATURATION IMG SHAPE: ", img.shape)
 
             # random hue
             img = self.hue(img)
 
-            print("IMG SHAPE: ", img.shape)
+            print("AFTER HUE IMG SHAPE: ", img.shape)
 
             # random contrast
             if mode == 0:
