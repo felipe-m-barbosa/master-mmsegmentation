@@ -374,6 +374,9 @@ class RandomFlip(object):
         if results['flip']:
             # flip image
             for img in imgs:
+
+                print("RANDOM FLIP IMG SHAPE: ", img.shape)
+
                 if is_order_pred: # flip the entire sequence
                     img = mmcv.imflip(
                         img, direction=results['flip_direction'])
@@ -1058,7 +1061,7 @@ class PhotoMetricDistortion(object):
         for img in imgs:
 
             print("IMG SHAPE: ", img.shape)
-            
+
             # random brightness
             img = self.brightness(img)
 
