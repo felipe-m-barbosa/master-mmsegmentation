@@ -749,6 +749,7 @@ class RandomCrop(object):
             img_shape = img.shape
 
             print("SHAPE AFTER CROPPING: ", img_shape)
+            print("CROP SIZE: ", self.crop_size)
 
             if is_order_pred:
                 cropped_imgs.append(img)
