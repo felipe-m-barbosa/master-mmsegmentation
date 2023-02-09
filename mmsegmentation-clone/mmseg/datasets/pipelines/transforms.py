@@ -1038,6 +1038,9 @@ class PhotoMetricDistortion(object):
     def hue(self, img):
         """Hue distortion."""
         if random.randint(2):
+
+            print("IN HUE IMG SHAPE: ", img.shape)
+
             img = mmcv.bgr2hsv(img)
             img[:, :,
                 0] = (img[:, :, 0].astype(int) +
