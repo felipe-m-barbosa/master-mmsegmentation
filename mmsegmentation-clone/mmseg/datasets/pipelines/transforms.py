@@ -3,6 +3,7 @@ import copy
 
 import mmcv
 import numpy as np
+import torch
 from mmcv.utils import deprecated_api_warning, is_tuple_of
 from numpy import random
 
@@ -1022,6 +1023,10 @@ class PhotoMetricDistortion(object):
     def saturation(self, img):
         """Saturation distortion."""
         if random.randint(2):
+
+            if img.shape[2] > 3:
+                img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+
             img = mmcv.bgr2hsv(img)
             img[:, :, 1] = self.convert(
                 img[:, :, 1],
