@@ -988,6 +988,10 @@ class PhotoMetricDistortion(object):
 
     def convert(self, img, alpha=1, beta=0):
         """Multiple with alpha and add beat with clip."""
+
+        if not(isinstance(img, np.ndarray)):
+            img = img.numpy()
+
         img = img.astype(np.float32) * alpha + beta
         img = np.clip(img, 0, 255)
         return img.astype(np.uint8)
