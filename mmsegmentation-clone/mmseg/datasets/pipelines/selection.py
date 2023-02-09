@@ -53,8 +53,9 @@ class MotionAwareCropSelection(object):
         extract_magnitude = lambda f: torch.sqrt(torch.as_tensor(f[..., 0])**2+torch.as_tensor(f[..., 1])**2) # computes magnitude from optical flow
         
         # crop extraction
-        unf = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw) # returns a tensor with (i,j,C,kh,kw) dimension, where i and j are indices to the extracted crops
-        
+        # unf = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw) # returns a tensor with (i,j,C,kh,kw) dimension, where i and j are indices to the extracted crops
+        unf = lambda img: [img[:kh, :kw], img[:kh, kw:], img[kh:, :kw], img[kh:, kw:]]
+
         magnitudes = list(map(extract_magnitude, results['optflows'])) # optflows (list[np.ndarray] of size window_size)
         
         # stack the magnitude maps together
@@ -91,6 +92,7 @@ class MotionAwareCropSelection(object):
         # Finally, we select the corresponding crop in all four frames of the window
         # cropping imgs
         unfold_imgs = lambda img: img.unfold(1, kh, dh).unfold(2, kw, dw) # remember that channels come first in images; the result will be of shape (C,i,j,kh,kw)
+        unfold_imgs = lambda img: [img[:, :kh, :kw], img[:, :kh, kw:], img[:, kh:, :kw], img[:, kh:, kw:]]
         cropped_imgs = list(map(unfold_imgs, results['img'])) # list of (C,i,j,kh,kw) elements
         # selecting the appropriate crop, according to our previous reasoning 
         list_selected_crops = [crop[:,i,j,...] for crop in cropped_imgs]
