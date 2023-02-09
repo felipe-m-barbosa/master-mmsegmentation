@@ -690,19 +690,19 @@ class RandomCrop(object):
 
     def get_crop_bbox(self, img):
 
-        print(img.shape)
+        # print(img.shape)
 
         """Randomly get a crop bounding box."""
         margin_h = max(img.shape[0] - self.crop_size[0], 0)
         margin_w = max(img.shape[1] - self.crop_size[1], 0)
 
-        print("MARGIN W: ", margin_w)
+        # print("MARGIN W: ", margin_w)
 
         offset_h = np.random.randint(0, margin_h + 1)
         offset_w = np.random.randint(0, margin_w + 1)
 
 
-        print("OFFSET W: ", offset_w)
+        # print("OFFSET W: ", offset_w)
 
         crop_y1, crop_y2 = offset_h, offset_h + self.crop_size[0]
         crop_x1, crop_x2 = offset_w, offset_w + self.crop_size[1]
@@ -740,6 +740,9 @@ class RandomCrop(object):
         for img in imgs:
 
             # print("RANDOM CROP IMG SHAPE: ", img.shape)
+
+            if img.shape[2] > 3:
+                img = torch.as_tensor(img).permute(1,2,0).numpy()
 
             crop_bbox = self.get_crop_bbox(img)
             print("CROP BBOX: ", crop_bbox)
