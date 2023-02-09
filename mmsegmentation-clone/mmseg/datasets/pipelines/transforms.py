@@ -1016,7 +1016,6 @@ class PhotoMetricDistortion(object):
     def saturation(self, img):
         """Saturation distortion."""
         if random.randint(2):
-            print("IMG SHAPE: ", img.shape)
             img = mmcv.bgr2hsv(img)
             img[:, :, 1] = self.convert(
                 img[:, :, 1],
@@ -1046,16 +1045,20 @@ class PhotoMetricDistortion(object):
         """
 
         imgs = results['img']
-        is_order_pred = True
+        
 
         if not(isinstance(imgs, list)):
             imgs = [imgs]
             is_order_pred = False
         else:
+            is_order_pred = True
             distorted_imgs = []
 
 
         for img in imgs:
+
+            print("IMG SHAPE: ", img.shape)
+            
             # random brightness
             img = self.brightness(img)
 
