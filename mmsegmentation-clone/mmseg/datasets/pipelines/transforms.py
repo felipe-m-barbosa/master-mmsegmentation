@@ -745,7 +745,7 @@ class RandomCrop(object):
                 img = torch.as_tensor(img).permute(1,2,0).numpy()
 
             crop_bbox = self.get_crop_bbox(img)
-            print("CROP BBOX: ", crop_bbox)
+            # print("CROP BBOX: ", crop_bbox)
             if not(is_order_pred):
                 if self.cat_max_ratio < 1.:
                     # Repeat 10 times
@@ -762,8 +762,8 @@ class RandomCrop(object):
             img = self.crop(img, crop_bbox)
             img_shape = img.shape
 
-            print("SHAPE AFTER CROPPING: ", img_shape)
-            print("CROP SIZE: ", self.crop_size)
+            # print("SHAPE AFTER CROPPING: ", img_shape)
+            # print("CROP SIZE: ", self.crop_size)
 
             if is_order_pred:
                 cropped_imgs.append(img)
