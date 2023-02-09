@@ -94,7 +94,7 @@ class MotionAwareCropSelection(object):
 
         # Finally, we select the corresponding crop in all four frames of the window
         # cropping imgs
-        unfold_imgs = lambda img: img.unfold(1, kh, dh).unfold(2, kw, dw) # remember that channels come first in images; the result will be of shape (C,i,j,kh,kw)
+        unfold_imgs = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw) # channels-last
         # unfold_imgs = lambda img: [img[:, :kh, :kw], img[:, :kh, kw:], img[:, kh:, :kw], img[:, kh:, kw:]]
         
         print("RESULTS['IMG'][0].SHAPE: ", results['img'][0].shape, end="\n\n\n")
