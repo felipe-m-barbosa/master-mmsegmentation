@@ -327,9 +327,18 @@ class Collect(object):
 
         data = {}
         img_meta = {}
-        for key in self.meta_keys:
-            img_meta[key] = results[key]
+
+        if isinstance(results['img'], list): # order prediction task
+            self.meta_keys = ('filename', 'video_name', 'img_filenames', 'optflow_filenames', 'str_cls', 'ann')
+
+            for key in self.meta_keys:
+                img_meta[key] = results['img_infos'][key]
+        else:
+            for key in self.meta_keys:
+                img_meta[key] = results[key]
+
         data['img_metas'] = DC(img_meta, cpu_only=True)
+        
         for key in self.keys:
             data[key] = results[key]
         return data
