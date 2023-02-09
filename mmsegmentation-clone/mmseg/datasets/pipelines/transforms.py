@@ -550,10 +550,10 @@ class Normalize(object):
         for img in imgs:
 
             if img.shape[2] > 3:
-                if isinstance(img, np.ndarray):
-                    img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
-                else:
-                    img = img.permute(1,2,0)
+                img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+
+            if isinstance(img, torch.Tensor):
+                img = img.numpy()
 
             img = mmcv.imnormalize(img, self.mean, self.std,
                                           self.to_rgb)
@@ -1038,10 +1038,10 @@ class PhotoMetricDistortion(object):
             # print("IN SATURATION: ", img.shape)
 
             if img.shape[2] > 3:
-                if isinstance(img, np.ndarray):
-                    img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
-                else:
-                    img = img.permute(1,2,0)
+                img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+
+            if isinstance(img, torch.Tensor):
+                img = img.numpy()
 
             img = mmcv.bgr2hsv(img)
 
@@ -1064,10 +1064,10 @@ class PhotoMetricDistortion(object):
             # print("IN HUE IMG SHAPE: ", img.shape)
 
             if img.shape[2] > 3:
-                if isinstance(img, np.ndarray):
-                    img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
-                else:
-                    img = img.permute(1,2,0)
+                img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+
+            if isinstance(img, torch.Tensor):
+                img = img.numpy()
 
             img = mmcv.bgr2hsv(img)
             img[:, :,
