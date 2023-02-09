@@ -1068,21 +1068,31 @@ class PhotoMetricDistortion(object):
             # random brightness
             img = self.brightness(img)
 
+            print("IMG SHAPE: ", img.shape)
+
             # mode == 0 --> do random contrast first
             # mode == 1 --> do random contrast last
             mode = random.randint(2)
             if mode == 1:
                 img = self.contrast(img)
 
+                print("IMG SHAPE: ", img.shape)
+
             # random saturation
             img = self.saturation(img)
+
+            print("IMG SHAPE: ", img.shape)
 
             # random hue
             img = self.hue(img)
 
+            print("IMG SHAPE: ", img.shape)
+
             # random contrast
             if mode == 0:
                 img = self.contrast(img)
+
+                print("IMG SHAPE: ", img.shape)
             
             if is_order_pred:
                 distorted_imgs.append(img)
