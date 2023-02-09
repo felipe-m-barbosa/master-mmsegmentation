@@ -79,10 +79,10 @@ class LoadImageFromFile(object):
             # remember that img is a list of images, actually
             results['img'] = images_list # we keep the singular in order to avoid changing the downstream code
             
-            print("LOADING IMG SHAPE (1): ", results['img'][0].shape)
-            print("LOADING IMG SHAPE (2): ", results['img'][1].shape)
-            print("LOADING IMG SHAPE (3): ", results['img'][2].shape)
-            print("LOADING IMG SHAPE (4): ", results['img'][3].shape)
+            # print("LOADING IMG SHAPE (1): ", results['img'][0].shape)
+            # print("LOADING IMG SHAPE (2): ", results['img'][1].shape)
+            # print("LOADING IMG SHAPE (3): ", results['img'][2].shape)
+            # print("LOADING IMG SHAPE (4): ", results['img'][3].shape)
 
             results['optflows'] = optflows_list
 

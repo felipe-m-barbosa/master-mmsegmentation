@@ -376,7 +376,7 @@ class RandomFlip(object):
             # flip image
             for img in imgs:
 
-                print("RANDOM FLIP IMG SHAPE: ", img.shape)
+                # print("RANDOM FLIP IMG SHAPE: ", img.shape)
 
                 if is_order_pred: # flip the entire sequence
                     img = mmcv.imflip(
@@ -567,10 +567,10 @@ class Normalize(object):
         results['img_norm_cfg'] = dict(
             mean=self.mean, std=self.std, to_rgb=self.to_rgb)
         
-        print("NORMALIZE IMG SHAPE (1): ", results['img'][0].shape)
-        print("NORMALIZE IMG SHAPE (2): ", results['img'][1].shape)
-        print("NORMALIZE IMG SHAPE (3): ", results['img'][2].shape)
-        print("NORMALIZE IMG SHAPE (4): ", results['img'][3].shape)
+        # print("NORMALIZE IMG SHAPE (1): ", results['img'][0].shape)
+        # print("NORMALIZE IMG SHAPE (2): ", results['img'][1].shape)
+        # print("NORMALIZE IMG SHAPE (3): ", results['img'][2].shape)
+        # print("NORMALIZE IMG SHAPE (4): ", results['img'][3].shape)
 
         return results
 
@@ -729,7 +729,7 @@ class RandomCrop(object):
 
         for img in imgs:
 
-            print("RANDOM CROP IMG SHAPE: ", img.shape)
+            # print("RANDOM CROP IMG SHAPE: ", img.shape)
 
             crop_bbox = self.get_crop_bbox(img)
             if not(is_order_pred):
@@ -1035,7 +1035,7 @@ class PhotoMetricDistortion(object):
         """Saturation distortion."""
         if random.randint(2):
 
-            print("IN SATURATION: ", img.shape)
+            # print("IN SATURATION: ", img.shape)
 
             if img.shape[2] > 3:
                 if isinstance(img, np.ndarray):
@@ -1045,7 +1045,7 @@ class PhotoMetricDistortion(object):
 
             img = mmcv.bgr2hsv(img)
 
-            print("IN SATURATION 2: ", img.shape)
+            # print("IN SATURATION 2: ", img.shape)
 
             img[:, :, 1] = self.convert(
                 img[:, :, 1],
@@ -1053,14 +1053,15 @@ class PhotoMetricDistortion(object):
                                      self.saturation_upper))
             img = mmcv.hsv2bgr(img)
 
-            print("IN SATURATION 3: ", img.shape)
+            # print("IN SATURATION 3: ", img.shape)
+
         return img
 
     def hue(self, img):
         """Hue distortion."""
         if random.randint(2):
 
-            print("IN HUE IMG SHAPE: ", img.shape)
+            # print("IN HUE IMG SHAPE: ", img.shape)
 
             if img.shape[2] > 3:
                 if isinstance(img, np.ndarray):
@@ -1098,12 +1099,12 @@ class PhotoMetricDistortion(object):
 
         for img in imgs:
 
-            print("IMG SHAPE: ", img.shape)
+            # print("IMG SHAPE: ", img.shape)
 
             # random brightness
             img = self.brightness(img)
 
-            print("IMG SHAPE: ", img.shape)
+            # print("IMG SHAPE: ", img.shape)
 
             # mode == 0 --> do random contrast first
             # mode == 1 --> do random contrast last
@@ -1111,23 +1112,23 @@ class PhotoMetricDistortion(object):
             if mode == 1:
                 img = self.contrast(img)
 
-                print("IMG SHAPE: ", img.shape)
+                # print("IMG SHAPE: ", img.shape)
 
             # random saturation
             img = self.saturation(img)
 
-            print("AFTER SATURATION IMG SHAPE: ", img.shape)
+            # print("AFTER SATURATION IMG SHAPE: ", img.shape)
 
             # random hue
             img = self.hue(img)
 
-            print("AFTER HUE IMG SHAPE: ", img.shape)
+            # print("AFTER HUE IMG SHAPE: ", img.shape)
 
             # random contrast
             if mode == 0:
                 img = self.contrast(img)
 
-                print("IMG SHAPE: ", img.shape)
+                # print("IMG SHAPE: ", img.shape)
             
             if is_order_pred:
                 distorted_imgs.append(img)
