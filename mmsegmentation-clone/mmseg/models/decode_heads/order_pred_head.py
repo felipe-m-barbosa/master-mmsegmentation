@@ -34,12 +34,10 @@ class OrderPredHead(BaseDecodeHead):
 
         # FAZER O CÓDIGO PARA SE FOR BATCH ... (usa-se dim=1, eu acho.... tem q rodar para testar)
 
+        # 'inputs' has the outputs from the backbone. Hence, we must extract the input corresponding to the in_index received as argument in class instantiation
 
-        print(len(inputs))
 
-        print(len(inputs[0]))
-
-        print(inputs[0][0].shape)
+        inputs = inputs[self.in_index]
 
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
