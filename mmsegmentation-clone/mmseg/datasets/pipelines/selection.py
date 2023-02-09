@@ -69,7 +69,7 @@ class MotionAwareCropSelection(object):
 
 
         # generates patches (windows) from the input images
-        patches_mags = list(map(unf, magnitudes)) # returns a list of (window_size) tensors with shape (i,j,kh,kw)
+        patches_mags = list(map(unf, [magnitudes])) # returns a list of (window_size) tensors with shape (i,j,kh,kw)
         
         print("PATCHES_MAGS: ", patches_mags[0].shape)
 
