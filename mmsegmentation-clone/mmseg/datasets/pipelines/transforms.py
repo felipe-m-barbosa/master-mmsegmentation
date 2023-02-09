@@ -1024,15 +1024,22 @@ class PhotoMetricDistortion(object):
         """Saturation distortion."""
         if random.randint(2):
 
+            print("IN SATURATION: ", img.shape)
+
             if img.shape[2] > 3:
                 img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
 
             img = mmcv.bgr2hsv(img)
+
+            print("IN SATURATION 2: ", img.shape)
+
             img[:, :, 1] = self.convert(
                 img[:, :, 1],
                 alpha=random.uniform(self.saturation_lower,
                                      self.saturation_upper))
             img = mmcv.hsv2bgr(img)
+
+            print("IN SATURATION 3: ", img.shape)
         return img
 
     def hue(self, img):
