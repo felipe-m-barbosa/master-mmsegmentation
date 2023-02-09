@@ -689,6 +689,9 @@ class RandomCrop(object):
         self.ignore_index = ignore_index
 
     def get_crop_bbox(self, img):
+
+        print(img.shape)
+
         """Randomly get a crop bounding box."""
         margin_h = max(img.shape[0] - self.crop_size[0], 0)
         margin_w = max(img.shape[1] - self.crop_size[1], 0)
