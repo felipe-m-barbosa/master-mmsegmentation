@@ -2,6 +2,7 @@
 import os.path as osp
 import mmcv
 import numpy as np
+import torch
 import cityscapesscripts.helpers.labels as CSLabels
 
 from ..builder import PIPELINES
@@ -70,7 +71,7 @@ class LoadImageFromFile(object):
                 if self.to_float32:
                     img = img.astype(np.float32)
                 
-                images_list.append(img)
+                images_list.append(torch.as_tensor(img))
                 
                 optflow = mmcv.flowread(optflow_filename)
                 optflows_list.append(optflow)
