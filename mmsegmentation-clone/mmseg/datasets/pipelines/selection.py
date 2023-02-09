@@ -96,6 +96,9 @@ class MotionAwareCropSelection(object):
         # cropping imgs
         unfold_imgs = lambda img: img.unfold(1, kh, dh).unfold(2, kw, dw) # remember that channels come first in images; the result will be of shape (C,i,j,kh,kw)
         # unfold_imgs = lambda img: [img[:, :kh, :kw], img[:, :kh, kw:], img[:, kh:, :kw], img[:, kh:, kw:]]
+        
+        print("RESULTS['IMG'][0].SHAPE: ", results['img'][0].shape, end="\n\n\n")
+        
         cropped_imgs = list(map(unfold_imgs, results['img'])) # list of (C,i,j,kh,kw) elements
         # selecting the appropriate crop, according to our previous reasoning 
         list_selected_crops = [crop[:,i,j,...] for crop in cropped_imgs]
