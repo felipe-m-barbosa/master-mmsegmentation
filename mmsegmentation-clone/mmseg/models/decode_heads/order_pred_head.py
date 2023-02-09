@@ -27,15 +27,13 @@ class OrderPredHead(BaseDecodeHead):
         """
 
         # QUAL VAI SER A DIMENSÃO DA ENTRADA?
-        #   ELA VAI SER UMA LISTA DE ENTRADAS [(c, h, w), (c, h, w), (c, h, w), (c, h, w)]?
-        #   OU ELA VAI SER UM BATCH DE LISTAS?
-        #   OU AINDA, UMA LISTA DE BATCHES? [(B,c,h,w), ...], em que cada posição corresponde ao batch de imagens da posição correspondente nas diferentes listas
+        #       UMA LISTA DE BATCHES [(B,c,h,w), ...], em que cada posição corresponde ao batch de imagens da posição correspondente nas diferentes listas
 
 
         # FAZER O CÓDIGO PARA SE FOR BATCH ... (usa-se dim=1, eu acho.... tem q rodar para testar)
 
 
-        print(inputs.shape)
+        print(inputs[0].shape)
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
         
