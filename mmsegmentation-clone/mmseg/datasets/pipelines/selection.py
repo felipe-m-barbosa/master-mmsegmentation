@@ -44,7 +44,7 @@ class MotionAwareCropSelection(object):
         dh, dw = kh, kw # stride values are equal to kernel values (crop dimension) so that they don't overlap
 
         # computes magnitudes from optical flow displacements in x and y axis
-        extract_magnitude = lambda f: torch.sqrt(f[..., 0]**2+f[..., 1]**2) # computes magnitude from optical flow
+        extract_magnitude = lambda f: torch.sqrt(torch.as_tensor(f[..., 0])**2+torch.as_tensor(f[..., 1])**2) # computes magnitude from optical flow
         
         # crop extraction
         unfold = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw) # returns a tensor with (i,j,C,kh,kw) dimension, where i and j are indices to the extracted crops
