@@ -549,6 +549,12 @@ class Normalize(object):
         
         for img in imgs:
 
+            if img.shape[2] > 3:
+                if isinstance(img, np.ndarray):
+                    img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+                else:
+                    img = img.permute(1,2,0)
+
             img = mmcv.imnormalize(img, self.mean, self.std,
                                           self.to_rgb)
             
@@ -561,6 +567,11 @@ class Normalize(object):
         results['img_norm_cfg'] = dict(
             mean=self.mean, std=self.std, to_rgb=self.to_rgb)
         
+        print("NORMALIZE IMG SHAPE (1): ", results['img'][0].shape)
+        print("NORMALIZE IMG SHAPE (2): ", results['img'][1].shape)
+        print("NORMALIZE IMG SHAPE (3): ", results['img'][2].shape)
+        print("NORMALIZE IMG SHAPE (4): ", results['img'][3].shape)
+
         return results
 
     def __repr__(self):
@@ -1027,7 +1038,10 @@ class PhotoMetricDistortion(object):
             print("IN SATURATION: ", img.shape)
 
             if img.shape[2] > 3:
-                img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+                if isinstance(img, np.ndarray):
+                    img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+                else:
+                    img = img.permute(1,2,0)
 
             img = mmcv.bgr2hsv(img)
 
