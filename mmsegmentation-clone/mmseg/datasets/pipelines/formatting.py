@@ -328,6 +328,8 @@ class Collect(object):
         data = {}
         img_meta = {}
 
+        print(results.keys())
+
         if isinstance(results['img'], list): # order prediction task
             self.meta_keys = ('filename', 'video_name', 'img_filenames', 'optflow_filenames', 'str_cls', 'ann')
 
