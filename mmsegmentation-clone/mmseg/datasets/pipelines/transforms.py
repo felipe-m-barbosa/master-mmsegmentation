@@ -703,6 +703,7 @@ class RandomCrop(object):
 
         imgs = results['img']
         is_order_pred = True
+        cropped_imgs = []
 
         # imgs not being list means the task is semantic segmentation,
         # while when it is a list, the task is sequence order prediction,
@@ -710,7 +711,6 @@ class RandomCrop(object):
         if not(isinstance(imgs, list)):
             is_order_pred = False
             imgs = [imgs]
-            cropped_imgs = []
 
         for img in imgs:
             crop_bbox = self.get_crop_bbox(img)
