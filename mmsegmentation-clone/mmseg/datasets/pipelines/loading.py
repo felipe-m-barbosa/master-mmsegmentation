@@ -71,7 +71,7 @@ class LoadImageFromFile(object):
                 if self.to_float32:
                     img = img.astype(np.float32)
                 
-                images_list.append(torch.as_tensor(img))
+                images_list.append(torch.as_tensor(img).permute(2,0,1))
                 
                 optflow = mmcv.flowread(optflow_filename)
                 optflows_list.append(optflow)
