@@ -1016,6 +1016,7 @@ class PhotoMetricDistortion(object):
     def saturation(self, img):
         """Saturation distortion."""
         if random.randint(2):
+            print("IMG SHAPE: ", img.shape)
             img = mmcv.bgr2hsv(img)
             img[:, :, 1] = self.convert(
                 img[:, :, 1],
