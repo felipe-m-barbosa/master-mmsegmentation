@@ -44,6 +44,8 @@ class MotionAwareCropSelection(object):
         
         print("AQUIEEE", kh, kw)
         print("\n\n\n")
+        print(results)
+        print("\n\n\n")
 
         dh, dw = kh, kw # stride values are equal to kernel values (crop dimension) so that they don't overlap
 
