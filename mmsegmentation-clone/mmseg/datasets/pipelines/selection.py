@@ -53,7 +53,7 @@ class MotionAwareCropSelection(object):
         extract_magnitude = lambda f: torch.sqrt(torch.as_tensor(f[..., 0])**2+torch.as_tensor(f[..., 1])**2) # computes magnitude from optical flow
         
         # crop extraction
-        unfold = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw) # returns a tensor with (i,j,C,kh,kw) dimension, where i and j are indices to the extracted crops
+        unf = lambda img: img.unfold(0, kh, dh).unfold(1, kw, dw) # returns a tensor with (i,j,C,kh,kw) dimension, where i and j are indices to the extracted crops
         
         magnitudes = list(map(extract_magnitude, results['optflows'])) # optflows (list[np.ndarray] of size window_size)
         
@@ -68,7 +68,7 @@ class MotionAwareCropSelection(object):
 
 
         # generates patches (windows) from the input images
-        patches_mags = list(map(unfold, magnitudes)) # returns a list of (window_size) tensors with shape (i,j,kh,kw)
+        patches_mags = list(map(unf, magnitudes)) # returns a list of (window_size) tensors with shape (i,j,kh,kw)
         unfold_shape = patches_mags[0].size()
 
         
