@@ -1048,6 +1048,12 @@ class PhotoMetricDistortion(object):
 
             print("IN HUE IMG SHAPE: ", img.shape)
 
+            if img.shape[2] > 3:
+                if isinstance(img, np.ndarray):
+                    img = torch.as_tensor(img).permute(1,2,0).numpy() # permute to channels-last
+                else:
+                    img = img.permute(1,2,0)
+
             img = mmcv.bgr2hsv(img)
             img[:, :,
                 0] = (img[:, :, 0].astype(int) +
