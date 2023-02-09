@@ -37,9 +37,7 @@ class OrderPredHead(BaseDecodeHead):
 
         print(len(inputs))
 
-        print(inputs[0])
-
-        print(np.array(inputs[0]).shape)
+        print(np.array(inputs[0].detach()).shape)
 
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
