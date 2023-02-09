@@ -81,7 +81,7 @@ class MotionAwareCropSelection(object):
         
         # sum the different crops in order to select the one with highest motion
         sum_magnitude = [torch.sum(crop) for crop in crops_magnitude]
-        selected_crop = torch.argmax(sum_magnitude)
+        selected_crop = np.argmax(sum_magnitude)
         # according to the selected crop, we have different indices to access the return from unfold
         if selected_crop == 0:
             i, j = 0, 0
