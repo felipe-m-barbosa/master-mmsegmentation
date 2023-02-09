@@ -33,7 +33,7 @@ class OrderPredHead(BaseDecodeHead):
         # FAZER O CÓDIGO PARA SE FOR BATCH ... (usa-se dim=1, eu acho.... tem q rodar para testar)
 
 
-        print(inputs[0].shape)
+        print(inputs)
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
         
