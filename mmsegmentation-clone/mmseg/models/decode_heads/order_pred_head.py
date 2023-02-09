@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import numpy as np
+
 from ..builder import HEADS
 from .decode_head import BaseDecodeHead
 
@@ -35,7 +37,9 @@ class OrderPredHead(BaseDecodeHead):
 
         print(len(inputs))
 
-        print(torch.as_tensor(inputs[0]).shape)
+        print(inputs[0])
+
+        print(np.array(inputs[0]).shape)
 
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
