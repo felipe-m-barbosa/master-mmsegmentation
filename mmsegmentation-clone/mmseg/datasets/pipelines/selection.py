@@ -105,6 +105,13 @@ class MotionAwareCropSelection(object):
                     
                     
         # Finally!!! We replace the list of images under 'imgs' by their selected crops :D
+        
+        print("SELECTION IMG SHAPE (1): ", list_selected_crops[0].shape)
+        print("SELECTION IMG SHAPE (2): ", list_selected_crops[1].shape)
+        print("SELECTION IMG SHAPE (3): ", list_selected_crops[2].shape)
+        print("SELECTION IMG SHAPE (4): ", list_selected_crops[3].shape)
+        
+        
         results['img'] = list_selected_crops
         results['crop_size'] = [kh,kw]
 

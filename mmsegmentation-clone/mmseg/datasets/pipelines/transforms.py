@@ -716,6 +716,9 @@ class RandomCrop(object):
             imgs = [imgs]
 
         for img in imgs:
+
+            print("RANDOM CROP IMG SHAPE: ", img.shape)
+
             crop_bbox = self.get_crop_bbox(img)
             if not(is_order_pred):
                 if self.cat_max_ratio < 1.:
