@@ -329,12 +329,13 @@ class Collect(object):
         img_meta = {}
 
         print(results.keys())
+        print(results['img_info'].keys())
 
         if isinstance(results['img'], list): # order prediction task
             self.meta_keys = ('filename', 'video_name', 'img_filenames', 'optflow_filenames', 'str_cls', 'ann')
 
             for key in self.meta_keys:
-                img_meta[key] = results['img_infos'][key]
+                img_meta[key] = results['img_info'][key]
         else:
             for key in self.meta_keys:
                 img_meta[key] = results[key]
