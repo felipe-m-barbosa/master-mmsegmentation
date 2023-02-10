@@ -31,7 +31,7 @@ class OrderPredDataset(CustomDataset):
                '{c,b,a,d}')
     
     # the classes, but represented as one-hot tensors for loss calculation
-    ONE_HOT_CLASSES = torch.nn.functional.one_hot(torch.arange(len(CLASSES)), dtype=torch.float)
+    ONE_HOT_CLASSES = torch.nn.functional.one_hot(torch.arange(len(CLASSES))).to(torch.float)
 
     PALETTE = None
 
