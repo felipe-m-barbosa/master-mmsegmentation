@@ -66,11 +66,11 @@ class EncoderDecoder(BaseSegmentor):
     def extract_feat(self, img):
         """Extract features from images."""
 
-        print(len(img))
-        print("\n --- \n")
+        # print(len(img))
+        # print("\n --- \n")
 
-        for i in img:
-            print(i.shape)
+        # for i in img:
+        #     print(i.shape)
 
         if isinstance(img, list):
             x = []
