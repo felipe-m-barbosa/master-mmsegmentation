@@ -108,7 +108,8 @@ class PSPHead(BaseDecodeHead):
         # print("INFORMACAO QUE EU QUERO: ", inputs[0].shape)
 
 
-        print(len(inputs))
+        print("LEN INPUTS: ", len(inputs))
+        print("SINGLE INPUT SHAPE: ", inputs[0].shape)
 
         x = self._transform_inputs(inputs)
         psp_outs = [x]
