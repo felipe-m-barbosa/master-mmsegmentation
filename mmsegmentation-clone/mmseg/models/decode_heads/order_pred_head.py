@@ -37,26 +37,29 @@ class OrderPredHead(BaseDecodeHead):
         # 'inputs' has the outputs from the backbone. Hence, we must extract the input corresponding to the in_index received as argument in class instantiation
 
 
-        inputs1 = inputs[self.in_index] # isso aqui tbm tá meio zoado ... ver o colab
-        inputs2 = inputs[0]
-        inputs3 = inputs[1]
-        inputs4 = inputs[2]
+        # selecting only the last outputs from backbone
+        # inputs is of shape [[(), (), (), ()], [(), (), (), ()], [(), (), (), ()], [(), (), (), ()]]
+        # we must select                    ^                 ^                 ^                 ^
+        # that is, each internal list corresponds to the outputs for a given image from the input sequence of 4 frames
+        # moreover, each item correspond to a batch of 8 images
 
-        print("Inputs2: ", end='\n')
-        for i in inputs2:
-            print(i.shape)
+        inputs = [i[self.in_index] for i in inputs]
 
-        print("Inputs3: ", end='\n')
-        for i in inputs3:
-            print(i.shape)
+        # print("Inputs2: ", end='\n')
+        # for i in inputs2:
+        #     print(i.shape)
 
-        print("Inputs4: ", end='\n')
-        for i in inputs4:
-            print(i.shape)
+        # print("Inputs3: ", end='\n')
+        # for i in inputs3:
+        #     print(i.shape)
+
+        # print("Inputs4: ", end='\n')
+        # for i in inputs4:
+        #     print(i.shape)
 
 
         print("Shapes before flatten operation: ", end='\n')
-        for i in inputs1:
+        for i in inputs:
             print(i.shape)
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
