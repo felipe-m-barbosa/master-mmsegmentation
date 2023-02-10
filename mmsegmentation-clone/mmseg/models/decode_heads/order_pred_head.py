@@ -16,7 +16,7 @@ class OrderPredHead(BaseDecodeHead):
         self.fc2 = nn.Linear(6*embed_dim, output_dim)
         self.seq_len = seq_length
 
-        self.bottleneck = nn.Conv2D(self.in_channels, self.channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
+        self.bottleneck = nn.Conv2d(self.in_channels, self.channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
 
     # def init_weights(self):
     #     pass
