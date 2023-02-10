@@ -66,7 +66,7 @@ class OrderPredHead(BaseDecodeHead):
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
         
-        inputs = self.bottleneck(inputs)
+        inputs = [self.bottleneck(i) for i in inputs]
 
         print("INPUTS SHAPE: ", inputs[0].shape, inputs[1].shape, inputs[2].shape, inputs[3].shape)
 
