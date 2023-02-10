@@ -348,12 +348,15 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             else:
                 loss[loss_decode.loss_name] += tmp_loss
 
+        print("SEG LOGITS SHAPE: ", seg_logit.shape)
+
         loss['acc_seg'] = accuracy(
             seg_logit, seg_label, ignore_index=self.ignore_index)
 
         jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes, ignore_index=255).to('cuda')
         # seg_logit = F.softmax(seg_logit, dim=1)
         # print(seg_logit.shape)
+        
         loss['miou'] = jaccard(seg_logit, seg_label) # what you put in loss dict will be shown by the TextLogger
 
         return loss
