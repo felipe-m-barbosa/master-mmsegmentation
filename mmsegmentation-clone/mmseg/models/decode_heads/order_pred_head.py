@@ -40,7 +40,7 @@ class OrderPredHead(BaseDecodeHead):
         inputs = inputs[self.in_index]
 
         print("Shapes before flatten operation: ", end='\n')
-        for i in input:
+        for i in inputs:
             print(i.shape)
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
@@ -50,7 +50,7 @@ class OrderPredHead(BaseDecodeHead):
 
         print(len(inputs))
 
-        # dimensions were supposed to be equal... 
+        # shapes were supposed to be equal... 
         print(inputs[0].shape) # 1048576
         print(inputs[1].shape) # 524288
 
