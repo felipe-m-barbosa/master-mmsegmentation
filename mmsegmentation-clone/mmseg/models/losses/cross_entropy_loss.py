@@ -57,6 +57,8 @@ def cross_entropy(pred,
             reduction='none',
             ignore_index=ignore_index)
 
+    print("LOSS INSIDE CROSS ENTROPY LOSS FUNCTION: ", loss)
+
     # apply weights and do the reduction
     # average loss over non-ignored elements
     # pytorch's official cross_entropy average loss over non-ignored elements
@@ -67,6 +69,8 @@ def cross_entropy(pred,
         weight = weight.float()
     loss = weight_reduce_loss(
         loss, weight=weight, reduction=reduction, avg_factor=avg_factor)
+
+    print("LOSS JUST BEFORE RETURNING TO THE MAIN CROSS ENTROPY CLASS: ", loss)
 
     return loss
 
@@ -299,6 +303,10 @@ class CrossEntropyLoss(nn.Module):
                 avg_non_ignore=self.avg_non_ignore,
                 ignore_index=ignore_index,
                 **kwargs)
+            
+
+            print("LOSS JUST BEFORE RETURN: ", loss_cls)
+
         return loss_cls
 
     @property
