@@ -277,7 +277,7 @@ class CrossEntropyLoss(nn.Module):
             class_weight = None
         # Note: for BCE loss, label < 0 is invalid.
 
-        print("IGNORE INDEX: ", ignore_index)
+        # print("IGNORE INDEX: ", ignore_index)
 
         if cls_score.shape[1] == 12:
             loss_cls = self.loss_weight * self.cls_criterion(
