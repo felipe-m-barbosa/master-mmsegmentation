@@ -16,6 +16,8 @@ class OrderPredHead(BaseDecodeHead):
         self.fc2 = nn.Linear(6*embed_dim, output_dim)
         self.seq_len = seq_length
 
+        self.bottleneck = nn.Conv2D(self.in_channels, self.channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
+
     # def init_weights(self):
     #     pass
 
@@ -64,14 +66,17 @@ class OrderPredHead(BaseDecodeHead):
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
         
+        inputs = self.bottleneck(inputs)
+
+        print("INPUTS SHAPE: ", inputs[0].shape, inputs[1].shape, inputs[2].shape, inputs[3].shape)
+
         # flatten inputs
         inputs = [torch.flatten(i, start_dim=1) for i in inputs]
 
-        print(len(inputs))
-
-        # shapes were supposed to be equal... 
-        print(inputs[0].shape) # 1048576
-        print(inputs[1].shape) # 524288
+        # shapes are supposed to be equal... 
+        print("FLATENNED INPUTS: ")
+        print(inputs[0].shape)
+        print(inputs[1].shape)
 
         # concatenate inputs, pair-wise
         concat1 = torch.cat((inputs[0], inputs[1]), dim=1)
