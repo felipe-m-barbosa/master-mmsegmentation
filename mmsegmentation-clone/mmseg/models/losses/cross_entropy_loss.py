@@ -57,7 +57,7 @@ def cross_entropy(pred,
             reduction='none',
             ignore_index=ignore_index)
 
-    print("LOSS INSIDE CROSS ENTROPY LOSS FUNCTION: ", loss)
+    # print("LOSS INSIDE CROSS ENTROPY LOSS FUNCTION: ", loss)
 
     # apply weights and do the reduction
     # average loss over non-ignored elements
@@ -70,7 +70,7 @@ def cross_entropy(pred,
     loss = weight_reduce_loss(
         loss, weight=weight, reduction=reduction, avg_factor=avg_factor)
 
-    print("LOSS JUST BEFORE RETURNING TO THE MAIN CROSS ENTROPY CLASS: ", loss)
+    # print("LOSS JUST BEFORE RETURNING TO THE MAIN CROSS ENTROPY CLASS: ", loss)
 
     return loss
 
@@ -305,7 +305,7 @@ class CrossEntropyLoss(nn.Module):
                 **kwargs)
             
 
-            print("LOSS JUST BEFORE RETURN: ", loss_cls)
+            # print("LOSS JUST BEFORE RETURN: ", loss_cls)
 
         return loss_cls
 
