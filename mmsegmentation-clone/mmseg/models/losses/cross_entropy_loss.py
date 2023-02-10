@@ -287,7 +287,6 @@ class CrossEntropyLoss(nn.Module):
                 class_weight=class_weight,
                 reduction=reduction,
                 avg_factor=avg_factor,
-                ignore_index=ignore_index,
                 **kwargs)
         else:
             loss_cls = self.loss_weight * self.cls_criterion(
