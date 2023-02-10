@@ -353,10 +353,12 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         loss['acc_seg'] = accuracy(
             seg_logit, seg_label, ignore_index=self.ignore_index)
 
-        jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes, ignore_index=255).to('cuda')
-        # seg_logit = F.softmax(seg_logit, dim=1)
-        # print(seg_logit.shape)
-        
-        loss['miou'] = jaccard(seg_logit, seg_label) # what you put in loss dict will be shown by the TextLogger
+        if seg_logit.shape[1] != 12: # if not order prediction task
+
+            jaccard = JaccardIndex(task='multiclass', num_classes=self.num_classes, ignore_index=255).to('cuda')
+            # seg_logit = F.softmax(seg_logit, dim=1)
+            # print(seg_logit.shape)
+            
+            loss['miou'] = jaccard(seg_logit, seg_label) # what you put in loss dict will be shown by the TextLogger
 
         return loss
