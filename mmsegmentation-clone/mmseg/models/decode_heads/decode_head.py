@@ -233,6 +233,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         """
 
         seg_logits = self(inputs)
+
+        print("KWARGS KEYS: ", end="\n")
+        print(kwargs.keys(), end="\n\n\n")
         
         # verify if sequence images where passed
         if 's1' in kwargs: # we assume that s1 and s2 always appear together
