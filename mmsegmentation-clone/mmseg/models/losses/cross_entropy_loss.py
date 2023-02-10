@@ -43,13 +43,19 @@ def cross_entropy(pred,
     # class_weight is a manual rescaling weight given to each class.
     # If given, has to be a Tensor of size C element-wise losses
     
-    
-    loss = F.cross_entropy(
-        pred,
-        label,
-        weight=class_weight,
-        reduction='none',
-        ignore_index=ignore_index)
+    if ignore_index == -100: # we don't need to pass ignore_index to the function
+        loss = F.cross_entropy(
+            pred,
+            label,
+            weight=class_weight,
+            reduction='none')
+    else:
+        loss = F.cross_entropy(
+            pred,
+            label,
+            weight=class_weight,
+            reduction='none',
+            ignore_index=ignore_index)
 
     # apply weights and do the reduction
     # average loss over non-ignored elements
@@ -273,18 +279,27 @@ class CrossEntropyLoss(nn.Module):
 
         print("IGNORE INDEX: ", ignore_index)
 
-        print(cls_score.shape)
-
-        loss_cls = self.loss_weight * self.cls_criterion(
-            cls_score,
-            label,
-            weight,
-            class_weight=class_weight,
-            reduction=reduction,
-            avg_factor=avg_factor,
-            avg_non_ignore=self.avg_non_ignore,
-            ignore_index=ignore_index,
-            **kwargs)
+        if cls_score.shape[1] == 12:
+            loss_cls = self.loss_weight * self.cls_criterion(
+                cls_score,
+                label,
+                weight,
+                class_weight=class_weight,
+                reduction=reduction,
+                avg_factor=avg_factor,
+                ignore_index=ignore_index,
+                **kwargs)
+        else:
+            loss_cls = self.loss_weight * self.cls_criterion(
+                cls_score,
+                label,
+                weight,
+                class_weight=class_weight,
+                reduction=reduction,
+                avg_factor=avg_factor,
+                avg_non_ignore=self.avg_non_ignore,
+                ignore_index=ignore_index,
+                **kwargs)
         return loss_cls
 
     @property
