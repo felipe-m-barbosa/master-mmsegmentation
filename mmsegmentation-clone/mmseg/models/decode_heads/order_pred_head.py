@@ -37,7 +37,23 @@ class OrderPredHead(BaseDecodeHead):
         # 'inputs' has the outputs from the backbone. Hence, we must extract the input corresponding to the in_index received as argument in class instantiation
 
 
-        inputs = inputs[self.in_index]
+        inputs = inputs[self.in_index] # isso aqui tbm tá meio zoado ... ver o colab
+        inputs2 = inputs[0]
+        inputs3 = inputs[1]
+        inputs4 = inputs[2]
+
+        print("Inputs2: ", end='\n')
+        for i in inputs2:
+            print(i.shape)
+
+        print("Inputs3: ", end='\n')
+        for i in inputs3:
+            print(i.shape)
+
+        print("Inputs4: ", end='\n')
+        for i in inputs4:
+            print(i.shape)
+
 
         print("Shapes before flatten operation: ", end='\n')
         for i in inputs:
