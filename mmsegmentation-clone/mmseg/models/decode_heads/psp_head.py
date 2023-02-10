@@ -115,6 +115,9 @@ class PSPHead(BaseDecodeHead):
         print("SINGLE INPUT SHAPE: ", inputs[3].shape)
 
         x = self._transform_inputs(inputs)
+
+        print("AFTER _transform_inputs: ", x.shape)
+
         psp_outs = [x]
         psp_outs.extend(self.psp_modules(x))
         psp_outs = torch.cat(psp_outs, dim=1)
