@@ -233,9 +233,6 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         """
 
         seg_logits = self(inputs)
-
-        print("KWARGS KEYS: ", end="\n")
-        print(kwargs.keys(), end="\n\n\n")
         
         # verify if sequence images where passed
         if 's1' in kwargs: # we assume that s1 and s2 always appear together
@@ -245,7 +242,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             losses = self.losses(seg_logits, gt_semantic_seg, s1_logits=s1_logits, s2_logits=s2_logits, opt_flow=kwargs['opt_flow'])
 
         else:
-            if isinstance(inputs, list): # order prediction task
+            if isinstance(inputs, list): # order prediction task (NOT SURE IF THIS IS SUFFICIENT -> CHECK)
                 losses = self.losses(seg_logits, gt_semantic_seg, is_order_pred=True)
             else:
                 losses = self.losses(seg_logits, gt_semantic_seg)
@@ -284,11 +281,15 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         loss = dict()
         # print('Seg logit shape: ', seg_logit.shape)
         # print('Seg label shape: ', seg_label.shape)
-        seg_logit = resize(
-            input=seg_logit,
-            size=seg_label.shape[2:],
-            mode='bilinear',
-            align_corners=self.align_corners)
+        
+        
+        # THIS IS UNNECESSARY IN ORDER PREDICTION TASK
+        if not(kwargs.get('is_order_pred', False)):
+            seg_logit = resize(
+                input=seg_logit,
+                size=seg_label.shape[2:],
+                mode='bilinear',
+                align_corners=self.align_corners)
         
         # print('Seg logit shape: ', seg_logit.shape)
 
