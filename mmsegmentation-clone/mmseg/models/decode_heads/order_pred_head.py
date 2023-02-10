@@ -15,6 +15,7 @@ class OrderPredHead(BaseDecodeHead):
         self.fc1 = nn.Linear(2*input_dim, embed_dim) # input_dim should be 256*64*64 (add in config file)
         self.fc2 = nn.Linear(6*embed_dim, output_dim)
         self.seq_len = seq_length
+        self.dropout = nn.Dropout(p=0.5)
 
         self.bottleneck = nn.Conv2d(self.in_channels, self.channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
 
@@ -90,18 +91,18 @@ class OrderPredHead(BaseDecodeHead):
 
 
         # pass them through first FC layer
-        f1 = self.fc1(concat1)
-        f2 = self.fc1(concat2)
-        f3 = self.fc1(concat3)
-        f4 = self.fc1(concat4)
-        f5 = self.fc1(concat5)
-        f6 = self.fc1(concat6)
+        f1 = self.dropout(F.relu(self.fc1(concat1)))
+        f2 = self.dropout(F.relu(self.fc1(concat2)))
+        f3 = self.dropout(F.relu(self.fc1(concat3)))
+        f4 = self.dropout(F.relu(self.fc1(concat4)))
+        f5 = self.dropout(F.relu(self.fc1(concat5)))
+        f6 = self.dropout(F.relu(self.fc1(concat6)))
 
         # concatenate intermediate features
         final_concat = torch.cat((f1,f2,f3,f4,f5,f6), dim=1)
 
         # generate logits
-        output = self.fc2(final_concat)
+        output = self.fc2(final_concat) # apply relu and dropout?
 
         # print(output.shape)
 
