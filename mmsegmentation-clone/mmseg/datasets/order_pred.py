@@ -81,13 +81,21 @@ class OrderPredDataset(CustomDataset):
             # loop over filenames, considering the window size passed as argument
             for i in range(len(filenames)//self.window_size): # guarantees that we don't access windows shorter than the required window_size
                 window_list = filenames[(i)*self.window_size:(i+1)*self.window_size]
-            
+                optflow_list = [osp.join(optflow_dir, img.replace('leftImg8bit.png', 'opt_flow.flo')) for img in window_list]
+
+                optflow_exist = [osp.exists(f) for f in optflow_list]
+
+                # test if all images have a corresponding optflow
+                if not all(optflow_exist):
+                    continue
+
+
                 img_info = dict(filename=window_list[0]) # the name of first frame in the window
                 img_info['video_name'] = img_dir # we use the original img_dir path as the video name
                 img_info['img_filenames'] = window_list
     
 
-                img_info['optflow_filenames'] = [osp.join(optflow_dir, img.replace('leftImg8bit.png', 'opt_flow.flo')) for img in window_list]
+                img_info['optflow_filenames'] = optflow_list
                 if i == len(filenames)//self.window_size - 1: # in the last sequence, we need to make an additional verification, because the last image of the video sequence doesn't have an associated optical flow 
                     idx = filenames.index(window_list[self.window_size-1]) # find index corresponding to last image in the window
                     if idx == len(filenames)-1:

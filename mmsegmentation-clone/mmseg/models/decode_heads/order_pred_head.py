@@ -60,23 +60,23 @@ class OrderPredHead(BaseDecodeHead):
         #     print(i.shape)
 
 
-        print("Shapes before flatten operation: ", end='\n')
-        for i in inputs:
-            print(i.shape)
+        # print("Shapes before flatten operation: ", end='\n')
+        # for i in inputs:
+        #     print(i.shape)
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
         
         inputs = [self.bottleneck(i) for i in inputs]
 
-        print("INPUTS SHAPE: ", inputs[0].shape, inputs[1].shape, inputs[2].shape, inputs[3].shape)
+        # print("INPUTS SHAPE: ", inputs[0].shape, inputs[1].shape, inputs[2].shape, inputs[3].shape)
 
         # flatten inputs
         inputs = [torch.flatten(i, start_dim=1) for i in inputs]
 
         # shapes are supposed to be equal... 
-        print("FLATENNED INPUTS: ")
-        print(inputs[0].shape)
-        print(inputs[1].shape)
+        # print("FLATENNED INPUTS: ")
+        # print(inputs[0].shape)
+        # print(inputs[1].shape)
 
         # concatenate inputs, pair-wise
         concat1 = torch.cat((inputs[0], inputs[1]), dim=1)
@@ -86,7 +86,7 @@ class OrderPredHead(BaseDecodeHead):
         concat5 = torch.cat((inputs[1], inputs[3]), dim=1)
         concat6 = torch.cat((inputs[2], inputs[3]), dim=1)
 
-        print(concat1.shape)
+        # print(concat1.shape)
 
 
         # pass them through first FC layer
@@ -103,7 +103,7 @@ class OrderPredHead(BaseDecodeHead):
         # generate logits
         output = self.fc2(final_concat)
 
-        print(output.shape)
+        # print(output.shape)
 
         # generate probabilities
 
