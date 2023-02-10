@@ -57,6 +57,8 @@ class OrderPredHead(BaseDecodeHead):
         concat5 = torch.cat((inputs[1], inputs[3]), dim=1)
         concat6 = torch.cat((inputs[2], inputs[3]), dim=1)
 
+        print(concat1.shape)
+
 
         # pass them through first FC layer
         f1 = self.fc1(concat1)
