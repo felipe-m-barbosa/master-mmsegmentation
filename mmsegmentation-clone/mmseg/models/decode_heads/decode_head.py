@@ -348,7 +348,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             else:
                 loss[loss_decode.loss_name] += tmp_loss
 
-        print("SEG LOGITS SHAPE: ", seg_logit.shape)
+        # print("SEG LOGITS SHAPE: ", seg_logit.shape)
 
         loss['acc_seg'] = accuracy(
             seg_logit, seg_label, ignore_index=self.ignore_index)
