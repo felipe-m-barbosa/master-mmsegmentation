@@ -73,7 +73,7 @@ class LoadImageFromFile(object):
                 
                 images_list.append(torch.as_tensor(img))
                 
-                optflow = mmcv.flowread(optflow_filename)
+                optflow = mmcv.flowread(optflow_filename) if optflow_filename is not None else None
                 optflows_list.append(optflow)
             
             # remember that img is a list of images, actually
