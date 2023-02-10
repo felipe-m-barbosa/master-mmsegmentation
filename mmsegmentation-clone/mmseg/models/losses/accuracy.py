@@ -44,26 +44,29 @@ def accuracy(pred, target, topk=1, thresh=None, ignore_index=None):
     # transpose to shape (maxk, N, ...)
     pred_label = pred_label.transpose(0, 1)
 
-
-    print("TARGET SHAPE: ", target.shape)
-
-    correct = pred_label.eq(target.unsqueeze(0).expand_as(pred_label))
-    if thresh is not None:
-        # Only prediction values larger than thresh are counted as correct
-        correct = correct & (pred_value > thresh).t()
-    if ignore_index is not None:
-        correct = correct[:, target != ignore_index]
-    res = []
-    eps = torch.finfo(torch.float32).eps
-    for k in topk:
-        # Avoid causing ZeroDivisionError when all pixels
-        # of an image are ignored
-        correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True) + eps
+    if pred.size(0) != 12:
+        correct = pred_label.eq(target.unsqueeze(0).expand_as(pred_label))
+        if thresh is not None:
+            # Only prediction values larger than thresh are counted as correct
+            correct = correct & (pred_value > thresh).t()
         if ignore_index is not None:
-            total_num = target[target != ignore_index].numel() + eps
-        else:
-            total_num = target.numel() + eps
-        res.append(correct_k.mul_(100.0 / total_num))
+            correct = correct[:, target != ignore_index]
+        res = []
+        eps = torch.finfo(torch.float32).eps
+        for k in topk:
+            # Avoid causing ZeroDivisionError when all pixels
+            # of an image are ignored
+            correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True) + eps
+            if ignore_index is not None:
+                total_num = target[target != ignore_index].numel() + eps
+            else:
+                total_num = target.numel() + eps
+            res.append(correct_k.mul_(100.0 / total_num))
+    else: # order prediction
+        tgt = torch.argmax(target, dim=1)
+
+        res = [torch.sum(pred_label == tgt)*100.0/tgt.shape[0]]
+        
     return res[0] if return_single else res
 
 
