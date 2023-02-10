@@ -40,9 +40,13 @@ def accuracy(pred, target, topk=1, thresh=None, ignore_index=None):
     assert pred.size(0) == target.size(0) # batch dimension
     assert maxk <= pred.size(1), \
         f'maxk {maxk} exceeds pred dimension {pred.size(1)}'
-    pred_value, pred_label = pred.topk(maxk, dim=1)
+    pred_value, pred_label = pred.topk(maxk, dim=1) # very useful built-in function... returns both pred mawk values and corresponding labels
     # transpose to shape (maxk, N, ...)
     pred_label = pred_label.transpose(0, 1)
+
+
+    print("TARGET SHAPE: ", target.shape)
+
     correct = pred_label.eq(target.unsqueeze(0).expand_as(pred_label))
     if thresh is not None:
         # Only prediction values larger than thresh are counted as correct
