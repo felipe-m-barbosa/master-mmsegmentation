@@ -12,8 +12,8 @@ class OrderPredHead(BaseDecodeHead):
 
     def __init__(self, input_dim, embed_dim, output_dim, seq_length, pool_scales=(1, 2, 3, 6), **kwargs):
         super(OrderPredHead, self).__init__(**kwargs)
-        self.fc1 = nn.Linear(input_dim, embed_dim) # input_dim should be 256*64*64 (add in config file)
-        self.fc2 = nn.Linear(embed_dim, output_dim)
+        self.fc1 = nn.Linear(2*input_dim, embed_dim) # input_dim should be 256*64*64 (add in config file)
+        self.fc2 = nn.Linear(6*embed_dim, output_dim)
         self.seq_len = seq_length
 
     # def init_weights(self):
@@ -48,6 +48,7 @@ class OrderPredHead(BaseDecodeHead):
         print(len(inputs))
 
         print(inputs[0].shape)
+        print(inputs[1].shape)
 
         # concatenate inputs, pair-wise
         concat1 = torch.cat((inputs[0], inputs[1]), dim=1)
