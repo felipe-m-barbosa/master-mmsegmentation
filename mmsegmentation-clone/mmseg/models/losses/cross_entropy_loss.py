@@ -42,12 +42,20 @@ def cross_entropy(pred,
 
     # class_weight is a manual rescaling weight given to each class.
     # If given, has to be a Tensor of size C element-wise losses
-    loss = F.cross_entropy(
+    
+    if ignore_index == -100: # in this case, we don't need to send the ignore_index for cross entropy loss calculation
+        loss = F.cross_entropy(
         pred,
         label,
         weight=class_weight,
-        reduction='none',
-        ignore_index=ignore_index)
+        reduction='none')
+    else:
+        loss = F.cross_entropy(
+            pred,
+            label,
+            weight=class_weight,
+            reduction='none',
+            ignore_index=ignore_index)
 
     # apply weights and do the reduction
     # average loss over non-ignored elements
@@ -268,6 +276,9 @@ class CrossEntropyLoss(nn.Module):
         else:
             class_weight = None
         # Note: for BCE loss, label < 0 is invalid.
+
+        print("IGNORE INDEX: ", ignore_index)
+
         loss_cls = self.loss_weight * self.cls_criterion(
             cls_score,
             label,
