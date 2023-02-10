@@ -39,6 +39,9 @@ class OrderPredHead(BaseDecodeHead):
 
         inputs = inputs[self.in_index]
 
+        print("Shapes before flatten operation: ", end='\n')
+        for i in input:
+            print(i.shape)
 
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
         
@@ -47,8 +50,9 @@ class OrderPredHead(BaseDecodeHead):
 
         print(len(inputs))
 
-        print(inputs[0].shape)
-        print(inputs[1].shape)
+        # dimensions were supposed to be equal... 
+        print(inputs[0].shape) # 1048576
+        print(inputs[1].shape) # 524288
 
         # concatenate inputs, pair-wise
         concat1 = torch.cat((inputs[0], inputs[1]), dim=1)
