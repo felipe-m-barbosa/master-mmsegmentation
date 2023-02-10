@@ -47,6 +47,8 @@ class OrderPredHead(BaseDecodeHead):
 
         print(len(inputs))
 
+        print(inputs[0].shape)
+
         # concatenate inputs, pair-wise
         concat1 = torch.cat((inputs[0], inputs[1]), dim=1)
         concat2 = torch.cat((inputs[0], inputs[2]), dim=1)
