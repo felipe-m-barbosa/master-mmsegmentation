@@ -43,7 +43,7 @@ class OrderPredHead(BaseDecodeHead):
         assert len(inputs) == self.seq_len, (f"Inputs list to OrderPredHead is expected to have {self.seq_len} elements, but got length of {len(inputs)}")
         
         # flatten inputs
-        inputs = [torch.flatten(i) for i in inputs]
+        inputs = [torch.flatten(i, start_dim=1) for i in inputs]
 
         print(len(inputs))
 
