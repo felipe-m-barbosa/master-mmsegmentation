@@ -44,7 +44,7 @@ def accuracy(pred, target, topk=1, thresh=None, ignore_index=None):
     # transpose to shape (maxk, N, ...)
     pred_label = pred_label.transpose(0, 1)
 
-    if pred.size(0) != 12:
+    if pred.size(1) != 12:
         correct = pred_label.eq(target.unsqueeze(0).expand_as(pred_label))
         if thresh is not None:
             # Only prediction values larger than thresh are counted as correct
