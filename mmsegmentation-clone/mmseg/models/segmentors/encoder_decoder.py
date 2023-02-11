@@ -212,7 +212,9 @@ class EncoderDecoder(BaseSegmentor):
         else:
             x = self.extract_feat(img) # x is a list in order prediction task
 
-            print(f"encoder-decoder - forward_train - x.shape: ", x.shape)
+
+            for idx, xis in enumerate(x):
+                print(f"encoder-decoder - forward_train - x{idx}.shape: ", x[idx].shape)
 
             loss_decode = self._decode_head_forward_train(x, img_metas,
                                                       gt_semantic_seg)
