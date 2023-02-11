@@ -675,7 +675,8 @@ class ResNet(BaseModule):
                 outs.append(x)
         
 
-        print("resnet - forward - outs.shape: ", outs.shape)
+        for idx, o in enumerate(outs):
+            print(f"resnet - forward - outs{idx}.shape: ", o.shape)
 
         return tuple(outs)
 
