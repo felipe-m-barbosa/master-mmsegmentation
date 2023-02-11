@@ -658,7 +658,7 @@ class ResNet(BaseModule):
     def forward(self, x):
         """Forward function."""
 
-        print("resnet - forward - x.shape: ", x.shape)
+        # print("resnet - forward - x.shape: ", x.shape)
 
         if self.deep_stem:
             x = self.stem(x)
@@ -675,8 +675,8 @@ class ResNet(BaseModule):
                 outs.append(x)
         
 
-        for idx, o in enumerate(outs):
-            print(f"resnet - forward - outs{idx}.shape: ", o.shape)
+        # for idx, o in enumerate(outs):
+        #     print(f"resnet - forward - outs{idx}.shape: ", o.shape)
 
         return tuple(outs)
 
