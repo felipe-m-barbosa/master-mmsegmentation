@@ -673,6 +673,10 @@ class ResNet(BaseModule):
             x = res_layer(x)
             if i in self.out_indices:
                 outs.append(x)
+        
+
+        print("resnet - forward - outs.shape: ", outs.shape)
+
         return tuple(outs)
 
     def train(self, mode=True):
