@@ -658,6 +658,8 @@ class ResNet(BaseModule):
     def forward(self, x):
         """Forward function."""
 
+        print("resnet - forward - x.shape: ", x.shape)
+
         if self.deep_stem:
             x = self.stem(x)
         else:
