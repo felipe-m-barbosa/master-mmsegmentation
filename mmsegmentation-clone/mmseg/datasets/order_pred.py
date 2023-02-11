@@ -110,8 +110,8 @@ class OrderPredDataset(CustomDataset):
 
                 img_infos.append(img_info)
 
-            img_infos = sorted(img_infos, key=lambda x: x['filename'])
+        img_infos = sorted(img_infos, key=lambda x: x['filename'])
 
-            print_log(f'Loaded {len(img_infos)} images', logger=get_root_logger())
-            
-            return img_infos
+        print_log(f'Loaded {len(img_infos)} images', logger=get_root_logger())
+        
+        return img_infos
