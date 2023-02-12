@@ -13,11 +13,12 @@ class OrderPredHead(BaseDecodeHead):
 
     def __init__(self, input_dim, embed_dim, output_dim, seq_length, **kwargs):
         super(OrderPredHead, self).__init__(**kwargs)
+        
+        self.seq_len = seq_length
+
         self.fc1 = nn.Linear(2*input_dim, embed_dim) # input_dim should be 256*64*64 (add in config file)
         self.fc2 = nn.Linear(6*embed_dim, output_dim)
-        self.seq_len = seq_length
         self.dropout = nn.Dropout(p=0.5)
-
         self.bottleneck = nn.Conv2d(self.in_channels, self.channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
 
         # if self.init_cfg is None:
@@ -28,10 +29,10 @@ class OrderPredHead(BaseDecodeHead):
             # self.init_cfg.append(dict(type='Normal', layer='Linear'))
 
 
-    def init_weights(self):
-        for n, m in self.named_modules():
-            if isinstance(m, nn.Linear):
-                constant_init(m, val=1, bias=0)
+    # def init_weights(self):
+    #     for n, m in self.named_modules():
+    #         if isinstance(m, nn.Linear):
+    #             constant_init(m, val=1, bias=0)
                 
     def forward(self, inputs):
         """
