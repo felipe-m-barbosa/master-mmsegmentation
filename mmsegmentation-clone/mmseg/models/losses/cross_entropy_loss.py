@@ -284,6 +284,7 @@ class CrossEntropyLoss(nn.Module):
         # print("IGNORE INDEX: ", ignore_index)
 
         if cls_score.shape[1] == 12:
+            cls_score = torch.argmax(cls_score, dim=1)
             loss_cls = self.loss_weight * self.cls_criterion(
                 cls_score,
                 label,
