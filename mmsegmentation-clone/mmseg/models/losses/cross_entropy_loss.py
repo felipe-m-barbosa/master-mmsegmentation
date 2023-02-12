@@ -286,9 +286,9 @@ class CrossEntropyLoss(nn.Module):
         if cls_score.shape[1] == 12:
             label = torch.argmax(label, dim=1)
 
-            print("CLS SCORE SHAPE: ", cls_score.shape)
-            print(cls_score[0, ...])
-            print(cls_score[1, ...])
+            # print("CLS SCORE SHAPE: ", cls_score.shape)
+            # print(cls_score[0, ...])
+            # print(cls_score[1, ...])
 
 
             loss_cls = self.loss_weight * self.cls_criterion(
