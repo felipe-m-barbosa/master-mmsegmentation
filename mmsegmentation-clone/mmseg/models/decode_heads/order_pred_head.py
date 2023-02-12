@@ -29,10 +29,10 @@ class OrderPredHead(BaseDecodeHead):
 
 
 
-    def init_weights(self):
-        for n, m in self.named_modules():
-            if isinstance(m, nn.Linear):
-                normal_init(m, mean=0, std=1, bias=0)
+    # def init_weights(self):
+    #     for n, m in self.named_modules():
+    #         if isinstance(m, nn.Linear):
+    #             normal_init(m, mean=0, std=1, bias=0)
                 
     def forward(self, inputs):
         """
