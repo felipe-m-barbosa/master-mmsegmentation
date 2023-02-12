@@ -437,8 +437,7 @@ class ResNet(BaseModule):
                     dict(
                         type='Constant',
                         val=1,
-                        layer=['_BatchNorm', 'GroupNorm']),
-                    dict(type='Constant', val=1, layer='Linear')
+                        layer=['_BatchNorm', 'GroupNorm'])
                 ]
                 block = self.arch_settings[depth][0]
                 if self.zero_init_residual:

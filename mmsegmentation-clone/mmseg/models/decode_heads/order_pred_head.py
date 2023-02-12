@@ -11,7 +11,7 @@ from .decode_head import BaseDecodeHead
 @HEADS.register_module()
 class OrderPredHead(BaseDecodeHead):
 
-    def __init__(self, input_dim, embed_dim, output_dim, seq_length, pool_scales=(1, 2, 3, 6), **kwargs):
+    def __init__(self, input_dim, embed_dim, output_dim, seq_length, **kwargs):
         super(OrderPredHead, self).__init__(**kwargs)
         self.fc1 = nn.Linear(2*input_dim, embed_dim) # input_dim should be 256*64*64 (add in config file)
         self.fc2 = nn.Linear(6*embed_dim, output_dim)
