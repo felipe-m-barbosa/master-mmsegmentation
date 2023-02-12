@@ -24,7 +24,7 @@ class OrderPredHead(BaseDecodeHead):
                 dict(type='Kaiming', layer='Linear')
             ]
         elif isinstance(self.init_cfg, list):
-            self.init_cfg.append(dict(type='Kaiming', layer='Linear'))
+            self.init_cfg.append(dict(type='Normal', layer='Linear'))
 
     # def init_weights(self):
     #     pass
