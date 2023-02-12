@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import numpy as np
+from mmcv.cnn import normal_init
 
 from ..builder import HEADS
 from .decode_head import BaseDecodeHead
@@ -26,9 +27,13 @@ class OrderPredHead(BaseDecodeHead):
         elif isinstance(self.init_cfg, list):
             self.init_cfg.append(dict(type='Normal', layer='Linear'))
 
-    # def init_weights(self):
-    #     pass
 
+
+    def init_weights(self):
+        for n, m in self.named_modules():
+            if isinstance(m, nn.Linear):
+                normal_init(m, mean=0, std=1, bias=0)
+                
     def forward(self, inputs):
         """
         Args:
