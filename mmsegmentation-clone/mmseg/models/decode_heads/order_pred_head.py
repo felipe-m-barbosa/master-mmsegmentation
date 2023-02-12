@@ -111,7 +111,7 @@ class OrderPredHead(BaseDecodeHead):
         # loss expects the predicted unnormalized logits
         # https://pytorch.org/docs/stable/generated/torch.nn.functional.cross_entropy.html#torch.nn.functional.cross_entropy
         # so, comment the following        
-        output = F.softmax(output, dim=1) 
+        # output = F.softmax(output, dim=1) 
 
         return output
 
