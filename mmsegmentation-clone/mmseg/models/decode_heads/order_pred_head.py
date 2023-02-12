@@ -23,7 +23,7 @@ class OrderPredHead(BaseDecodeHead):
             self.init_cfg = [
                 dict(type='Kaiming', layer='Linear')
             ]
-        elif isinstance(self.init_cfg):
+        elif isinstance(self.init_cfg, list):
             self.init_cfg.append(dict(type='Kaiming', layer='Linear'))
 
     # def init_weights(self):
