@@ -20,12 +20,12 @@ class OrderPredHead(BaseDecodeHead):
 
         self.bottleneck = nn.Conv2d(self.in_channels, self.channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
 
-        if self.init_cfg is None:
-            self.init_cfg = [
-                dict(type='Kaiming', layer='Linear')
-            ]
-        elif isinstance(self.init_cfg, list):
-            self.init_cfg.append(dict(type='Normal', layer='Linear'))
+        # if self.init_cfg is None:
+        #     self.init_cfg = [
+        #         dict(type='Kaiming', layer='Linear')
+        #     ]
+        # elif isinstance(self.init_cfg, list):
+            # self.init_cfg.append(dict(type='Normal', layer='Linear'))
 
 
 
