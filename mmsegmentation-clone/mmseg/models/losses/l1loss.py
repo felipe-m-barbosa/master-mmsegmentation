@@ -36,7 +36,7 @@ class L1Loss(nn.Module):
                 'labels, which is the same with PyTorch official '
                 'cross_entropy, set ``avg_non_ignore=True``.')
 
-        self.criterion = nn.L1Loss()
+        self.cls_criterion = nn.L1Loss()
         self._loss_name = loss_name
 
     def extra_repr(self):
