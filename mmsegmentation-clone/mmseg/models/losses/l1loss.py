@@ -53,7 +53,7 @@ class L1Loss(nn.Module):
 
         # print(kwargs.keys())
 
-        # label = torch.argmax(label, dim=1)
+        label = torch.argmax(label, dim=1) # this is supposed to work
 
         # print(f"label dim {label.shape}")
         # print(f"cls_score dim {cls_score.shape}")
