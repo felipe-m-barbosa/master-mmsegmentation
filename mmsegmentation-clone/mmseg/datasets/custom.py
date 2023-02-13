@@ -229,7 +229,7 @@ class CustomDataset(Dataset):
 
         img_info = self.img_infos[idx]
         ann_info = self.get_ann_info(idx)
-        if self.__class__.__name__ == 'OrderPredDataset':
+        if 'video_name' in self.img_infos[idx]:
             results = dict(img_info=img_info, ann_info=ann_info, str_cls=self.img_infos[idx]['str_cls'])
         else:
             results = dict(img_info=img_info, ann_info=ann_info)
