@@ -55,9 +55,15 @@ class L1Loss(nn.Module):
 
         label = torch.argmax(label, dim=1)
 
+        print(f"label dim {label.shape}")
+        print(f"cls_score dim {cls_score.shape}")
+
         loss_cls = self.loss_weight * self.cls_criterion(
             cls_score,
             label)
+        
+        loss_cls = weight_reduce_loss(
+        loss_cls, weight=None, reduction=self.reduction, avg_factor=None)
 
         return loss_cls
 
