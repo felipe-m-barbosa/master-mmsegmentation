@@ -75,6 +75,12 @@ class BaseSegmentor(BaseModule, metaclass=ABCMeta):
                 raise TypeError(f'{name} must be a list, but got '
                                 f'{type(var)}')
 
+
+
+        print("\n\n\n")
+        print(img_metas)
+        print("\n\n\n")
+
         num_augs = len(imgs)
         if num_augs != len(img_metas):
             raise ValueError(f'num of augmentations ({len(imgs)}) != '
