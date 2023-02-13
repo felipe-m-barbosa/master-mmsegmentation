@@ -231,6 +231,7 @@ class CustomDataset(Dataset):
         ann_info = self.get_ann_info(idx)
         if 'video_name' in self.img_infos[idx]:
             results = dict(img_info=img_info, ann_info=ann_info, str_cls=self.img_infos[idx]['str_cls'])
+            print("passou por essa merda")
         else:
             results = dict(img_info=img_info, ann_info=ann_info)
         self.pre_pipeline(results)
