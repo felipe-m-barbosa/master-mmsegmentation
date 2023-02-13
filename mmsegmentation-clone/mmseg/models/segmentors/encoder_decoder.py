@@ -110,11 +110,12 @@ class EncoderDecoder(BaseSegmentor):
         x = self.extract_feat(img)
         out = self._decode_head_forward_test(x, img_metas)
 
-        out = resize(
-            input=out,
-            size=img.shape[2:],
-            mode='bilinear',
-            align_corners=self.align_corners)
+        if not 'video_name' in img_metas[0]: # not order prediction task
+            out = resize(
+                input=out,
+                size=img.shape[2:],
+                mode='bilinear',
+                align_corners=self.align_corners)
         return out
 
     def _decode_head_forward_train(self, x, img_metas, gt_semantic_seg, **kwargs):
@@ -292,29 +293,31 @@ class EncoderDecoder(BaseSegmentor):
         """Inference with full image."""
 
         seg_logit = self.encode_decode(img, img_meta)
-        if rescale:
-            # support dynamic shape for onnx
-            if torch.onnx.is_in_onnx_export():
-                size = img.shape[2:]
-            else:
-                # remove padding area
-                resize_shape = img_meta[0]['img_shape'][:2]
-                seg_logit = seg_logit[:, :, :resize_shape[0], :resize_shape[1]]
-                size = img_meta[0]['ori_shape'][:2]
 
-            # print("\n\n\n")
-            # print(f"Seg_logit shape: {seg_logit.shape}")
-            # print(f"Size to rescale to: {size}")
-            # print("\n\n\n")
+        if not 'video_name' in img_meta[0]: # not order prediction task
+            if rescale:
+                # support dynamic shape for onnx
+                if torch.onnx.is_in_onnx_export():
+                    size = img.shape[2:]
+                else:
+                    # remove padding area
+                    resize_shape = img_meta[0]['img_shape'][:2]
+                    seg_logit = seg_logit[:, :, :resize_shape[0], :resize_shape[1]]
+                    size = img_meta[0]['ori_shape'][:2]
 
-            # time.sleep(50)
+                # print("\n\n\n")
+                # print(f"Seg_logit shape: {seg_logit.shape}")
+                # print(f"Size to rescale to: {size}")
+                # print("\n\n\n")
 
-            seg_logit = resize(
-                seg_logit,
-                size=size,
-                mode='bilinear',
-                align_corners=self.align_corners,
-                warning=False)
+                # time.sleep(50)
+
+                seg_logit = resize(
+                    seg_logit,
+                    size=size,
+                    mode='bilinear',
+                    align_corners=self.align_corners,
+                    warning=False)
 
         return seg_logit
 
@@ -358,12 +361,12 @@ class EncoderDecoder(BaseSegmentor):
 
     def simple_test(self, img, img_meta, rescale=True, **kwargs):
         """Simple test with single image."""
-        seg_logit = self.inference(img, img_meta, rescale)
+        seg_logit = self.inference(img, img_meta, rescale) # the return is actually the probabilities vector
         if self.out_channels == 1:
             seg_pred = (seg_logit >
                         self.decode_head.threshold).to(seg_logit).squeeze(1)
         else:
-            seg_pred = seg_logit.argmax(dim=1)
+            seg_pred = seg_logit.argmax(dim=1) # the integer class
         if torch.onnx.is_in_onnx_export():
             # our inference backend only support 4D output
             seg_pred = seg_pred.unsqueeze(0)
@@ -372,7 +375,7 @@ class EncoderDecoder(BaseSegmentor):
         # unravel batch dim
         seg_pred = list(seg_pred)
 
-        return seg_pred
+        return seg_pred # list with the integer class values
 
     def simple_test_logits(self, img, img_metas, rescale=True):
         """Test without augmentations.

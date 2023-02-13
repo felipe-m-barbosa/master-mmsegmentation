@@ -77,14 +77,15 @@ class BaseSegmentor(BaseModule, metaclass=ABCMeta):
 
 
 
-        print("\n\n\n")
-        print(img_metas)
-        print("\n\n\n")
+        # print("\n\n\n")
+        # print(img_metas)
+        # print("\n\n\n")
 
-        num_augs = len(imgs)
-        if num_augs != len(img_metas):
-            raise ValueError(f'num of augmentations ({len(imgs)}) != '
-                             f'num of image meta ({len(img_metas)})')
+        if not 'video_name' in img_metas[0]: # not video prediction task
+            num_augs = len(imgs)
+            if num_augs != len(img_metas):
+                raise ValueError(f'num of augmentations ({len(imgs)}) != '
+                                f'num of image meta ({len(img_metas)})')
         # all images in the same aug batch all of the same ori_shape and pad
         # shape
         for img_meta in img_metas:
@@ -95,11 +96,14 @@ class BaseSegmentor(BaseModule, metaclass=ABCMeta):
             pad_shapes = [_['pad_shape'] for _ in img_meta]
             assert all(shape == pad_shapes[0] for shape in pad_shapes)
 
-        if num_augs == 1:
-            return self.simple_test(imgs[0], img_metas[0], **kwargs)
+        if not 'video_name' in img_metas[0]:
+            if num_augs == 1:
+                return self.simple_test(imgs[0], img_metas[0], **kwargs)
+            else:
+                return self.aug_test(imgs, img_metas, **kwargs)  
         else:
-            return self.aug_test(imgs, img_metas, **kwargs)
-
+            return self.simple_test(imgs, img_metas, **kwargs)
+        
     @auto_fp16(apply_to=('img', ))
     def forward(self, img, img_metas, return_loss=True, **kwargs):
         """Calls either :func:`forward_train` or :func:`forward_test` depending
