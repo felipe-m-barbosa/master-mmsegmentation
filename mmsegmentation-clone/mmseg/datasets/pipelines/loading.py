@@ -59,6 +59,10 @@ class LoadImageFromFile(object):
 
         # MODIFY FROM HERE
         if 'video_name' in results['img_info']: 
+
+
+            print(results.keys())
+
             images_list = []
             optflows_list = []
             for idx in range(len(results['img_info']['img_filenames'])):
