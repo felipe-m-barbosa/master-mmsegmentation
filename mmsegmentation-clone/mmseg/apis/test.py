@@ -103,7 +103,7 @@ def single_gpu_test(model,
 
         print('IMG_METAS: ', data['img_metas'])
 
-        if not 'video_name' in data['img_metas'][0]: 
+        if not 'video_name' in data['img_metas'][0][0]: 
 
             img_name = data['img_metas'][0].data[0][0]['filename']
 
