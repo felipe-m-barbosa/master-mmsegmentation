@@ -101,61 +101,67 @@ def single_gpu_test(model,
             print("RESULT: ", result[0], end='\n\n\n')
             print("RESULT SHAPE: ", result[0].shape, end='\n\n\n')
 
-        img_name = data['img_metas'][0].data[0][0]['filename']
+        if not 'video_name' in data['img_metas'][0]: 
 
-        if 'optflow' in data:
-            img_optflow = data['optflow'][0]
-        elif 'opt_flow' in data:
-            img_optflow = data['opt_flow'][0]
-        else:
-            img_optflow = None
+            img_name = data['img_metas'][0].data[0][0]['filename']
 
-        img_names.append(img_name)
-        img_optflows.append(img_optflow)
+            if 'optflow' in data:
+                img_optflow = data['optflow'][0]
+            elif 'opt_flow' in data:
+                img_optflow = data['opt_flow'][0]
+            else:
+                img_optflow = None
 
-        if show or out_dir:
-            img_tensor = data['img'][0]
-            img_metas = data['img_metas'][0].data[0]
-            imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
-            assert len(imgs) == len(img_metas)
+            img_names.append(img_name)
+            img_optflows.append(img_optflow)
 
-            for img, img_meta in zip(imgs, img_metas):
-                h, w, _ = img_meta['img_shape']
-                img_show = img[:h, :w, :]
+            if show or out_dir:
+                img_tensor = data['img'][0]
+                img_metas = data['img_metas'][0].data[0]
+                imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
+                assert len(imgs) == len(img_metas)
 
-                ori_h, ori_w = img_meta['ori_shape'][:-1]
-                img_show = mmcv.imresize(img_show, (ori_w, ori_h))
+                for img, img_meta in zip(imgs, img_metas):
+                    h, w, _ = img_meta['img_shape']
+                    img_show = img[:h, :w, :]
 
-                if out_dir:
-                    out_file = osp.join(out_dir, img_meta['ori_filename'])
-                else:
-                    out_file = None
+                    ori_h, ori_w = img_meta['ori_shape'][:-1]
+                    img_show = mmcv.imresize(img_show, (ori_w, ori_h))
 
-                model.module.show_result(
-                    img_show,
-                    result,
-                    palette=dataset.PALETTE,
-                    show=show,
-                    out_file=out_file,
-                    opacity=opacity)
+                    if out_dir:
+                        out_file = osp.join(out_dir, img_meta['ori_filename'])
+                    else:
+                        out_file = None
 
-        if efficient_test:
-            result = [np2tmp(_, tmpdir='.efficient_test') for _ in result]
+                    model.module.show_result(
+                        img_show,
+                        result,
+                        palette=dataset.PALETTE,
+                        show=show,
+                        out_file=out_file,
+                        opacity=opacity)
 
-        if format_only:
-            result = dataset.format_results(
-                result, indices=batch_indices, **format_args)
-        if pre_eval:
-            # TODO: adapt samples_per_gpu > 1.
-            # only samples_per_gpu=1 valid now
-            result = dataset.pre_eval(result, indices=batch_indices)
-            results.extend(result)
+            if efficient_test:
+                result = [np2tmp(_, tmpdir='.efficient_test') for _ in result]
+
+            if format_only:
+                result = dataset.format_results(
+                    result, indices=batch_indices, **format_args)
+            if pre_eval:
+                # TODO: adapt samples_per_gpu > 1.
+                # only samples_per_gpu=1 valid now
+                result = dataset.pre_eval(result, indices=batch_indices)
+                results.extend(result)
+            else:
+                results.extend(result)
+
         else:
             results.extend(result)
 
         batch_size = len(result)
         for _ in range(batch_size):
             prog_bar.update()
+
 
     if sum([_ is not None for _ in img_optflows]) > 0:
         return {'seg_preds': results, 'img_names': img_names, 'optflows': img_optflows}
