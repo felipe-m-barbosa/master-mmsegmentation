@@ -61,8 +61,7 @@ class LoadImageFromFile(object):
         if 'video_name' in results['img_info']: 
 
 
-            print(results.keys())
-            print(results['seg_fields'])
+            print(results.keys(), end="\n")
 
             images_list = []
             optflows_list = []
