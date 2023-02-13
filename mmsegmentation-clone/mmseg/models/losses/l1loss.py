@@ -47,6 +47,10 @@ class L1Loss(nn.Module):
     def forward(self,
                 cls_score,
                 label,
+                weight=None,
+                avg_factor=None,
+                reduction_override=None,
+                ignore_index=-100,
                 **kwargs):
         """Forward function."""
 
