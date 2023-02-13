@@ -89,7 +89,7 @@ class BaseSegmentor(BaseModule, metaclass=ABCMeta):
         # all images in the same aug batch all of the same ori_shape and pad
         # shape
         for img_meta in img_metas:
-            print(img_meta.keys())
+            print("IMG_META KEYS: ", img_meta.keys())
             print("\n\n\n")
             ori_shapes = [_['ori_shape'] for _ in img_meta]
             assert all(shape == ori_shapes[0] for shape in ori_shapes)
