@@ -98,6 +98,7 @@ def single_gpu_test(model,
             result = model(return_loss=False, **data)
 
             print("LEN RESULT: ", len(result))
+            print("RESULT: ", result[0], end='\n\n\n')
             print("RESULT SHAPE: ", result[0].shape, end='\n\n\n')
 
         img_name = data['img_metas'][0].data[0][0]['filename']
