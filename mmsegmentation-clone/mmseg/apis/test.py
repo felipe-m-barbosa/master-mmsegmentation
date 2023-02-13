@@ -97,6 +97,8 @@ def single_gpu_test(model,
             
             result = model(return_loss=False, **data)
 
+            print("RESULT SHAPE: ", result.shape, end='\n\n\n')
+
         img_name = data['img_metas'][0].data[0][0]['filename']
 
         if 'optflow' in data:
