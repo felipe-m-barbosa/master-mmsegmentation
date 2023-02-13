@@ -231,7 +231,6 @@ class CustomDataset(Dataset):
         ann_info = self.get_ann_info(idx)
         if 'video_name' in self.img_infos[idx]:
             results = dict(img_info=img_info, ann_info=ann_info, str_cls=self.img_infos[idx]['str_cls'])
-            print("passou por essa merda", end="\n")
         else:
             results = dict(img_info=img_info, ann_info=ann_info)
         self.pre_pipeline(results)
@@ -710,10 +709,13 @@ class newCustomDataset(Dataset):
             dict: Testing data after pipeline with new keys introduced by
                 pipeline.
         """
-        print("\n\n\nprepare_test_img\n\n\n")
 
         img_info = self.img_infos[idx]
-        results = dict(img_info=img_info)
+        if 'video_name' in self.img_infos[idx]:
+            ann_info = self.get_ann_info(idx)
+            results = dict(img_info=img_info, ann_info=ann_info, str_cls=self.img_infos[idx]['str_cls'])
+        else:
+            results = dict(img_info=img_info)
         self.pre_pipeline(results)
         return self.pipeline(results)
 
