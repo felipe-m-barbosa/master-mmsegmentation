@@ -62,6 +62,7 @@ class LoadImageFromFile(object):
 
 
             print(results.keys())
+            print(results['seg_fields'])
 
             images_list = []
             optflows_list = []
