@@ -57,8 +57,7 @@ class L1Loss(nn.Module):
 
         loss_cls = self.loss_weight * self.cls_criterion(
             cls_score,
-            label,
-            reduction=self.reduction)
+            label)
 
         return loss_cls
 
