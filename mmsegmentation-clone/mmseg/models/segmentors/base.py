@@ -86,19 +86,16 @@ class BaseSegmentor(BaseModule, metaclass=ABCMeta):
             if num_augs != len(img_metas):
                 raise ValueError(f'num of augmentations ({len(imgs)}) != '
                                 f'num of image meta ({len(img_metas)})')
-        # all images in the same aug batch all of the same ori_shape and pad
-        # shape
-        for img_meta in img_metas:
-            print("IMG_META KEYS: ", img_meta.keys())
-            print("\n\n\n")
-            ori_shapes = [_['ori_shape'] for _ in img_meta]
-            assert all(shape == ori_shapes[0] for shape in ori_shapes)
-            img_shapes = [_['img_shape'] for _ in img_meta]
-            assert all(shape == img_shapes[0] for shape in img_shapes)
-            pad_shapes = [_['pad_shape'] for _ in img_meta]
-            assert all(shape == pad_shapes[0] for shape in pad_shapes)
+            # all images in the same aug batch all of the same ori_shape and pad
+            # shape
+            for img_meta in img_metas:
+                ori_shapes = [_['ori_shape'] for _ in img_meta]
+                assert all(shape == ori_shapes[0] for shape in ori_shapes)
+                img_shapes = [_['img_shape'] for _ in img_meta]
+                assert all(shape == img_shapes[0] for shape in img_shapes)
+                pad_shapes = [_['pad_shape'] for _ in img_meta]
+                assert all(shape == pad_shapes[0] for shape in pad_shapes)
 
-        if not 'video_name' in img_metas[0]:
             if num_augs == 1:
                 return self.simple_test(imgs[0], img_metas[0], **kwargs)
             else:
