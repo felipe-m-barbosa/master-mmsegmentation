@@ -47,19 +47,15 @@ class L1Loss(nn.Module):
     def forward(self,
                 cls_score,
                 label,
-                reduction_override=None,
                 **kwargs):
         """Forward function."""
-        assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (
-            reduction_override if reduction_override else self.reduction)
 
         label = torch.argmax(label, dim=1)
 
         loss_cls = self.loss_weight * self.cls_criterion(
             cls_score,
             label,
-            reduction=reduction)
+            reduction=self.reduction)
 
         return loss_cls
 
