@@ -51,12 +51,12 @@ class L1Loss(nn.Module):
         """Forward function."""
 
 
-        print(kwargs.keys())
+        # print(kwargs.keys())
 
-        label = torch.argmax(label, dim=1)
+        # label = torch.argmax(label, dim=1)
 
-        print(f"label dim {label.shape}")
-        print(f"cls_score dim {cls_score.shape}")
+        # print(f"label dim {label.shape}")
+        # print(f"cls_score dim {cls_score.shape}")
 
         loss_cls = self.loss_weight * self.cls_criterion(
             cls_score,
