@@ -351,14 +351,16 @@ class EncoderDecoder(BaseSegmentor):
             output = F.sigmoid(seg_logit)
         else:
             output = F.softmax(seg_logit, dim=1)
-        flip = img_meta[0]['flip']
-        if flip:
-            flip_direction = img_meta[0]['flip_direction']
-            assert flip_direction in ['horizontal', 'vertical']
-            if flip_direction == 'horizontal':
-                output = output.flip(dims=(3, ))
-            elif flip_direction == 'vertical':
-                output = output.flip(dims=(2, ))
+        
+        if not 'video_name' in img_meta[0]: # just for non-order prediction task
+            flip = img_meta[0]['flip']
+            if flip:
+                flip_direction = img_meta[0]['flip_direction']
+                assert flip_direction in ['horizontal', 'vertical']
+                if flip_direction == 'horizontal':
+                    output = output.flip(dims=(3, ))
+                elif flip_direction == 'vertical':
+                    output = output.flip(dims=(2, ))
 
         return output
 
