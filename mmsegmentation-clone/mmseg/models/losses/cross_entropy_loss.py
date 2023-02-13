@@ -48,7 +48,7 @@ def cross_entropy(pred,
             pred,
             label,
             weight=class_weight,
-            reduction=reduction)
+            reduction='none')
     else:
         loss = F.cross_entropy(
             pred,
