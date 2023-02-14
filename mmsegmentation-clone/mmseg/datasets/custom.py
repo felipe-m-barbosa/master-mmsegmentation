@@ -3,6 +3,8 @@ import os.path as osp
 import warnings
 from collections import OrderedDict
 
+import torch
+
 import mmcv
 import numpy as np
 from mmcv.utils import print_log
@@ -447,7 +449,7 @@ class CustomDataset(Dataset):
             if metric[0] == 'mAcc':
                 anns = []
                 for i in range(len(results)):
-                    anns.append(self.get_ann_info(i))
+                    anns.append(torch.argmax(self.get_ann_info(i)).numpy())
                 
                 print(anns[:5])
                 # ret_metrics = 
