@@ -97,7 +97,7 @@ def single_gpu_test(model,
             
             result = model(return_loss=False, **data)
 
-        print('IMG_METAS: ', data['img_metas'].data[0][0])
+        # print('IMG_METAS: ', data['img_metas'].data[0][0])
 
         if not 'video_name' in data['img_metas'].data[0][0]: 
 
