@@ -451,6 +451,8 @@ class CustomDataset(Dataset):
                 for i in range(len(results)):
                     anns.append(torch.argmax(self.get_ann_info(i)).numpy())
                 
+
+                print("anns: ", anns, end='\n\n\n')
                 ret_metrics = {}
                 ret_metrics[metric[0]] = np.sum(np.array(results) == np.array(anns)) / len(results)
             else:
