@@ -420,7 +420,7 @@ class CustomDataset(Dataset):
         """
         if isinstance(metric, str):
             metric = [metric]
-        allowed_metrics = ['mIoU', 'mDice', 'mFscore', 'mAcc']
+        allowed_metrics = ['mIoU', 'mDice', 'mFscore', 'mAcc', 'aAcc']
         if not set(metric).issubset(set(allowed_metrics)):
             raise KeyError('metric {} is not supported'.format(metric))
 
@@ -446,67 +446,69 @@ class CustomDataset(Dataset):
         # test a list of pre_eval_results
         else:
 
-            if metric[0] == 'mAcc':
+            if metric[0] in ['mAcc', 'aAcc']:
                 anns = []
                 for i in range(len(results)):
                     anns.append(torch.argmax(self.get_ann_info(i)).numpy())
                 
-                print(anns[:5])
-                # ret_metrics = 
+                ret_metrics = dict(aAcc=np.sum(np.array(results) == np.array(anns)))
             else:
                 ret_metrics = pre_eval_to_metrics(results, metric)
 
-        # Because dataset.CLASSES is required for per-eval.
-        if self.CLASSES is None:
-            class_names = tuple(range(num_classes))
-        else:
-            class_names = self.CLASSES
-
-        # summary table
-        ret_metrics_summary = OrderedDict({
-            ret_metric: np.round(np.nanmean(ret_metric_value) * 100, 2)
-            for ret_metric, ret_metric_value in ret_metrics.items()
-        })
-
-        # each class table
-        ret_metrics.pop('aAcc', None)
-        ret_metrics_class = OrderedDict({
-            ret_metric: np.round(ret_metric_value * 100, 2)
-            for ret_metric, ret_metric_value in ret_metrics.items()
-        })
-        ret_metrics_class.update({'Class': class_names})
-        ret_metrics_class.move_to_end('Class', last=False)
-
-        # for logger
-        class_table_data = PrettyTable()
-        for key, val in ret_metrics_class.items():
-            class_table_data.add_column(key, val)
-
-        summary_table_data = PrettyTable()
-        for key, val in ret_metrics_summary.items():
-            if key == 'aAcc':
-                summary_table_data.add_column(key, [val])
+        if not (metric[0] in ['mAcc', 'aAcc']):
+            # Because dataset.CLASSES is required for per-eval.
+            if self.CLASSES is None:
+                class_names = tuple(range(num_classes))
             else:
-                summary_table_data.add_column('m' + key, [val])
+                class_names = self.CLASSES
 
-        print_log('per class results:', logger)
-        print_log('\n' + class_table_data.get_string(), logger=logger)
-        print_log('Summary:', logger)
-        print_log('\n' + summary_table_data.get_string(), logger=logger)
-
-        # each metric dict
-        for key, value in ret_metrics_summary.items():
-            if key == 'aAcc':
-                eval_results[key] = value / 100.0
-            else:
-                eval_results['m' + key] = value / 100.0
-
-        ret_metrics_class.pop('Class', None)
-        for key, value in ret_metrics_class.items():
-            eval_results.update({
-                key + '.' + str(name): value[idx] / 100.0
-                for idx, name in enumerate(class_names)
+            # summary table
+            ret_metrics_summary = OrderedDict({
+                ret_metric: np.round(np.nanmean(ret_metric_value) * 100, 2)
+                for ret_metric, ret_metric_value in ret_metrics.items()
             })
+
+            # each class table
+            ret_metrics.pop('aAcc', None)
+            ret_metrics_class = OrderedDict({
+                ret_metric: np.round(ret_metric_value * 100, 2)
+                for ret_metric, ret_metric_value in ret_metrics.items()
+            })
+            ret_metrics_class.update({'Class': class_names})
+            ret_metrics_class.move_to_end('Class', last=False)
+
+            # for logger
+            class_table_data = PrettyTable()
+            for key, val in ret_metrics_class.items():
+                class_table_data.add_column(key, val)
+
+            summary_table_data = PrettyTable()
+            for key, val in ret_metrics_summary.items():
+                if key == 'aAcc':
+                    summary_table_data.add_column(key, [val])
+                else:
+                    summary_table_data.add_column('m' + key, [val])
+
+            print_log('per class results:', logger)
+            print_log('\n' + class_table_data.get_string(), logger=logger)
+            print_log('Summary:', logger)
+            print_log('\n' + summary_table_data.get_string(), logger=logger)
+
+            # each metric dict
+            for key, value in ret_metrics_summary.items():
+                if key == 'aAcc':
+                    eval_results[key] = value / 100.0
+                else:
+                    eval_results['m' + key] = value / 100.0
+
+            ret_metrics_class.pop('Class', None)
+            for key, value in ret_metrics_class.items():
+                eval_results.update({
+                    key + '.' + str(name): value[idx] / 100.0
+                    for idx, name in enumerate(class_names)
+                })
+        else:
+            eval_results[metric[0]] = ret_metrics[metric[0]] / len(ret_metrics[metric[0]]) * 100
 
         return eval_results
 
