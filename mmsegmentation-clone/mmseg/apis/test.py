@@ -92,8 +92,6 @@ def single_gpu_test(model,
 
     for batch_indices, data in zip(loader_indices, data_loader):
         with torch.no_grad():
-            print(data.keys())
-            print(data['img_metas'])
             
             result = model(return_loss=False, **data)
 
