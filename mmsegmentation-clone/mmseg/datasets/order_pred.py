@@ -33,6 +33,8 @@ class OrderPredDataset(CustomDataset):
     # the classes, but represented as one-hot tensors for loss calculation
     ONE_HOT_CLASSES = torch.nn.functional.one_hot(torch.arange(len(CLASSES))).to(torch.float)
 
+    num_samples_per_class = {c:0 for c in CLASSES}
+
     PALETTE = None
 
     def __init__(self, img_suffix='.png',
@@ -101,12 +103,17 @@ class OrderPredDataset(CustomDataset):
                     if idx == len(filenames)-1:
                         img_info['optflow_filenames'][self.window_size-1] = None
                 
-                # randomly chooses the sequence order for shuffling
-                class_idx = random.randint(0,len(self.CLASSES)-1)
-                img_info['str_cls'] = self.CLASSES[class_idx] # the class name (for visualization and debugging)
+                # chooses the sequence order for shuffling
+                # ensuring that we get a balance class distribution
+                # class_idx = random.randint(0,len(self.CLASSES)-1)
+                
+                str_cls = min(self.num_samples_per_class, key=self.num_samples_per_class.get)
+                img_info['str_cls'] = str_cls # the class name (for visualization and debugging)
                 # although labels are now one-hot encoded tensors representing the sequence order, we keep the name as 'gt_semantic_seg' to avoid modifying the downstream code
+                class_idx = list(self.CLASSES).index(str_cls)
                 img_info['ann'] = self.ONE_HOT_CLASSES[class_idx] # the one-hot encoded class
 
+                self.num_samples_per_class[str_cls] += 1
 
                 img_infos.append(img_info)
 
