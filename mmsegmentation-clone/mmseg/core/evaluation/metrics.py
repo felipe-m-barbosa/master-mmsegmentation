@@ -453,13 +453,10 @@ def pre_eval_to_metrics(pre_eval_results,
     # convert list of tuples to tuple of lists, e.g.
     # [(A_1, B_1, C_1, D_1), ...,  (A_n, B_n, C_n, D_n)] to
     # ([A_1, ..., A_n], ..., [D_1, ..., D_n])
-    
-    print("\n\n\n Passando por aqui ... ", end="\n\n\n")
-    print("Pre_eval_results ", pre_eval_results, end="\n\n\n")
+    # print("\n\n\n", pre_eval_results, end="\n\n\n")
 
-    if isinstance(pre_eval_results, list):
-        pre_eval_results = tuple(zip(*pre_eval_results))
-        assert len(pre_eval_results) == 4
+    pre_eval_results = tuple(zip(*pre_eval_results))
+    assert len(pre_eval_results) == 4
 
     total_area_intersect = sum(pre_eval_results[0])
     total_area_union = sum(pre_eval_results[1])
