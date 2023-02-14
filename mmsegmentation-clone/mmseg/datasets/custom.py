@@ -424,7 +424,6 @@ class CustomDataset(Dataset):
 
         eval_results = {}
 
-
         print("\n\n\nCustom Dataset - results: ", results, end="\n\n\n")
         print(len(results))
 
@@ -444,7 +443,13 @@ class CustomDataset(Dataset):
                 reduce_zero_label=self.reduce_zero_label)
         # test a list of pre_eval_results
         else:
-            ret_metrics = pre_eval_to_metrics(results, metric)
+
+            if metric[0] == 'mAcc':
+                anns = self.get_gt_seg_maps()
+                print(len(anns))
+                # ret_metrics = 
+            else:
+                ret_metrics = pre_eval_to_metrics(results, metric)
 
         # Because dataset.CLASSES is required for per-eval.
         if self.CLASSES is None:
