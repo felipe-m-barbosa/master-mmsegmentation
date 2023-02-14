@@ -426,6 +426,7 @@ class CustomDataset(Dataset):
 
 
         print("\n\n\nCustom Dataset - results: ", results, end="\n\n\n")
+        print(len(results))
 
         # test a list of files
         if mmcv.is_list_of(results, np.ndarray) or mmcv.is_list_of(
