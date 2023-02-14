@@ -451,7 +451,8 @@ class CustomDataset(Dataset):
                 for i in range(len(results)):
                     anns.append(torch.argmax(self.get_ann_info(i)).numpy())
                 
-                ret_metrics = dict(aAcc=np.sum(np.array(results) == np.array(anns)))
+                ret_metrics = {}
+                ret_metrics[metric[0]] = np.sum(np.array(results) == np.array(anns)) / len(results)
             else:
                 ret_metrics = pre_eval_to_metrics(results, metric)
 
@@ -508,7 +509,7 @@ class CustomDataset(Dataset):
                     for idx, name in enumerate(class_names)
                 })
         else:
-            eval_results[metric[0]] = ret_metrics[metric[0]] / len(ret_metrics[metric[0]]) * 100
+            eval_results[metric[0]] = ret_metrics[metric[0]] * 100
 
         return eval_results
 
