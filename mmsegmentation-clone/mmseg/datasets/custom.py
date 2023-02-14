@@ -423,6 +423,10 @@ class CustomDataset(Dataset):
             raise KeyError('metric {} is not supported'.format(metric))
 
         eval_results = {}
+
+
+        print("\n\n\nCustom Dataset - results: ", results, end="\n\n\n")
+
         # test a list of files
         if mmcv.is_list_of(results, np.ndarray) or mmcv.is_list_of(
                 results, str):
