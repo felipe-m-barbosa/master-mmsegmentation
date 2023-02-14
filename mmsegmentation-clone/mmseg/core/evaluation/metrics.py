@@ -497,7 +497,7 @@ def total_area_to_metrics(total_area_intersect,
     """
     if isinstance(metrics, str):
         metrics = [metrics]
-    allowed_metrics = ['mIoU', 'mDice', 'mFscore', 'TC(mDice)', 'TC(mIoU)']
+    allowed_metrics = ['mIoU', 'mDice', 'mFscore', 'TC(mDice)', 'TC(mIoU)', 'Acc']
     if not set(metrics).issubset(set(allowed_metrics)):
         raise KeyError('metrics {} is not supported'.format(metrics))
 
