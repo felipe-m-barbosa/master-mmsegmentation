@@ -445,8 +445,11 @@ class CustomDataset(Dataset):
         else:
 
             if metric[0] == 'mAcc':
-                anns = self.get_gt_seg_maps()
-                print(len(anns))
+                anns = []
+                for i in range(len(results)):
+                    anns.append(self.get_ann_info(i))
+                
+                print(anns[:5])
                 # ret_metrics = 
             else:
                 ret_metrics = pre_eval_to_metrics(results, metric)
