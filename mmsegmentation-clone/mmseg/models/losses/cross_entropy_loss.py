@@ -291,14 +291,17 @@ class CrossEntropyLoss(nn.Module):
             # print(cls_score[1, ...])
 
 
-            loss_cls = self.loss_weight * self.cls_criterion(
-                cls_score,
-                label,
-                weight,
-                class_weight=class_weight,
-                reduction=reduction,
-                avg_factor=avg_factor,
-                **kwargs)
+            # loss_cls = self.loss_ewight * self.cls_criterion(
+            #     cls_score,
+            #     label,
+            #     weight,
+            #     class_weight=class_weight,
+            #     reduction=reduction,
+            #     avg_factor=avg_factor,
+            #     **kwargs)
+
+            loss = nn.CrossEntropyLoss()
+            loss_cls = loss(cls_score, label)
         else:
             loss_cls = self.loss_weight * self.cls_criterion(
                 cls_score,
