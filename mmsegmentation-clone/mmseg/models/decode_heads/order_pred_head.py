@@ -117,6 +117,8 @@ class OrderPredHead(BaseDecodeHead):
         # generate logits
         output = self.fc2(final_concat) # apply relu and dropout?
 
+        print("OrderPredHead output: ", output)
+
         # print(output.shape)
 
         # generate probabilities
