@@ -19,6 +19,8 @@ class OrderPredHead(BaseDecodeHead):
         self.fc1 = nn.Linear(2*input_dim, embed_dim) # input_dim should be 256*64*64 (add in config file)
         self.fc2 = nn.Linear(6*embed_dim, output_dim)
         self.dropout = nn.Dropout(p=0.5)
+        self.bn1 = nn.BatchNorm1d(embed_dim)
+        self.bn2 = nn.BatchNorm1d(output_dim)
         self.bottleneck = nn.Conv2d(self.in_channels, self.channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
 
         # if self.init_cfg is None:
@@ -32,8 +34,8 @@ class OrderPredHead(BaseDecodeHead):
     def init_weights(self):
         for n, m in self.named_modules():
             if isinstance(m, nn.Linear):
-                # normal_init(m, mean=0.01, std=1, bias=0)
-                kaiming_init(m)
+                normal_init(m, mean=0.01, std=1, bias=0)
+                # kaiming_init(m)
                 
     def forward(self, inputs):
         """
@@ -104,12 +106,12 @@ class OrderPredHead(BaseDecodeHead):
 
 
         # pass them through first FC layer
-        f1 = self.dropout(F.relu(self.fc1(concat1)))
-        f2 = self.dropout(F.relu(self.fc1(concat2)))
-        f3 = self.dropout(F.relu(self.fc1(concat3)))
-        f4 = self.dropout(F.relu(self.fc1(concat4)))
-        f5 = self.dropout(F.relu(self.fc1(concat5)))
-        f6 = self.dropout(F.relu(self.fc1(concat6)))
+        f1 = F.relu(self.bn1(self.fc1(concat1)))
+        f2 = F.relu(self.bn1(self.fc1(concat2)))
+        f3 = F.relu(self.bn1(self.fc1(concat3)))
+        f4 = F.relu(self.bn1(self.fc1(concat4)))
+        f5 = F.relu(self.bn1(self.fc1(concat5)))
+        f6 = F.relu(self.bn1(self.fc1(concat6)))
 
         # concatenate intermediate features
         final_concat = torch.cat((f1,f2,f3,f4,f5,f6), dim=1)
