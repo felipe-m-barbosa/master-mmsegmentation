@@ -29,6 +29,7 @@ from .setr_up_head import SETRUPHead
 from .stdc_head import STDCHead
 from .uper_head import UPerHead
 from .order_pred_head import OrderPredHead
+from .conv_order_pred_head import ConvOrderPredHead
 
 __all__ = [
     'FCNHead', 'PSPHead', 'ASPPHead', 'PSAHead', 'NLHead', 'GCHead', 'CCHead',
@@ -37,5 +38,5 @@ __all__ = [
     'PointHead', 'APCHead', 'DMHead', 'LRASPPHead', 'SETRUPHead',
     'SETRMLAHead', 'DPTHead', 'SETRMLAHead', 'SegmenterMaskTransformerHead',
     'SegformerHead', 'ISAHead', 'STDCHead', 'IterativeDecodeHead',
-    'KernelUpdateHead', 'KernelUpdator', 'OrderPredHead'
+    'KernelUpdateHead', 'KernelUpdator', 'OrderPredHead', 'ConvOrderPredHead'
 ]
