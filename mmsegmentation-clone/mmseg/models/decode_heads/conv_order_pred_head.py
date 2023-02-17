@@ -51,12 +51,14 @@ class ConvOrderPredHead(BaseDecodeHead):
         self.fc = nn.Linear(self.fc_dim, self.output_dim)
         
 
-        # if self.init_cfg is None:
-        #     self.init_cfg = [
-        #         dict(type='Kaiming', layer='Linear')
-        #     ]
-        # elif isinstance(self.init_cfg, list):
-            # self.init_cfg.append(dict(type='Normal', layer='Linear'))
+        self.init_weights()
+
+
+    def init_weights(self):
+        for n, m in self.named_modules():
+            if isinstance(m, nn.Linear):
+                normal_init(m, mean=0.01, std=1, bias=0)
+                # kaiming_init(m)
 
                 
     def forward(self, inputs):
