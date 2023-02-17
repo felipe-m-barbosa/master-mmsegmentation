@@ -13,7 +13,7 @@ from mmcv.cnn import ConvModule
 @HEADS.register_module()
 class ConvOrderPredHead(BaseDecodeHead):
 
-    def __init__(self, in_channels, embed_channels, output_channels, fc_dim, output_dim, norm_cfg, seq_length, **kwargs):
+    def __init__(self, output_channels, fc_dim, output_dim, norm_cfg, seq_length, **kwargs):
         """
         Args:
             in_channels = 2048
@@ -23,28 +23,32 @@ class ConvOrderPredHead(BaseDecodeHead):
             output_dim = 12
         """
         
-        
         super(ConvOrderPredHead, self).__init__(**kwargs)
         
+        self.embed_channels = self.channels
+        self.output_channels = output_channels
+        self.fc_dim = fc_dim
+        self.output_dim = output_dim
+
         self.seq_len = seq_length
 
-        self.bottleneck = nn.Conv2d(in_channels, embed_channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
+        self.bottleneck = nn.Conv2d(self.in_channels, self.embed_channels, 1) # bottleneck layer added in order to shrink feature maps, thus reducing computation and memory usage
 
         self.conv1 = ConvModule(
-            2*embed_channels,
-            embed_channels,
+            2*self.embed_channels,
+            self.embed_channels,
             1,
             norm_cfg=norm_cfg,
             act_cfg=None)
         
         self.conv2 = ConvModule(
-            6*embed_channels,
-            output_channels,
+            6*self.embed_channels,
+            self.output_channels,
             1,
             norm_cfg=norm_cfg,
             act_cfg=None)
 
-        self.fc = self.fc2 = nn.Linear(fc_dim, output_dim)
+        self.fc = nn.Linear(self.fc_dim, self.output_dim)
         
 
         # if self.init_cfg is None:
