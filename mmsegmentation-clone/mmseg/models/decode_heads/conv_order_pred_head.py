@@ -49,7 +49,7 @@ class ConvOrderPredHead(BaseDecodeHead):
             act_cfg=None)
 
         self.fc = nn.Linear(self.fc_dim, self.output_dim)
-        
+        self.bn = nn.BatchNorm1d(self.output_dim)
 
         self.init_weights()
 
@@ -121,7 +121,7 @@ class ConvOrderPredHead(BaseDecodeHead):
 
         output = torch.flatten(output, start_dim=1)
 
-        output = self.fc(output)
+        output = self.bn(self.fc(output))
 
         # print("OrderPredHead output: ", output)
 
