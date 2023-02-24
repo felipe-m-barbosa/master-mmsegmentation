@@ -75,6 +75,8 @@ class MotionAwareCropSelection(object):
 
         unfold_shape = patches_mags.size()
 
+        print("UNFOLD SHAPE ", unfold_shape)
+
         
         #transform crops into list
         crops_magnitude = [patches_mags[i,j,...] for i in range(unfold_shape[0]) for j in range(unfold_shape[1])]
