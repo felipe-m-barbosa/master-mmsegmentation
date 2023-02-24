@@ -45,7 +45,7 @@ class SequenceShuffle(object):
         positional_letters = ['a', 'b', 'c', 'd']
         shuffling_order = results['str_cls'][1:len(results['str_cls'])-1].split(',')
 
-        print(shuffling_order)
+        # print(shuffling_order)
 
         # print("RANDOM CROP IMG SHAPE (1): ", results['img'][0].shape)
         # print("RANDOM CROP IMG SHAPE (2): ", results['img'][1].shape)

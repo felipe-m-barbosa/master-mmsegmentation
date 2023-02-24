@@ -75,7 +75,7 @@ class MotionAwareCropSelection(object):
 
         unfold_shape = patches_mags.size()
 
-        print("UNFOLD SHAPE ", unfold_shape)
+        # print("UNFOLD SHAPE ", unfold_shape)
 
         
         #transform crops into list
