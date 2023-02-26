@@ -36,6 +36,8 @@ def warp(x, flo):
     # vgrid = Variable(grid) + flo # sums the flow field displacements over x and y
     vgrid = grid + flo # adds the flow field displacements over x and y
 
+    # NEAREST IMPLEMENTATION IS MISSING, SUCH AS DESCRIBED IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
+
     ## scale grid to [-1,1]
     vgrid[:,:,:,0] = 2.0*vgrid[:,:,:,0].clone()/max(W-1,1)-1.0 # x
     vgrid[:,:,:,1] = 2.0*vgrid[:,:,:,1].clone()/max(H-1,1)-1.0 # y
@@ -62,7 +64,13 @@ def warp(x, flo):
     
     mask[mask<0.9999]=0
     mask[mask>0]=1
-    
+
+    # OCCLUSION MASK, SUCH AS IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
+    # mask = torch.exp(-torch.norm(inp1 - inp2, p=1, dim=))
+
+    # VISIBILITY MASK, SUCH AS IN [Learning Blind Video Temporal Consistency]
+
+
     output = output*mask
     output = output.type(torch.float32)
 
@@ -164,6 +172,9 @@ class DiceLoss(nn.Module):
             class_weight = None
 
         # warp prediction from t to t+1 (used in tc_loss)
+
+        print("kwargs keys: ", kwargs.keys())
+
         if 'tc' in self._loss_name:
             opt_flow = kwargs['opt_flow']
             pred, _ = warp(pred, opt_flow)
