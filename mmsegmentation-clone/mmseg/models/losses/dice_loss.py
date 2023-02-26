@@ -39,7 +39,7 @@ def warp(x, flo):
     # vgrid = Variable(grid) + flo # sums the flow field displacements over x and y
     vgrid = grid + flo # adds the flow field displacements over x and y
 
-    print(flo)
+    # print(flo)
 
     # NEAREST IMPLEMENTATION IS MISSING, SUCH AS DESCRIBED IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
 
