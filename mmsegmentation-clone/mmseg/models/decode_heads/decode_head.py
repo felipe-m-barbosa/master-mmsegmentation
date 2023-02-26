@@ -239,7 +239,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             s1_logits = self(kwargs['s1'])
             s2_logits = self(kwargs['s2'])
 
-            losses = self.losses(seg_logits, gt_semantic_seg, s1_logits=s1_logits, s2_logits=s2_logits, opt_flow=kwargs['opt_flow'])
+            losses = self.losses(seg_logits, gt_semantic_seg, s1_logits=s1_logits, s2_logits=s2_logits, opt_flow=kwargs['opt_flow'], s1=kwargs['s1'], s2=kwargs['s2'])
 
         else:
             if isinstance(inputs, list): # order prediction task (NOT SURE IF THIS IS SUFFICIENT -> CHECK)
@@ -323,8 +323,6 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             # temporal consistency loss
             if loss_decode.loss_name == 'loss_tc':
 
-                print("kwargs' keys in losses function: ", kwargs.keys())
-
                 input_1 = s1_logits
                 # input_2 = torch.argmax(kwargs['s2_logits'], dim=1)
                 input_2 = s2_logits
@@ -335,7 +333,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                     weight=seg_weight,
                     ignore_index=self.ignore_index,
                     opt_flow = kwargs['opt_flow'],
-                    gt_labels=seg_label)
+                    gt_labels=seg_label,
+                    s1 = kwargs['s1'],
+                    s2 = kwargs['s2'])
             else:
                 input_1 = seg_logit
                 input_2 = seg_label

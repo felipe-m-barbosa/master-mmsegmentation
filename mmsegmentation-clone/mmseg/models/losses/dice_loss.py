@@ -12,7 +12,7 @@ from .utils import get_class_weight, weighted_loss
 # def nearest_sample(x): # such as described in [Unsupervised temporal consistency metric for video segmentation in highly-automated driving]
 #     return torch.floor(x+0.5)
 
-def warp(x, flo):
+def warp(x, flo, inp1, inp2):
     """
     Args:
         x: the input prediction, to be warped using the optical flow
@@ -71,7 +71,7 @@ def warp(x, flo):
     mask[mask>0]=1
 
     # OCCLUSION MASK, SUCH AS IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
-    # mask = torch.exp(-torch.norm(inp1 - inp2, p=1, dim=1))
+    mask = torch.exp(-torch.norm(inp1 - inp2, p=1, dim=1))
 
     # VISIBILITY MASK, SUCH AS IN [Learning Blind Video Temporal Consistency]
 
@@ -181,7 +181,7 @@ class DiceLoss(nn.Module):
 
         if 'tc' in self._loss_name:
             opt_flow = kwargs['opt_flow']
-            pred, _ = warp(pred, opt_flow)
+            pred, _ = warp(pred, opt_flow, s1=kwargs['s1'], s2=kwargs['s2'])
 
         pred = F.softmax(pred, dim=1)
         target = F.softmax(target, dim=1)
