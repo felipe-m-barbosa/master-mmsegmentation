@@ -322,6 +322,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         for loss_decode in losses_decode:
             # temporal consistency loss
             if loss_decode.loss_name == 'loss_tc':
+
+                print("kwargs' keys in losses function: ", kwargs.keys())
+
                 input_1 = s1_logits
                 # input_2 = torch.argmax(kwargs['s2_logits'], dim=1)
                 input_2 = s2_logits

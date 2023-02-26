@@ -8,6 +8,9 @@ import torch.nn.functional as F
 from ..builder import LOSSES
 from .utils import get_class_weight, weighted_loss
 
+# not necessary, since grid_sample already implements this (change mode from 'bilinear' to 'nearest')
+# def nearest_sample(x): # such as described in [Unsupervised temporal consistency metric for video segmentation in highly-automated driving]
+#     return torch.floor(x+0.5)
 
 def warp(x, flo):
     """
@@ -51,7 +54,7 @@ def warp(x, flo):
     #  print(f"Grid type: {vgrid.dtype}")
 
     # WARPING
-    output = torch.nn.functional.grid_sample(x, vgrid)
+    output = torch.nn.functional.grid_sample(x, vgrid) # by default, grid sample works in bilinear mode (nearest is also possible)
     
     # VALIDITY MASK
 
