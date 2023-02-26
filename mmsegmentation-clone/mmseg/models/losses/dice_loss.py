@@ -181,7 +181,7 @@ class DiceLoss(nn.Module):
 
         if 'tc' in self._loss_name:
             opt_flow = kwargs['opt_flow']
-            pred, _ = warp(pred, opt_flow, s1=kwargs['s1'], s2=kwargs['s2'])
+            pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
 
         pred = F.softmax(pred, dim=1)
         target = F.softmax(target, dim=1)
