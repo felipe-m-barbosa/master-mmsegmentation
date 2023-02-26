@@ -36,6 +36,8 @@ def warp(x, flo):
     # vgrid = Variable(grid) + flo # sums the flow field displacements over x and y
     vgrid = grid + flo # adds the flow field displacements over x and y
 
+    print(flo)
+
     # NEAREST IMPLEMENTATION IS MISSING, SUCH AS DESCRIBED IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
 
     ## scale grid to [-1,1]
@@ -66,10 +68,9 @@ def warp(x, flo):
     mask[mask>0]=1
 
     # OCCLUSION MASK, SUCH AS IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
-    # mask = torch.exp(-torch.norm(inp1 - inp2, p=1, dim=))
+    # mask = torch.exp(-torch.norm(inp1 - inp2, p=1, dim=1))
 
     # VISIBILITY MASK, SUCH AS IN [Learning Blind Video Temporal Consistency]
-
 
     output = output*mask
     output = output.type(torch.float32)
