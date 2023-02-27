@@ -178,8 +178,6 @@ class DiceLoss(nn.Module):
 
         # warp prediction from t to t+1 (used in tc_loss)
 
-        print("kwargs keys: ", kwargs.keys())
-
         if 'tc' in self._loss_name:
             opt_flow = kwargs['opt_flow']
             pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
