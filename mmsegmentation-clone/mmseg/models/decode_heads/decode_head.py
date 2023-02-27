@@ -299,6 +299,13 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                 size=seg_label.shape[2:],
                 mode='bilinear',
                 align_corners=self.align_corners)
+        
+        if 's1' in kwargs:
+            s1 = resize(
+                input=kwargs['s1'][0],
+                size=seg_label.shape[2:],
+                mode='bilinear',
+                align_corners=self.align_corners)
 
         if 's2_logits' in kwargs:
             s2_logits = resize(
@@ -306,6 +313,14 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                 size=seg_label.shape[2:],
                 mode='bilinear',
                 align_corners=self.align_corners)
+        
+        if 's2' in kwargs:
+            s2 = resize(
+                input=kwargs['s2'][0],
+                size=seg_label.shape[2:],
+                mode='bilinear',
+                align_corners=self.align_corners)
+
 
         if self.sampler is not None:
             seg_weight = self.sampler.sample(seg_logit, seg_label)
@@ -334,8 +349,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                     ignore_index=self.ignore_index,
                     opt_flow = kwargs['opt_flow'],
                     gt_labels=seg_label,
-                    s1 = kwargs['s1'][0],
-                    s2 = kwargs['s2'][0]) # s1 and s2 are tuples
+                    s1 = s1,
+                    s2 = s2)
             else:
                 input_1 = seg_logit
                 input_2 = seg_label
