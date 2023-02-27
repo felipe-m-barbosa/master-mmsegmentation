@@ -71,10 +71,11 @@ def warp(x, flo, inp1, inp2):
     mask[mask>0]=1
 
     # OCCLUSION MASK, SUCH AS IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
-    
-    print(inp1)
 
     mask = torch.exp(-torch.norm(inp1 - inp2, p=1, dim=1))
+
+    print("MASK SHAPE: ", mask.shape)
+    print("OUTPUT SHAPE: ", output.shape)
 
     # VISIBILITY MASK, SUCH AS IN [Learning Blind Video Temporal Consistency]
 
