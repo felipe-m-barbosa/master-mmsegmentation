@@ -334,8 +334,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                     ignore_index=self.ignore_index,
                     opt_flow = kwargs['opt_flow'],
                     gt_labels=seg_label,
-                    s1 = kwargs['s1'],
-                    s2 = kwargs['s2'])
+                    s1 = kwargs['s1'][0],
+                    s2 = kwargs['s2'][0]) # s1 and s2 are tuples
             else:
                 input_1 = seg_logit
                 input_2 = seg_label
