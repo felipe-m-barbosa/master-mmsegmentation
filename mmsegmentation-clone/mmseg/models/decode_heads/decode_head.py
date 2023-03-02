@@ -60,7 +60,6 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
     def __init__(self,
                  in_channels,
                  channels,
-                 *,
                  num_classes,
                  out_channels=None,
                  threshold=None,
