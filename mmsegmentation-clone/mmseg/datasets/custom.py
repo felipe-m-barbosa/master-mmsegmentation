@@ -581,6 +581,7 @@ class newCustomDataset(Dataset):
                  seg_map_suffix='.png',
                  seq_dir=None,
                  optflow_dir=None,
+                 depth_dir=None,
                  split=None,
                  data_root=None,
                  test_mode=False,
@@ -598,6 +599,7 @@ class newCustomDataset(Dataset):
         self.seg_map_suffix = seg_map_suffix
         self.seq_dir = seq_dir
         self.optflow_dir = optflow_dir
+        self.depth_dir = depth_dir
         self.split = split
         self.data_root = data_root
         self.test_mode = test_mode
