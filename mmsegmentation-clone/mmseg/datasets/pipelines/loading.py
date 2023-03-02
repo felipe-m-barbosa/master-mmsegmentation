@@ -444,7 +444,7 @@ class newLoadAnnotations(object):
             self.file_client = mmcv.FileClient(**self.file_client_args)
         
 
-        print(results.keys())
+        # print(results.keys())
 
         # load depth annotations, if needed
         if results.get('depth_info', None) is not None:
