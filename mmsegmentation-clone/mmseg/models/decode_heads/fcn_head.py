@@ -88,7 +88,7 @@ class FCNHead(BaseDecodeHead):
         return output
 
 
-@HEADS.register_module()
+@HEADS.register_module(name='DepthHead')
 class DepthHead(BaseDecodeHead):
     """Fully Convolution Networks for Semantic Segmentation.
 
@@ -181,7 +181,7 @@ class DepthHead(BaseDecodeHead):
         return output
 
 
-@HEADS.register_module()
+@HEADS.register_module(name='FCNDepthHead')
 class FCNDepthHead(BaseDecodeHead):
     """Fully Convolution Networks for Semantic Segmentation.
 
