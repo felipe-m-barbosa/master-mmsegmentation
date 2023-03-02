@@ -232,20 +232,26 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             dict[str, Tensor]: a dictionary of loss components
         """
 
-        seg_logits = self(inputs)
-        
-        # verify if sequence images where passed
-        if 's1' in kwargs: # we assume that s1 and s2 always appear together
-            s1_logits = self(kwargs['s1'])
-            s2_logits = self(kwargs['s2'])
+        if self.__class__.__name__ == 'FCNDepthHead':
+            depth_pred, seg_logits = self(inputs)
 
-            losses = self.losses(seg_logits, gt_semantic_seg, s1_logits=s1_logits, s2_logits=s2_logits, opt_flow=kwargs['opt_flow'], s1=kwargs['s1'], s2=kwargs['s2'])
+            losses = self.losses(seg_logits, gt_semantic_seg, depth_pred=depth_pred, gt_depth=kwargs['gt_depth'])
 
         else:
-            if isinstance(inputs, list): # order prediction task (NOT SURE IF THIS IS SUFFICIENT -> CHECK)
-                losses = self.losses(seg_logits, gt_semantic_seg, is_order_pred=True)
+            seg_logits = self(inputs)
+        
+            # verify if sequence images where passed
+            if 's1' in kwargs: # we assume that s1 and s2 always appear together
+                s1_logits = self(kwargs['s1'])
+                s2_logits = self(kwargs['s2'])
+
+                losses = self.losses(seg_logits, gt_semantic_seg, s1_logits=s1_logits, s2_logits=s2_logits, opt_flow=kwargs['opt_flow'], s1=kwargs['s1'], s2=kwargs['s2'])
+
             else:
-                losses = self.losses(seg_logits, gt_semantic_seg)
+                if isinstance(inputs, list): # order prediction task (NOT SURE IF THIS IS SUFFICIENT -> CHECK)
+                    losses = self.losses(seg_logits, gt_semantic_seg, is_order_pred=True)
+                else:
+                    losses = self.losses(seg_logits, gt_semantic_seg)
 
         
         return losses
@@ -322,6 +328,28 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                 align_corners=self.align_corners)
 
 
+        if 'gt_depth' in kwargs:
+            gt_depth = kwargs['gt_depth']
+            depth_pred = kwargs['depth_pred']
+            
+            # resize preds and gts, if necessary, to the same dimensions
+            dim_gt_depth = gt_depth.shape[2]*gt_depth.shape[3] # H*W
+            dim_depth_pred = depth_pred.shape[2]*depth_pred.shape[3] # H*W
+
+            if dim_gt_depth > dim_depth_pred:
+                depth_pred = resize(
+                input=depth_pred,
+                size=gt_depth.shape[2:],
+                mode='bilinear',
+                align_corners=self.align_corners)
+            elif dim_depth_pred > dim_gt_depth:
+                gt_depth = resize(
+                input=gt_depth,
+                size=depth_pred.shape[2:],
+                mode='bilinear',
+                align_corners=self.align_corners)
+
+
         if self.sampler is not None:
             seg_weight = self.sampler.sample(seg_logit, seg_label)
         else:
@@ -351,6 +379,12 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                     gt_labels=seg_label,
                     s1 = s1,
                     s2 = s2)
+            elif loss_decode.loss_name == 'loss_depth':
+                tmp_loss = loss_decode(
+                    depth_pred,
+                    gt_depth
+                ) # are there any missing arguments?
+                
             else:
                 input_1 = seg_logit
                 input_2 = seg_label
