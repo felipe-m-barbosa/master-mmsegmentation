@@ -9,7 +9,8 @@ from .dnl_head import DNLHead
 from .dpt_head import DPTHead
 from .ema_head import EMAHead
 from .enc_head import EncHead
-from .fcn_head import FCNHead, FCNDepthHead, DepthHead
+from .fcn_head import FCNHead
+from .depth_fcn_head import FCNDepthHead, DepthHead
 from .fpn_head import FPNHead
 from .gc_head import GCHead
 from .isa_head import ISAHead
