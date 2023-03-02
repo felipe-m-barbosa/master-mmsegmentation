@@ -57,18 +57,17 @@ def warp(x, flo, inp1, inp2):
     output = torch.nn.functional.grid_sample(x, vgrid) # by default, grid sample works in bilinear mode (nearest is also possible)
     
     # VALIDITY MASK
-
     # this implementation only accounts for misaligned borders
     # that is, occlusions caused by regions in the image borders
-    mask = torch.autograd.Variable(torch.ones(x.size()))
+    # mask = torch.autograd.Variable(torch.ones(x.size()))
 
-    if x.is_cuda:
-        mask = mask.cuda()
+    # if x.is_cuda:
+    #     mask = mask.cuda()
 
-    mask = torch.nn.functional.grid_sample(mask, vgrid)
+    # mask = torch.nn.functional.grid_sample(mask, vgrid)
     
-    mask[mask<0.9999]=0
-    mask[mask>0]=1
+    # mask[mask<0.9999]=0
+    # mask[mask>0]=1
 
     # OCCLUSION MASK, SUCH AS IN [An Unsupervised Temporal Consistency (TC) Loss to Improve the Performance of Semantic Segmentation Networks]
     mask = torch.exp(-torch.norm(inp1 - inp2, p=1, dim=1))
