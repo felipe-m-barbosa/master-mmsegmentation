@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import math
+
 from mmseg.core import add_prefix
 from mmseg.ops import resize
 from .. import builder
@@ -12,6 +14,134 @@ from .base import BaseSegmentor
 import time
 
 
+class MemoryQueue():
+
+    def __init__(self, args):
+        self.queue_size = args.stm_queue_size
+        self.queue_keys = []
+        self.queue_vals = []
+        self.queue_idxs = []
+
+    def reset(self):
+        self.queue_keys = []
+        self.queue_vals = []
+        self.queue_idxs = []
+
+    def current_size(self):
+        return len(self.queue_keys)
+
+    def update(self, key, val, idx):
+        self.queue_keys.append(key)
+        self.queue_vals.append(val)
+        self.queue_idxs.append(idx)
+
+        if len(self.queue_keys) > self.queue_size:
+            self.queue_keys.pop(0)
+            self.queue_vals.pop(0)
+            self.queue_idxs.pop(0)
+
+    def get_indices(self):
+        return self.queue_idxs
+
+    def get_keys(self):
+        return torch.stack(self.queue_keys, dim=2)
+
+    def get_vals(self):
+        return torch.stack(self.queue_vals, dim=2)
+
+
+class KeyValue(nn.Module):
+    # Not using location
+    def __init__(self, indim, keydim, valdim, val_pass):
+        super(KeyValue, self).__init__()
+        self.Key = nn.Conv2d(indim, keydim, kernel_size=(3,3), padding=(1,1), stride=1)
+        self.val_pass = val_pass
+        if not self.val_pass:
+            self.Value = nn.Conv2d(indim, valdim, kernel_size=(3,3), padding=(1,1), stride=1)
+
+    def forward(self, x):
+        val = x if self.val_pass else self.Value(x)
+        return self.Key(x), val
+
+
+class Memory(nn.Module):
+    def __init__(self, args):
+        super(Memory, self).__init__()
+        self.learnable_constant = args.learnable_constant
+        if self.learnable_constant:
+            self.const = nn.Parameter(torch.zeros(1))
+
+    def forward(self, m_in, m_out, q_in):  # m_in: o,c,t,h,w
+        # o = batch of objects = num objects.
+        # d is the dimension, number of channels, t is time
+        B, D_e, T, H, W = m_in.size()
+        _, D_o, _, _, _ = m_out.size()
+
+        mi = m_in.view(B, D_e, T*H*W)
+        mi = torch.transpose(mi, 1, 2)  # b, THW, emb
+
+        qi = q_in.view(B, D_e, H*W)  # b, emb, HW
+
+        p = torch.bmm(mi, qi) # b, THW, HW
+        p = p / math.sqrt(D_e)
+        if self.learnable_constant:
+            p = torch.cat([p, self.const.view(1, 1, 1).expand(B, -1, H*W)], dim=1)
+        p = F.softmax(p, dim=1) # b, THW, HW
+        if self.learnable_constant:
+            p = p[:, :-1, :]
+        # For visualization later
+        p_volume = None
+        # p_volume = p.view(B, T, H, W, H, W)
+
+        mo = m_out.view(B, D_o, T*H*W)
+
+        mem = torch.bmm(mo, p) # Weighted-sum B, D_o, HW
+        mem = mem.view(B, D_o, H, W)
+
+        return mem, p, p_volume
+
+
+
+class MemoryLocal(nn.Module):
+    def __init__(self, args):
+        super(MemoryLocal, self).__init__()
+        self.learnable_constant = args.learnable_constant
+        self.corr_size = args.corr_size
+        if self.learnable_constant:
+            self.const = nn.Parameter(torch.zeros(1))
+
+    def functionCorrelation():
+        pass
+
+    def functionCorrelationTranspose():
+        pass
+
+    def forward(self, m_in, m_out, q_in):  # m_in: o,c,t,h,w
+        # TODO note to verify
+        # o = batch of objects = num objects. NOT batch
+        # d is the dimension, number of channels, t is time
+        B, D_e, T, H, W = m_in.size()
+        _, D_o, _, _, _ = m_out.size()
+
+        patch_size = self.corr_size
+
+        p = torch.stack([self.functionCorrelation(q_in.contiguous(), m_in[:,:,t,:,:].contiguous(), patch_size) for t in range(T)], dim=2) # B, N^2, T, H, W
+        p = p.reshape(B, -1, H, W) # B, T*N^2, H, W
+        if self.learnable_constant:
+            p = torch.cat([p, self.const.view(1, 1, 1, 1).expand(B, -1, H, W)], dim=1)
+        p = F.softmax(p, dim=1)
+        if self.learnable_constant:
+            p = p[:, :-1, :, :]
+        p = p.reshape(B, -1, T, H, W) # B, N^2, T, H, W
+
+        p_volume = None
+        # p_volume = torch.stack([self.remap_cost_volume(p[:,:,t,:,:]) for t in range(T)], dim=1)
+
+        mem = sum([self.functionCorrelationTranspose(p[:,:,t,:,:].contiguous(), m_out[:,:,t,:,:].contiguous(), patch_size) for t in range(T)])
+
+        return mem, p, p_volume
+
+    
 @SEGMENTORS.register_module()
 class EncoderDecoder(BaseSegmentor):
     """Encoder Decoder segmentors.
@@ -29,6 +159,7 @@ class EncoderDecoder(BaseSegmentor):
                  train_cfg=None,
                  test_cfg=None,
                  pretrained=None,
+                 #in_indices=None,
                  init_cfg=None):
         super(EncoderDecoder, self).__init__(init_cfg)
         if pretrained is not None:
@@ -45,6 +176,11 @@ class EncoderDecoder(BaseSegmentor):
         self.test_cfg = test_cfg
 
         assert self.with_decode_head
+
+        # self.spatial_memory = MemoryQueue(mem_args)
+        # self.context_memory = MemoryQueue(mem_args)
+        # self.memory_module = Memory(mem_args)
+        # ALSO RECEIVE IN_INDICES INFO
 
     def _init_decode_head(self, decode_head):
         """Initialize ``decode_head``"""
@@ -130,6 +266,11 @@ class EncoderDecoder(BaseSegmentor):
                                                         s1=kwargs['s1'], 
                                                         s2=kwargs['s2'], 
                                                         opt_flow=kwargs['opt_flow'])
+        elif 'gt_depth' in kwargs:
+            loss_decode = self.decode_head.forward_train(x, img_metas,
+                                                        gt_semantic_seg,
+                                                        self.train_cfg,
+                                                        gt_depth=kwargs['gt_depth'])
         else:
             loss_decode = self.decode_head.forward_train(x, img_metas,
                                                         gt_semantic_seg,
@@ -183,6 +324,39 @@ class EncoderDecoder(BaseSegmentor):
 
         return seg_logit
 
+
+    # def reset_memory(self):
+    #     self.memory_queue.reset()
+
+
+    # this function can be useful for ablation studies regarding FPS 
+    # def memory_range(self, seq_len):
+
+    #     ret_range = range(seq_len)
+
+    #     if self.memory_strategy == "all":
+    #         pass
+    #     if self.memory_strategy == "skip_01":
+    #         ret_range = range(0, seq_len + 1, 2)
+    #     if self.memory_strategy == "skip_02":
+    #         ret_range = range(0, seq_len + 1, 3)
+    #     if self.memory_strategy == "skip_03":
+    #         ret_range = range(0, seq_len + 1, 4)
+    #     if self.memory_strategy == "skip_04":
+    #         ret_range = range(0, seq_len + 1, 5)
+    #     if self.memory_strategy == "skip_05":
+    #         ret_range = range(0, seq_len + 1, 6)
+    #     if self.memory_strategy == "random":
+    #         ret_range = random.sample(range(seq_len-1), self.stm_queue_size-1)
+    #         ret_range.append(seq_len - 1)
+    #         ret_range.sort()
+
+    #     # assert(len(ret_range) == self.stm_queue_size)
+
+    #     assert(seq_len - 1 in ret_range)
+    #     return ret_range
+
+    # HERE GOES THE LOGIC FOR MEMORY WRITE AND READ
     def forward_train(self, img, img_metas, gt_semantic_seg, **kwargs):
         """Forward function for training.
 
@@ -212,11 +386,82 @@ class EncoderDecoder(BaseSegmentor):
                                                       opt_flow=kwargs['opt_flow'])
         else:
             x = self.extract_feat(img) # x is a list in order prediction task
+            # *** THIS RETURNS A TUPLE... WE SHOULD SELECT THE DESIRED INDEX BEFORE PERFORMING THE FOLLOWING PROCESSING
+            # SOMETHING LIKE:
+            # x_l = x[self.in_indices[0]] (lower-level feature)
+            # x_h = x[self.in_indices[1]] (higher-level feature)
+
+            # IMPORTANT!!!
+            # ---------------------------------------------------------------------------
+            #   THE FOLLOWING LOGIC SHOULD BE EXTENDED TO OUR TWO DESIRED MEMORY MODULES:
+            #       - CONTEXTUAL MEMORY
+            #       - SPATIAL MEMORY
+            # ---------------------------------------------------------------------------
+            #   ALSO, REMEMBER THAT THE LOGIC FOR FEATURE SELECTION (SELECTING ONLY THE IN_INDEX)
+            #   IS IMPLEMENTED IN THE DECODE_HEADS. HENCE, WE SHOULD IMPLEMENT SOMETHING SIMILAR
+            #   HERE IN THE ENCODER_DECODER CLASS (SEE COMMENT MARKED WITH ***)
+            # ---------------------------------------------------------------------------
+
+            # TRAINING MEMORY LOGIC
+            #   - FILL MEMORY WITH PREVIOUS FRAMES' FEATURES (SO, WE NEED A FOR LOOP)
+            #
+            # SPATIAL MEMORY
+            # for t in range(len(x_l)-1): # the last frame is not stored in memory
+            #     encoder_output = self.extract_feat(x_l[t])
+            #     kM, vM = self.kv_M_r4.forward(encoder_output)
+
+            #     idx = t
+            #     self.spatial_memory.update(kM, vM, idx)
+            #
+            # CONTEXT_MEMORY
+            # for t in range(len(x_h)-1): # the last frame is not stored in memory
+            #     encoder_output = self.extract_feat(x_h[t])
+            #     kM, vM = self.kv_M_r4.forward(encoder_output)
+
+            #     idx = t
+            #     self.context_memory.update(kM, vM, idx)
+
+            
+            # SAVE LAST OUTPUT (referring to frame[t-1] and only for high-level features), SINCE IT WILL BE USED IN THE TEMPORAL CONSISTENCY LOSS
+            # prev_feat = encoder_output
+
+            # NOW THAT MEMORY IS FULL, WE EXTRACT FEATURES FOR THE CURRENT FRAME
+            # curr_feat = self.extract_feat(imgs[-1])
+            # kQ, vQ = self.kv_Q_r4.forward(curr_feat)
+
+            # READ SPATIAL MEMORY (returning spatial_mem)
+            # spatial_mem, p, p_vol = self.memory_module.forward(
+            #                 self.spatial_memory.get_keys(), self.spatial_memory.get_vals(), kQ)
+            
+            # READ CONTEXT MEMORY (returning context_mem)
+            # context_mem, context_p, context_p_vol = self.memory_module.forward(
+            #                 self.context_memory.get_keys(), self.context_memory.get_vals(), kQ)
 
 
-            # for idx, xis in enumerate(x):
-            #     print(f"encoder-decoder - forward_train - x{idx}.shape: ", x[idx].shape)
+            # FUSE QUERY VALUE AND RESULT FROM MEMORY READ (CONSIDERING BOTH SPATIAL AND CONTEXT MEMORIES)
+            # fused_mem = self.memory_fusion(spatial_mem, context_mem, vQ)
 
+
+            # IMPLEMENT MEMORY READ AND FUSION ALSO FOR x[t-1] (x_prev)
+            #   REMEMBER THAT IT SHOULD ONLY HAVE ACCESS TO FEATURES FROM ITS PREDECESSORS
+            # kQ_prev, vQ_prev = self.kv_Q_r4.forward(prev_feat)
+            
+            # MEMORY READ (THE LOGIC FOR READING ONLY FEATURES FROM PREVIOUS FRAMES SHOULD BE IMPLEMENTED IN THE memory_module - 'is_prev=True')
+            # IT CAN ALSO BE IMPLEMENTED IN THE get_keys() and get_vals() methods from MemoryQueue (maybe by passing an argument corresponding to the number of features to retrieve)
+            # spatial_mem_prev, p_prev, p_vol_prev = self.memory_module.forward(
+            #                 self.spatial_memory.get_keys(), self.spatial_memory.get_vals(), kQ_prev, is_prev=True)
+            
+            # context_mem_prev, context_p_prev, context_p_vol_prev = self.memory_module.forward(
+            #                 self.context_memory.get_keys(), self.context_memory.get_vals(), kQ_prev, is_prev=True)
+            
+            # FUSE QUERY VALUE AND RESULT FROM MEMORY READ
+            # fused_mem_prev = self.memory_fusion(spatial_mem_prev, context_mem_prev, vQ)
+
+
+            # CONTINUE TO DECODER
+            # WE SHOULD SEND BOTH x[t-1] (fused_mem_prev) and x[t] (fused_mem) to the decoder
+            # loss_decode = self._decode_head_forward_train(fused_mem, fused_mem_prev, img_metas, gt_semantic_seg)
+            
             loss_decode = self._decode_head_forward_train(x, img_metas,
                                                       gt_semantic_seg)
 

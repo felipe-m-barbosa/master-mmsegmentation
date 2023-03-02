@@ -225,7 +225,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                 For details on the values of these keys see
                 `mmseg/datasets/pipelines/formatting.py:Collect`.
             gt_semantic_seg (Tensor): Semantic segmentation masks
-                used if the architecture supports semantic segmentation task.
+                used if the arhitecture supports semantic segmentation task.
             train_cfg (dict): The training config.
 
         Returns:
@@ -233,7 +233,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         """
 
         if self.__class__.__name__ == 'FCNDepthHead':
-            depth_pred, seg_logits = self(inputs)
+            seg_logits, depth_pred = self(inputs)
 
             losses = self.losses(seg_logits, gt_semantic_seg, depth_pred=depth_pred, gt_depth=kwargs['gt_depth'])
 
