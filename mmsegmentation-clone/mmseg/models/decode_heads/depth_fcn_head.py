@@ -156,7 +156,7 @@ class FCNDepthHead(BaseDecodeHead):
                 norm_cfg=self.norm_cfg,
                 act_cfg=self.act_cfg)
         
-        # self.depth_head = DepthHead()
+        self.depth_head = DepthHead()
 
     def _forward_feature(self, inputs):
         """Forward function for feature maps before classifying each pixel with
@@ -179,8 +179,7 @@ class FCNDepthHead(BaseDecodeHead):
         """Forward function."""
         output = self._forward_feature(inputs)
         seg_output = self.cls_seg(output)
-        # depth_output = self.depth_head(inputs)
-        depth_output = None
+        depth_output = self.depth_head(inputs)
 
         print("depth_output.shape: ", depth_output.shape)
 
