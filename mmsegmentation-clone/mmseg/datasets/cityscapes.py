@@ -437,12 +437,12 @@ class newCityscapesDataset1(newCityscapesDataset):
         self.seq_dir = kwargs.get('seq_dir', None) # comes from kwargs (I think)
         self.optflow_dir = kwargs.get('optflow_dir', None) # comes from kwargs (I think)
         self.tc_eval = kwargs.get('tc_eval', False) # when tc_eval=True, opt_flow refers directly to images in img_dir
-
+        self.depth_dir = kwargs.get('depth_dir', None)
 
         # load annotations
         self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
                                             self.ann_dir,
-                                            self.seg_map_suffix, self.seq_dir, self.optflow_dir, self.split, tc_eval=self.tc_eval)
+                                            self.seg_map_suffix, self.seq_dir, self.optflow_dir, self.split, self.depth_dir, tc_eval=self.tc_eval)
   
 
 
