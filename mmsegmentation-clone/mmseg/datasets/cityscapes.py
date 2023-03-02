@@ -442,7 +442,7 @@ class newCityscapesDataset1(newCityscapesDataset):
         # load annotations
         self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
                                             self.ann_dir,
-                                            self.seg_map_suffix, self.seq_dir, self.optflow_dir, self.split, self.tc_eval)
+                                            self.seg_map_suffix, self.seq_dir, self.optflow_dir, self.split, tc_eval=self.tc_eval)
   
 
 
