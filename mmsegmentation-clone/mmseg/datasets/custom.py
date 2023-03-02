@@ -192,7 +192,7 @@ class CustomDataset(Dataset):
             dict: Annotation info of specified index.
         """
 
-        return self.img_infos[idx]['ann']
+        return self.img_infos[idx]['ann'], self.img_infos[idx].get('gt_depth', None)
 
     def pre_pipeline(self, results):
         """Prepare results dict for pipeline."""
@@ -264,11 +264,11 @@ class CustomDataset(Dataset):
 
     def get_gt_seg_map_by_idx(self, index):
         """Get one ground truth segmentation map for evaluation."""
-        ann_info = self.get_ann_info(index)
-        results = dict(ann_info=ann_info)
+        ann_info, depth_info = self.get_ann_info(index)
+        results = dict(ann_info=ann_info, depth_info=depth_info)
         self.pre_pipeline(results)
         self.gt_seg_map_loader(results)
-        return results['gt_semantic_seg']
+        return results['gt_semantic_seg', 'gt_depth']
 
     def get_gt_seg_maps(self, efficient_test=None):
         """Get ground truth segmentation maps for evaluation."""

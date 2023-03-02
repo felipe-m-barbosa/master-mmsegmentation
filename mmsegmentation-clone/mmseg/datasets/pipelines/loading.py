@@ -447,8 +447,8 @@ class newLoadAnnotations(object):
         print(results.keys())
 
         # load depth annotations, if needed
-        if results['img_info'].get('gt_depth', None) is not None:
-            filename = results['img_info']['gt_depth']['filename']
+        if results.get('depth_info', None) is not None:
+            filename = results['depth_info']['filename']
         
             img_bytes = self.file_client.get(filename)
             gt_depth = mmcv.imfrombytes(
