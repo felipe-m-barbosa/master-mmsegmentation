@@ -475,17 +475,38 @@ class newCityscapesDataset1(newCityscapesDataset):
                     img_info['ann'] = dict(seg_map=seg_map)
                 
 
+                # for Cityscapes, seqdir == '.../sequences/images/train/'
                 if seq_dir is not None:
-                    self.seqs_list = sorted(os.listdir(seq_dir))
-                    idx = random.randint(0,len(self.seqs_list)-2)
-                    # sequences information
-                    img_info['s1'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx]))
-                    img_info['s2'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx+1]))
-                    
-                    if optflow_dir is not None:
-                        self.optflow_list = sorted(os.listdir(optflow_dir))
-                        img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
-                        # hence, we select the optical flow corresponding to frame t (in this case, idx)
+                    flow_suffix = '.flo'
+
+                    if 'Cityscapes' in seq_dir:
+                        city_name = img_name.split('_')[0]
+                        img_name_parts = img_name.split('_')
+                        prev_idx = int(img_name_parts[2])-1 # img_name_parts[2] encodes the frame position in the sequence
+                        img_name_parts[2] = str(prev_idx)
+                        prev_img_name = '_'.join(img_name_parts)
+                        s1_name = osp.join(seq_dir, city_name, prev_img_name+img_suffix) # previous frame in the sequence
+                        s2_name = osp.join(seq_dir, city_name, img_name+img_suffix)
+
+                        img_info['s1'] = dict(filename=s1_name)
+                        img_info['s2'] = dict(filename=s2_name)
+
+                        if optflow_dir is not None:
+                            optflow_name = osp.join(optflow_dir, city_name, prev_img_name.replace('leftImg8bit', 'opt_flow')+flow_suffix)
+                            img_info['optflow'] = dict(filename=optflow_name) # the optical flow is computed from frame in t to t+1,
+                            # hence, we select the optical flow corresponding to frame t (in this case, idx)
+
+                    else:
+                        self.seqs_list = sorted(os.listdir(seq_dir))
+                        idx = random.randint(0,len(self.seqs_list)-2)
+                        # sequences information
+                        img_info['s1'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx]))
+                        img_info['s2'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx+1]))
+                        
+                        if optflow_dir is not None:
+                            self.optflow_list = sorted(os.listdir(optflow_dir))
+                            img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
+                            # hence, we select the optical flow corresponding to frame t (in this case, idx)
                 
                 if depth_dir is not None:
                     img_info['gt_depth'] = dict(filename=osp.join(depth_dir, img_name.split('_')[0], img_name.replace('leftImg8bit', 'disparity') + depth_suffix))
