@@ -296,6 +296,13 @@ class Resize(object):
                     results[key], results['scale'], interpolation='nearest')
             results[key] = gt_seg
 
+
+    def _resize_depth(self, results):
+        gt_depth = mmcv.imresize(
+                results['gt_depth'], results['scale'], interpolation='nearest')
+        results['gt_depth'] = gt_depth
+
+
     def __call__(self, results):
         """Call function to resize images, bounding boxes, masks, semantic
         segmentation map.
@@ -312,6 +319,10 @@ class Resize(object):
             self._random_scale(results)
         self._resize_img(results)
         self._resize_seg(results)
+
+        if 'gt_depth' in results:
+            self._resize_depth(results)
+
         return results
 
     def __repr__(self):
@@ -399,6 +410,10 @@ class RandomFlip(object):
                     # use copy() to make numpy stride positive
                     results[key] = mmcv.imflip(
                         results[key], direction=results['flip_direction']).copy()
+                
+            if 'gt_depth' in results:
+                results['gt_depth'] = mmcv.imflip(
+                        results['gt_depth'], direction=results['flip_direction']).copy()
                     
         return results
 
@@ -485,6 +500,14 @@ class Pad(object):
                     results[key],
                     shape=results['pad_shape'][:2],
                     pad_val=self.seg_pad_val)
+        
+    
+    def _pad_depth(self, results):
+        results['gt_depth'] = mmcv.impad(
+                    results['gt+depth'],
+                    shape=results['pad_shape'][:2],
+                    pad_val=self.seg_pad_val)
+            
 
     def __call__(self, results):
         """Call function to pad images, masks, semantic segmentation maps.
@@ -498,6 +521,8 @@ class Pad(object):
 
         self._pad_img(results)
         self._pad_seg(results)
+        if 'gt_depth' in results:
+            self._pad_depth(results)
         
         return results
 
@@ -779,6 +804,9 @@ class RandomCrop(object):
         if not(is_order_pred):
             for key in results.get('seg_fields', []):
                 results[key] = self.crop(results[key], crop_bbox)
+        
+        if 'gt_depth' in results:
+            results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
 
         return results
 
@@ -856,6 +884,16 @@ class RandomRotate(object):
                     center=self.center,
                     auto_bound=self.auto_bound,
                     interpolation='nearest')
+                
+            if 'gt_depth' in results:
+                results['gt_depth'] = mmcv.imrotate(
+                    results['gt_depth'],
+                    angle=degree,
+                    border_value=self.seg_pad_val,
+                    center=self.center,
+                    auto_bound=self.auto_bound,
+                    interpolation='nearest')
+                
         return results
 
     def __repr__(self):
@@ -984,6 +1022,12 @@ class SegRescale(object):
             if self.scale_factor != 1:
                 results[key] = mmcv.imrescale(
                     results[key], self.scale_factor, interpolation='nearest')
+        
+        if 'gt_depth' in results:
+            if self.scale_factor != 1:
+                results['gt_depth'] = mmcv.imrescale(
+                    results['gt_depth'], self.scale_factor, interpolation='nearest')
+
         return results
 
     def __repr__(self):
@@ -1245,6 +1289,9 @@ class RandomCutOut(object):
                 if self.seg_fill_in is not None:
                     for key in results.get('seg_fields', []):
                         results[key][y1:y2, x1:x2] = self.seg_fill_in
+                
+                if 'gt_depth' in results:
+                    results['gt_depth'][y1:y2, x1:x2] = 0 # fill depth cutout with zeros
 
         return results
 
@@ -1789,6 +1836,13 @@ class newResize(object):
                 gt_seg = mmcv.imresize(
                     results[key], results['scale'], interpolation='nearest')
             results[key] = gt_seg
+    
+    def _resize_depth(self, results):
+        """Resize semantic segmentation map with ``results['scale']``."""
+        
+        gt_depth = mmcv.imrescale(
+                    results['gt_depth'], results['scale'], interpolation='nearest')
+        results['gt_depth'] = gt_depth
 
     def __call__(self, results):
         """Call function to resize images, bounding boxes, masks, semantic
@@ -1804,6 +1858,9 @@ class newResize(object):
             self._random_scale(results)
         self._resize_img(results)
         self._resize_seg(results)
+        if 'gt_depth' in results:
+            self._resize_depth(results)
+        
         return results
 
     def __repr__(self):
@@ -1900,6 +1957,9 @@ class newRandomCrop(object):
         # crop semantic seg
         for key in results.get('seg_fields', []):
             results[key] = self.crop(results[key], crop_bbox)
+        
+        if 'gt_depth' in results:
+            results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
 
         return results
 
@@ -2035,6 +2095,13 @@ class newPad(object):
                 shape=results['pad_shape'][:2],
                 pad_val=self.seg_pad_val)
 
+    def _pad_depth(self, results):
+        """Pad masks according to ``results['pad_shape']``."""
+        results['gt_depth'] = mmcv.impad(
+            results['gt_depth'],
+            shape=results['pad_shape'][:2],
+            pad_val=self.seg_pad_val)
+
     def __call__(self, results):
         """Call function to pad images, masks, semantic segmentation maps.
         Args:
@@ -2045,6 +2112,8 @@ class newPad(object):
 
         self._pad_img(results)
         self._pad_seg(results)
+        if 'gt_depth' in results:
+            self._pad_depth(results)
         return results
 
     def __repr__(self):

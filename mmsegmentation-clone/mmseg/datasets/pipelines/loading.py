@@ -174,6 +174,18 @@ class LoadAnnotations(object):
         if self.file_client is None:
             self.file_client = mmcv.FileClient(**self.file_client_args)
 
+        # load depth annotations, if needed
+        if results['img_info'].get('gt_depth', None) is not None:
+            filename = results['img_info']['gt_depth']['filename']
+        
+            img_bytes = self.file_client.get(filename)
+            gt_depth = mmcv.imfrombytes(
+            img_bytes, flag='unchanged',
+            backend=self.imdecode_backend)
+
+            results['gt_depth'] = gt_depth
+
+
         if results.get('seg_prefix', None) is not None:
             filename = osp.join(results['seg_prefix'],
                                 results['ann_info']['seg_map'])
@@ -186,6 +198,7 @@ class LoadAnnotations(object):
         
         # convert label ids to trainIds
         lbl_ids = gt_semantic_seg[:,:,0] # isolate red channel (it could be any channel)
+
 
         train_ids = np.zeros_like(lbl_ids)
         for lbl_id, label in CSLabels.id2label.items():
@@ -394,6 +407,8 @@ class newLoadImageFromFile(object):
         repr_str += f"imdecode_backend='{self.imdecode_backend}')"
         return repr_str
 
+
+# NOT NEEDED, SINCE IT IS IDENTICAL TO THE ORIGINAL LOAD ANNOTATIONS
 @PIPELINES.register_module()
 class newLoadAnnotations(object):
     """Load annotations for semantic segmentation.
@@ -427,6 +442,18 @@ class newLoadAnnotations(object):
 
         if self.file_client is None:
             self.file_client = mmcv.FileClient(**self.file_client_args)
+        
+        # load depth annotations, if needed
+        if results['img_info'].get('gt_depth', None) is not None:
+            filename = results['img_info']['gt_depth']['filename']
+        
+            img_bytes = self.file_client.get(filename)
+            gt_depth = mmcv.imfrombytes(
+            img_bytes, flag='unchanged',
+            backend=self.imdecode_backend)
+
+            results['gt_depth'] = gt_depth
+        
 
         if results.get('seg_prefix', None) is not None:
             filename = osp.join(results['seg_prefix'],

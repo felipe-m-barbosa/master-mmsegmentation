@@ -252,6 +252,14 @@ class DefaultFormatBundle(object):
 
             results['img'] = formatted_imgs
         
+        if 'gt_depth' in results:
+            gt_depth = results['gt_depth']
+            if len(gt_depth.shape) < 3:
+                  gt_depth = np.expand_dims(gt_depth, -1)
+            gt_depth = np.ascontiguousarray(gt_depth.transpose(2, 0, 1))
+            results['gt_depth'] = DC(to_tensor(gt_depth), stack=True) # here, we adopt 'opt_flow' instead of 'optflow'
+        
+
         if 'gt_semantic_seg' in results:
             if not(is_order_pred):
                 # convert to long
@@ -400,6 +408,13 @@ class newDefaultFormatBundle(object):
             # optflow_img = np.ascontiguousarray(optflow_img.transpose(2, 0, 1))
             optflow_img = np.ascontiguousarray(optflow_img) # optical flow preserves channels in the last dimension
             results['opt_flow'] = DC(to_tensor(optflow_img), stack=True) # here, we adopt 'opt_flow' instead of 'optflow'
+
+        if 'gt_depth' in results:
+            gt_depth = results['gt_depth']
+            if len(gt_depth.shape) < 3:
+                  gt_depth = np.expand_dims(gt_depth, -1)
+            gt_depth = np.ascontiguousarray(gt_depth.transpose(2, 0, 1))
+            results['gt_depth'] = DC(to_tensor(gt_depth), stack=True) # here, we adopt 'opt_flow' instead of 'optflow'
 
 
         if 'gt_semantic_seg' in results:
