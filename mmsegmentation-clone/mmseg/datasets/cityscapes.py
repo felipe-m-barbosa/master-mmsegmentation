@@ -447,7 +447,7 @@ class newCityscapesDataset1(newCityscapesDataset):
 
 
     # here, we only set the filenames
-    def load_annotations(self, img_dir, img_suffix, ann_dir, seg_map_suffix, seq_dir, optflow_dir, split, tc_eval=False):
+    def load_annotations(self, img_dir, img_suffix, ann_dir, seg_map_suffix, seq_dir, optflow_dir, split, depth_dir=None, depth_suffix='.png', tc_eval=False):
         """Load annotation from directory.
         Args:
             img_dir (str): Path to image directory
@@ -486,6 +486,9 @@ class newCityscapesDataset1(newCityscapesDataset):
                         self.optflow_list = sorted(os.listdir(optflow_dir))
                         img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
                         # hence, we select the optical flow corresponding to frame t (in this case, idx)
+                
+                if depth_dir is not None:
+                    img_info['gt_depth'] = dict(filename=osp.join(depth_dir, img_name.split('_')[0], img_name.replace('leftImg8bit', 'disparity') + depth_suffix))
 
                 img_infos.append(img_info)
 
@@ -502,6 +505,9 @@ class newCityscapesDataset1(newCityscapesDataset):
                 if ann_dir is not None:
                     seg_map = img.replace('leftImg8bit', 'gtFine_labelIds')
                     img_info['ann'] = dict(seg_map=seg_map)
+                
+                if depth_dir is not None:
+                    img_info['gt_depth'] = dict(filename=osp.join(depth_dir, img_name.split('_')[0], img_name.replace('leftImg8bit', 'disparity') + depth_suffix))
                 
                 if tc_eval: # in tc_eval, we evaluate the overall temporal consistency of the input sequence
                     idx = filenames.index(img) # find index corresponding to current image name
@@ -529,6 +535,7 @@ class newCityscapesDataset1(newCityscapesDataset):
 
         print_log(f'Loaded {len(img_infos)} images', logger=get_root_logger())
         return img_infos
+
 
     def evaluate(self,
                 results,
