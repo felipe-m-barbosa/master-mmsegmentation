@@ -443,6 +443,9 @@ class newLoadAnnotations(object):
         if self.file_client is None:
             self.file_client = mmcv.FileClient(**self.file_client_args)
         
+
+        print(results.keys())
+
         # load depth annotations, if needed
         if results['img_info'].get('gt_depth', None) is not None:
             filename = results['img_info']['gt_depth']['filename']
