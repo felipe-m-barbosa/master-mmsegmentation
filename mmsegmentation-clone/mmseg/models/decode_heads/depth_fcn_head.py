@@ -174,6 +174,9 @@ class FCNDepthHead(BaseDecodeHead):
         if self.concat_input:
             feats = self.conv_cat(torch.cat([x, feats], dim=1))
         return feats
+    
+    def init_weights(self):
+        pass
 
     def forward(self, inputs):
         """Forward function."""
