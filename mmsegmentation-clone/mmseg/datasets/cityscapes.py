@@ -467,7 +467,12 @@ class newCityscapesDataset1(newCityscapesDataset):
             lines = mmcv.list_from_file(
                 split, file_client_args=self.file_client_args)
             for line in lines:
-                img_name = line.strip()
+                line_content = line.strip()
+                if 'ZED' in seq_dir:
+                    img_name = line_content.split('**')[0]
+                else:
+                    img_name = line_content
+
                 img_info = dict(filename=img_name + img_suffix)
                 
                 if ann_dir is not None:
@@ -496,16 +501,21 @@ class newCityscapesDataset1(newCityscapesDataset):
                             img_info['optflow'] = dict(filename=optflow_name) # the optical flow is computed from frame in t to t+1,
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
 
-                    else:
-                        self.seqs_list = sorted(os.listdir(seq_dir))
-                        idx = random.randint(0,len(self.seqs_list)-2)
+                    else: # for now, if not Cityscapes, it must be ZED2... in the future, we will also consider the SYNTHIA dataset
+                        # ZED2 dataset
+                        seq_file = line_content.split('**')[1]
+                        seq_name = seq_file.split(osp.sep)[0]
+                        seq_file_name = seq_file.split(osp.sep)[1]
+
+                        seqs_list = sorted(os.listdir(osp.join(seq_dir, seq_name)))
+                        idx = seqs_list.index(seq_file_name)
                         # sequences information
-                        img_info['s1'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx]))
-                        img_info['s2'] = dict(filename=osp.join(seq_dir, self.seqs_list[idx+1]))
+                        img_info['s1'] = dict(filename=osp.join(seq_dir, seq_name, seq_file_name))
+                        img_info['s2'] = dict(filename=osp.join(seq_dir, seq_name, seqs_list[idx+1]))
                         
                         if optflow_dir is not None:
-                            self.optflow_list = sorted(os.listdir(optflow_dir))
-                            img_info['optflow'] = dict(filename=osp.join(optflow_dir, self.optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
+                            optflow_list = sorted(os.listdir(optflow_dir, seq_name))
+                            img_info['optflow'] = dict(filename=osp.join(optflow_dir, seq_name, optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
                 
                 if depth_dir is not None:
