@@ -328,7 +328,7 @@ class newLoadImageFromFile(object):
             s2_filename = None
         
         # optflow
-        if results['img_info']['optflow'] is not None:
+        if results['img_info'].get(['optflow'], None) is not None:
             optflow_filename = results['img_info']['optflow']['filename']
             optflow_img = read_flow(optflow_filename)
         else:
