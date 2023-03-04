@@ -183,6 +183,10 @@ class LoadAnnotations(object):
             img_bytes, flag='unchanged',
             backend=self.imdecode_backend)
 
+            print('gt_depth.shape: ', gt_depth.shape, end='\n\n')
+
+            gt_depth = gt_depth[:,:,0] # assuming all channels store the same information, we can select a single one
+
             results['gt_depth'] = gt_depth
 
 
