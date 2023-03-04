@@ -464,6 +464,9 @@ class newLoadAnnotations(object):
 
             results['gt_depth'] = gt_depth
 
+            print('\n\n')
+            print(results['gt_depth'], end='\n\n\n')
+
         if results.get('seg_prefix', None) is not None:
             filename = osp.join(results['seg_prefix'],
                                 results['ann_info']['seg_map'])
