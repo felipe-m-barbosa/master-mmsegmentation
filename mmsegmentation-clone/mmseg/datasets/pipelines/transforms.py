@@ -1767,7 +1767,7 @@ class newResize(object):
                     results['s2_img'], results['scale'], return_scale=True)
 
             # optflow: we do not rescale optflow, since it will be used in full resolution in a final step
-            if results['optflow'] is not None:
+            if results.get('optflow', None) is not None:
                 optflow_img = results['optflow']
                 # optflow_img, scale_factor = mmcv.imrescale(
                 #     results['optflow'], results['scale'], return_scale=True)
