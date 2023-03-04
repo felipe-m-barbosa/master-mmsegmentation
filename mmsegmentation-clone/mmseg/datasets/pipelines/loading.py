@@ -328,9 +328,13 @@ class newLoadImageFromFile(object):
             s2_filename = None
         
         # optflow
-        if results['img_info'].get(['optflow'], None) is not None:
-            optflow_filename = results['img_info']['optflow']['filename']
-            optflow_img = read_flow(optflow_filename)
+        if not isinstance(results, list):
+            if results['img_info'].get(['optflow'], None) is not None:
+                optflow_filename = results['img_info']['optflow']['filename']
+                optflow_img = read_flow(optflow_filename)
+            else:
+                optflow_filename = None
+                optflow_img = None
         else:
             optflow_filename = None
             optflow_img = None
@@ -339,9 +343,15 @@ class newLoadImageFromFile(object):
         if self.to_float32:
             img = img.astype(np.float32)
 
-            s1_img = s1_img.astype(np.float32)
-            s2_img = s2_img.astype(np.float32)
-            optflow_img = optflow_img.astype(np.float32)
+            if s1_filename is not None:
+                s1_img = s1_img.astype(np.float32)
+            
+            if s2_filename is not None:
+                s2_img = s2_img.astype(np.float32)
+            
+            if optflow_filename is not None:
+                optflow_img = optflow_img.astype(np.float32)
+
 
         results['filename'] = filename
         results['ori_filename'] = results['img_info']['filename']
@@ -385,18 +395,19 @@ class newLoadImageFromFile(object):
                 std=np.ones(num_channels, dtype=np.float32),
                 to_rgb=False)
 
-        results['optflow_filename'] = optflow_filename
-        results['optflow_ori_filename'] = optflow_filename
-        results['optflow'] = optflow_img
-        results['optflow_shape'] = optflow_img.shape if optflow_img is not None else None
-        results['optflow_ori_shape'] = optflow_img.shape if optflow_img is not None else None
-        # Set initial values for default meta_keys
-        results['optflow_pad_shape'] = optflow_img.shape if optflow_img is not None else None
-        results['optflow_scale_factor'] = 1.0
-        results['optflow_norm_cfg'] = dict(
-            mean=np.zeros(num_channels, dtype=np.float32),
-            std=np.ones(num_channels, dtype=np.float32),
-            to_rgb=False)
+        if optflow_filename is not None:
+            results['optflow_filename'] = optflow_filename
+            results['optflow_ori_filename'] = optflow_filename
+            results['optflow'] = optflow_img
+            results['optflow_shape'] = optflow_img.shape if optflow_img is not None else None
+            results['optflow_ori_shape'] = optflow_img.shape if optflow_img is not None else None
+            # Set initial values for default meta_keys
+            results['optflow_pad_shape'] = optflow_img.shape if optflow_img is not None else None
+            results['optflow_scale_factor'] = 1.0
+            results['optflow_norm_cfg'] = dict(
+                mean=np.zeros(num_channels, dtype=np.float32),
+                std=np.ones(num_channels, dtype=np.float32),
+                to_rgb=False)
 
         return results
 
