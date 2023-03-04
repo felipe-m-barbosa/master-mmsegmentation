@@ -156,7 +156,7 @@ class FCNDepthHead(BaseDecodeHead):
                 norm_cfg=self.norm_cfg,
                 act_cfg=self.act_cfg)
         
-        self.depth_head = DepthHead()
+        self.depth_head = DepthHead(**kwargs)
 
     def _forward_feature(self, inputs):
         """Forward function for feature maps before classifying each pixel with
