@@ -1792,11 +1792,10 @@ class newResize(object):
                     results['s2_img'], results['scale'], return_scale=True)
             
             # optflow
-            if results['optflow'] is not None:
-                optflow_img, w_scale, h_scale = mmcv.imresize(
-                    results['optflow'], results['scale'], return_scale=True)
-            else:
-                None
+            if 'optflow' in results:
+                if results['optflow'] is not None:
+                    optflow_img, w_scale, h_scale = mmcv.imresize(
+                        results['optflow'], results['scale'], return_scale=True)
 
         scale_factor = np.array([w_scale, h_scale, w_scale, h_scale],
                                 dtype=np.float32)
@@ -1820,11 +1819,12 @@ class newResize(object):
             results['s2_keep_ratio'] = self.keep_ratio
 
         # optflow
-        results['optflow'] = optflow_img
-        results['optflow_shape'] = optflow_img.shape if optflow_img is not None else None
-        results['optflow_pad_shape'] = optflow_img.shape if optflow_img is not None else None
-        results['optflow_scale_factor'] = scale_factor
-        results['optflow_keep_ratio'] = self.keep_ratio
+        if 'optflow' in results:
+            results['optflow'] = optflow_img
+            results['optflow_shape'] = optflow_img.shape if optflow_img is not None else None
+            results['optflow_pad_shape'] = optflow_img.shape if optflow_img is not None else None
+            results['optflow_scale_factor'] = scale_factor
+            results['optflow_keep_ratio'] = self.keep_ratio
 
     def _resize_seg(self, results):
         """Resize semantic segmentation map with ``results['scale']``."""
@@ -1948,11 +1948,12 @@ class newRandomCrop(object):
 
         # optflow
         if 'optflow' in results:
-            optflow_img = results['optflow']
-            optflow_img = self.crop(optflow_img, crop_bbox)
-            optflow_img_shape = optflow_img.shape
-            results['optflow'] = optflow_img
-            results['optflow_shape'] = optflow_img_shape
+            if results['optflow'] is not None:
+                optflow_img = results['optflow']
+                optflow_img = self.crop(optflow_img, crop_bbox)
+                optflow_img_shape = optflow_img.shape
+                results['optflow'] = optflow_img
+                results['optflow_shape'] = optflow_img_shape
 
 
         # crop semantic seg
@@ -2052,8 +2053,11 @@ class newPad(object):
                     results['s1_img'], shape=self.size, pad_val=self.pad_val)
                 padded_s2_img = mmcv.impad(
                     results['s2_img'], shape=self.size, pad_val=self.pad_val)
-            padded_optflow_img = mmcv.impad(
-                results['optflow'], shape=self.size, pad_val=self.pad_val)
+            
+            if 'optflow' in results:
+                padded_optflow_img = mmcv.impad(
+                    results['optflow'], shape=self.size, pad_val=self.pad_val)
+                
         elif self.size_divisor is not None:
             padded_img = mmcv.impad_to_multiple(
                 results['img'], self.size_divisor, pad_val=self.pad_val)
@@ -2062,8 +2066,10 @@ class newPad(object):
                     results['s1_img'], self.size_divisor, pad_val=self.pad_val)
                 padded_s2_img = mmcv.impad_to_multiple(
                     results['s2_img'], self.size_divisor, pad_val=self.pad_val)
-            padded_optflow_img = mmcv.impad_to_multiple(
-                results['optflow'], self.size_divisor, pad_val=self.pad_val)
+            
+            if 'optflow' in results:
+                padded_optflow_img = mmcv.impad_to_multiple(
+                    results['optflow'], self.size_divisor, pad_val=self.pad_val)
 
             
         results['img'] = padded_img
@@ -2083,10 +2089,11 @@ class newPad(object):
             results['s2_pad_size_divisor'] = self.size_divisor
 
         # optflow
-        results['optflow'] = padded_optflow_img
-        results['optflow_pad_shape'] = padded_optflow_img.shape
-        results['optflow_pad_fixed_size'] = self.size
-        results['optflow_pad_size_divisor'] = self.size_divisor
+        if 'optflow' in results:
+            results['optflow'] = padded_optflow_img
+            results['optflow_pad_shape'] = padded_optflow_img.shape
+            results['optflow_pad_fixed_size'] = self.size
+            results['optflow_pad_size_divisor'] = self.size_divisor
 
     def _pad_seg(self, results):
         """Pad masks according to ``results['pad_shape']``."""
