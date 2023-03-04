@@ -187,7 +187,7 @@ class LoadAnnotations(object):
 
             gt_depth = gt_depth[:,:,0] # assuming all channels store the same information, we can select a single one
 
-            results['gt_depth'] = gt_depth
+            results['gt_depth'] = gt_depth.type(torch.float)
 
 
         if results.get('seg_prefix', None) is not None:
@@ -470,7 +470,7 @@ class newLoadAnnotations(object):
 
             gt_depth = gt_depth[:,:,0] # assuming all channels store the same information, we can select a single one
 
-            results['gt_depth'] = gt_depth
+            results['gt_depth'] = gt_depth.type(torch.float)
 
             # print('\n\n')
             # print(results['gt_depth'], end='\n\n\n')
