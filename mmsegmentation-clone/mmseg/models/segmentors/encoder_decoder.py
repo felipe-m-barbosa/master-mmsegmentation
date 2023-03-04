@@ -462,8 +462,12 @@ class EncoderDecoder(BaseSegmentor):
             # WE SHOULD SEND BOTH x[t-1] (fused_mem_prev) and x[t] (fused_mem) to the decoder
             # loss_decode = self._decode_head_forward_train(fused_mem, fused_mem_prev, img_metas, gt_semantic_seg)
             
-            loss_decode = self._decode_head_forward_train(x, img_metas,
-                                                      gt_semantic_seg)
+            if 'gt_depth' in kwargs:
+                loss_decode = self._decode_head_forward_train(x, img_metas,
+                                                        gt_semantic_seg, gt_depth=kwargs['gt_depth'])
+            else:
+                loss_decode = self._decode_head_forward_train(x, img_metas,
+                                                        gt_semantic_seg)
 
         losses.update(loss_decode)
 
@@ -472,8 +476,12 @@ class EncoderDecoder(BaseSegmentor):
                 loss_aux = self._auxiliary_head_forward_train(
                     x, img_metas, gt_semantic_seg, s1=s1, s2=s2, opt_flow=kwargs['opt_flow'])
             else:
-                loss_aux = self._auxiliary_head_forward_train(
-                    x, img_metas, gt_semantic_seg)
+                if 'gt_depth' in kwargs:
+                    loss_aux = self._auxiliary_head_forward_train(
+                        x, img_metas, gt_semantic_seg, gt_depth=kwargs['gt_depth'])
+                else:    
+                    loss_aux = self._auxiliary_head_forward_train(
+                        x, img_metas, gt_semantic_seg)
 
             losses.update(loss_aux)
 
