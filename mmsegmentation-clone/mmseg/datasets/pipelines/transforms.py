@@ -1947,11 +1947,12 @@ class newRandomCrop(object):
             results['s2_img_shape'] = s2_img_shape
 
         # optflow
-        optflow_img = results['optflow']
-        optflow_img = self.crop(optflow_img, crop_bbox)
-        optflow_img_shape = optflow_img.shape
-        results['optflow'] = optflow_img
-        results['optflow_shape'] = optflow_img_shape
+        if 'optflow' in results:
+            optflow_img = results['optflow']
+            optflow_img = self.crop(optflow_img, crop_bbox)
+            optflow_img_shape = optflow_img.shape
+            results['optflow'] = optflow_img
+            results['optflow_shape'] = optflow_img_shape
 
 
         # crop semantic seg
