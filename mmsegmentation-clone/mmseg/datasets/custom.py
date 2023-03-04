@@ -687,6 +687,8 @@ class newCustomDataset(Dataset):
             dict: Annotation info of specified index.
         """
 
+        print(self.img_infos[idx].keys())
+
         return self.img_infos[idx]['ann']
 
     def pre_pipeline(self, results):
