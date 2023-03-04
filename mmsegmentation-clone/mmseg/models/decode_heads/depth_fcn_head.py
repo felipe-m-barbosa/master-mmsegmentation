@@ -86,7 +86,7 @@ class DepthHead(BaseDecodeHead):
 
     def depth_pred(self, feats):
         """Depth prediction function."""
-        print("Depth head - feats.shape: ", feats.shape)
+        # print("Depth head - feats.shape: ", feats.shape)
         depth_prediction = self.depth_Conv(feats)
         
         return depth_prediction
@@ -182,6 +182,6 @@ class FCNDepthHead(BaseDecodeHead):
         seg_output = self.cls_seg(output)
         depth_output = self.depth_head(inputs)
 
-        print("depth_output.shape: ", depth_output.shape)
+        # print("depth_output.shape: ", depth_output.shape)
 
         return seg_output, depth_output

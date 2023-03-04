@@ -336,11 +336,11 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             dim_gt_depth = gt_depth.shape[2]*gt_depth.shape[3] # H*W
             dim_depth_pred = depth_pred.shape[2]*depth_pred.shape[3] # H*W
 
-            print('dim_gt_depth: ', dim_gt_depth)
-            print('dim_depth_pred: ', dim_depth_pred)
+            # print('dim_gt_depth: ', dim_gt_depth)
+            # print('dim_depth_pred: ', dim_depth_pred)
 
-            print('gt_depth dtype: ', gt_depth.dtype)
-            print('depth_pred dtype: ', depth_pred.dtype)
+            # print('gt_depth dtype: ', gt_depth.dtype)
+            # print('depth_pred dtype: ', depth_pred.dtype)
 
 
             if dim_gt_depth > dim_depth_pred:
