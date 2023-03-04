@@ -468,10 +468,12 @@ class newCityscapesDataset1(newCityscapesDataset):
                 split, file_client_args=self.file_client_args)
             for line in lines:
                 line_content = line.strip()
-                if 'ZED' in seq_dir:
-                    img_name = line_content.split('**')[0]
-                else:
-                    img_name = line_content
+                img_name = line_content
+                
+                if seq_dir is not None:
+                    if 'ZED' in seq_dir:
+                        img_name = line_content.split('**')[0]
+                
 
                 img_info = dict(filename=img_name + img_suffix)
                 
