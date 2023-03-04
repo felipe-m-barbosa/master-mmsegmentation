@@ -463,8 +463,6 @@ class newLoadAnnotations(object):
             backend=self.imdecode_backend)
 
             results['gt_depth'] = gt_depth
-        
-            print(results['gt_depth'])
 
         if results.get('seg_prefix', None) is not None:
             filename = osp.join(results['seg_prefix'],

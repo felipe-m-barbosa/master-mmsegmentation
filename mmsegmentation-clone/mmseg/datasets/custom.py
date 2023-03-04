@@ -230,11 +230,14 @@ class CustomDataset(Dataset):
         """
 
         img_info = self.img_infos[idx]
-        ann_info = self.get_ann_info(idx)
+        ann_info, depth_info = self.get_ann_info(idx)
         if 'video_name' in self.img_infos[idx]:
             results = dict(img_info=img_info, ann_info=ann_info, str_cls=self.img_infos[idx]['str_cls'])
         else:
-            results = dict(img_info=img_info, ann_info=ann_info)
+            if depth_info is not None:
+                results = dict(img_info=img_info, ann_info=ann_info, depth_info=depth_info)
+            else:
+                results = dict(img_info=img_info, ann_info=ann_info)
         self.pre_pipeline(results)
         return self.pipeline(results)
 
@@ -251,7 +254,7 @@ class CustomDataset(Dataset):
 
         img_info = self.img_infos[idx]
         if 'video_name' in self.img_infos[idx]:
-            ann_info = self.get_ann_info(idx)
+            ann_info, _ = self.get_ann_info(idx)
             results = dict(img_info=img_info, ann_info=ann_info, str_cls=self.img_infos[idx]['str_cls'])
         else:
             results = dict(img_info=img_info)
@@ -265,10 +268,13 @@ class CustomDataset(Dataset):
     def get_gt_seg_map_by_idx(self, index):
         """Get one ground truth segmentation map for evaluation."""
         ann_info, depth_info = self.get_ann_info(index)
-        results = dict(ann_info=ann_info, depth_info=depth_info)
+        if depth_info is not None:
+            results = dict(ann_info=ann_info, depth_info=depth_info)
+        else:
+            results = dict(ann_info=ann_info)
         self.pre_pipeline(results)
         self.gt_seg_map_loader(results)
-        return results['gt_semantic_seg', 'gt_depth']
+        return results['gt_semantic_seg'], results.get('gt_depth', None)
 
     def get_gt_seg_maps(self, efficient_test=None):
         """Get ground truth segmentation maps for evaluation."""
@@ -279,11 +285,14 @@ class CustomDataset(Dataset):
                 'friendly by default. ')
 
         for idx in range(len(self)):
-            ann_info = self.get_ann_info(idx)
-            results = dict(ann_info=ann_info)
+            ann_info, depth_info = self.get_ann_info(idx)
+            if depth_info is not None:
+                results = dict(ann_info=ann_info, depth_info=depth_info)
+            else:
+                results = dict(ann_info=ann_info)
             self.pre_pipeline(results)
             self.gt_seg_map_loader(results)
-            yield results['gt_semantic_seg']
+            yield results['gt_semantic_seg'], results.get('gt_depth', None)
 
     def pre_eval(self, preds, indices):
         """Collect eval result from each iteration.
@@ -449,7 +458,8 @@ class CustomDataset(Dataset):
             if metric[0] in ['mAcc', 'aAcc']:
                 anns = []
                 for i in range(len(results)):
-                    anns.append(torch.argmax(self.get_ann_info(i)).numpy())
+                    ann, _ = self.get_ann_info(i)
+                    anns.append(torch.argmax(ann).numpy())
                 
 
                 print("anns: ", anns, end='\n\n\n')
@@ -687,9 +697,7 @@ class newCustomDataset(Dataset):
             dict: Annotation info of specified index.
         """
 
-        print(self.img_infos[idx].keys())
-
-        return self.img_infos[idx]['ann']
+        return self.img_infos[idx]['ann'], self.img_infos[idx].get('gt_depth', None)
 
     def pre_pipeline(self, results):
         """Prepare results dict for pipeline."""
@@ -723,8 +731,11 @@ class newCustomDataset(Dataset):
         """
 
         img_info = self.img_infos[idx]
-        ann_info = self.get_ann_info(idx)
-        results = dict(img_info=img_info, ann_info=ann_info)
+        ann_info, depth_info = self.get_ann_info(idx)
+        if depth_info is not None:
+            results = dict(img_info=img_info, ann_info=ann_info, depth_info=depth_info)
+        else:
+            results = dict(img_info=img_info, ann_info=ann_info)
         self.pre_pipeline(results)
 
         return self.pipeline(results)
@@ -749,11 +760,14 @@ class newCustomDataset(Dataset):
 
     def get_gt_seg_map_by_idx(self, index):
         """Get one ground truth segmentation map for evaluation."""
-        ann_info = self.get_ann_info(index)
-        results = dict(ann_info=ann_info)
+        ann_info, depth_info = self.get_ann_info(index)
+        if depth_info is not None:
+            results = dict(ann_info=ann_info, depth_info=depth_info)
+        else:
+            results = dict(ann_info=ann_info)
         self.pre_pipeline(results)
         self.gt_seg_map_loader(results)
-        return results['gt_semantic_seg']
+        return results['gt_semantic_seg'], results.get('gt_depth', None)
 
     def get_gt_seg_maps(self, efficient_test=None):
         """Get ground truth segmentation maps for evaluation."""
@@ -764,11 +778,14 @@ class newCustomDataset(Dataset):
                 'friendly by default. ')
 
         for idx in range(len(self)):
-            ann_info = self.get_ann_info(idx)
-            results = dict(ann_info=ann_info)
+            ann_info, depth_info = self.get_ann_info(idx)
+            if depth_info is not None:
+                results = dict(ann_info=ann_info, depth_info=depth_info)
+            else:
+                results = dict(ann_info=ann_info)
             self.pre_pipeline(results)
             self.gt_seg_map_loader(results)
-            yield results['gt_semantic_seg']
+            yield results['gt_semantic_seg'], results.get('gt_depth', None)
 
     def pre_eval(self, preds, indices):
         """Collect eval result from each iteration.
