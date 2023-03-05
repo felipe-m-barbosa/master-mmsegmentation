@@ -95,6 +95,10 @@ def single_gpu_test(model,
             
             result = model(return_loss=False, **data)
 
+            if isinstance(result, tuple):
+                depth_result = result[1]
+                result = result[0]
+
         if not isinstance(data['img_metas'], list):
 
             if not 'video_name' in data['img_metas'].data[0][0]: 

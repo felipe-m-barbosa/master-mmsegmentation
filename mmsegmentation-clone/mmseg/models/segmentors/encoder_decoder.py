@@ -639,15 +639,21 @@ class EncoderDecoder(BaseSegmentor):
             ori_shape = img_meta[0]['ori_shape']
             assert all(_['ori_shape'] == ori_shape for _ in img_meta)
         
-        
+        depth_pred = None
         if self.test_cfg.mode == 'slide':
             seg_logit = self.slide_inference(img, img_meta, rescale)
         else:
-            seg_logit = self.whole_inference(img, img_meta, rescale)
+            logits = self.whole_inference(img, img_meta, rescale)
+            if isinstance(logits, tuple):
+                seg_logit = logits[0]
+                depth_pred = logits[1]
         if self.out_channels == 1:
             output = F.sigmoid(seg_logit)
         else:
             output = F.softmax(seg_logit, dim=1)
+        
+        if depth_pred is not None:
+            output_depth = F.sigmoid(depth_pred) # is this correct? or should I keep the logits?
         
         if not 'video_name' in img_meta[0]: # just for non-order prediction task
             flip = img_meta[0]['flip']
@@ -656,19 +662,37 @@ class EncoderDecoder(BaseSegmentor):
                 assert flip_direction in ['horizontal', 'vertical']
                 if flip_direction == 'horizontal':
                     output = output.flip(dims=(3, ))
+                    if depth_pred is not None:
+                        output_depth = output_depth.flip(dims=(3, ))
                 elif flip_direction == 'vertical':
                     output = output.flip(dims=(2, ))
+                    if depth_pred is not None:
+                        output_depth = output_depth.flip(dims=(2, ))
 
-        return output
+        if depth_pred is not None:
+            return output, output_depth
+        else:
+            return output
 
     def simple_test(self, img, img_meta, rescale=True, **kwargs):
         """Simple test with single image."""
-        seg_logit = self.inference(img, img_meta, rescale) # the return is actually the probabilities vector
+        logits = self.inference(img, img_meta, rescale) # the return is actually the probabilities vector
+        
+        depth_pred = None
+
+        if isinstance(logits, tuple):
+            seg_logit = logits[0]
+            depth_pred = logits[1]
+        else:
+            seg_logit = logits
+        
         if self.out_channels == 1:
             seg_pred = (seg_logit >
                         self.decode_head.threshold).to(seg_logit).squeeze(1)
         else:
             seg_pred = seg_logit.argmax(dim=1) # the integer class
+        
+
         if torch.onnx.is_in_onnx_export():
             # our inference backend only support 4D output
             seg_pred = seg_pred.unsqueeze(0)
@@ -677,7 +701,10 @@ class EncoderDecoder(BaseSegmentor):
         # unravel batch dim
         seg_pred = list(seg_pred)
 
-        return seg_pred # list with the integer class values
+        if depth_pred is not None:
+            return seg_pred, depth_pred
+        else:
+            return seg_pred # list with the integer class values
 
     def simple_test_logits(self, img, img_metas, rescale=True):
         """Test without augmentations.
