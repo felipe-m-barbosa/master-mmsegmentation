@@ -51,8 +51,8 @@ class L1Loss(nn.Module):
         """Forward function."""
 
 
-        print("LOSS - PRED SHAPE: ", cls_score.shape)
-        print("LOSS - TARGET SHAPE: ", label.shape)
+        # print("LOSS - PRED SHAPE: ", cls_score.shape)
+        # print("LOSS - TARGET SHAPE: ", label.shape)
 
         # print(kwargs.keys())
 

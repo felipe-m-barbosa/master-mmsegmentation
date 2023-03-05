@@ -331,8 +331,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             gt_depth = kwargs['gt_depth']
             depth_pred = kwargs['depth_pred']
 
-            print("losses - gt_depth shape: ", gt_depth.shape)
-            print("losses - depth_pred shape: ", depth_pred.shape)
+            # print("losses - gt_depth shape: ", gt_depth.shape)
+            # print("losses - depth_pred shape: ", depth_pred.shape)
             
             # resize preds and gts, if necessary, to the same dimensions
             dim_gt_depth = gt_depth.shape[2]*gt_depth.shape[3] # H*W
