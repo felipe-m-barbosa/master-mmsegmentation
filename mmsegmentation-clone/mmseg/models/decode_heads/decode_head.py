@@ -288,6 +288,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         # print('Seg logit shape: ', seg_logit.shape)
         # print('Seg label shape: ', seg_label.shape)
         
+        print("losses - seg_logit shape: ", seg_logit.shape)
+        print("losses - seg label shape: ", seg_label.shape)
         
         # THIS IS UNNECESSARY IN ORDER PREDICTION TASK
         if not(kwargs.get('is_order_pred', False)):
