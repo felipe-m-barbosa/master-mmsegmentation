@@ -246,13 +246,30 @@ class EncoderDecoder(BaseSegmentor):
         x = self.extract_feat(img)
         out = self._decode_head_forward_test(x, img_metas)
 
+        depth_pred = None
+
+        if isinstance(out, tuple):
+            depth_pred = out[1]
+            out = out[0] # seg_logits
+
         if not 'video_name' in img_metas[0]: # not order prediction task
             out = resize(
                 input=out,
                 size=img.shape[2:],
                 mode='bilinear',
                 align_corners=self.align_corners)
-        return out
+            
+            if depth_pred is not None:
+                depth_pred = resize(
+                    input=depth_pred,
+                    size=img.shape[2:],
+                    mode='bilinear',
+                    align_corners=self.align_corners)
+        
+        if depth_pred is not None:
+            return out, depth_pred
+        else:
+            return out
 
     def _decode_head_forward_train(self, x, img_metas, gt_semantic_seg, **kwargs):
         """Run forward function and calculate loss for decode head in
@@ -283,7 +300,10 @@ class EncoderDecoder(BaseSegmentor):
         """Run forward function and calculate loss for decode head in
         inference."""
         seg_logits = self.decode_head.forward_test(x, img_metas, self.test_cfg)
-        return seg_logits
+        if isinstance(seg_logits, tuple):
+            return seg_logits[0], seg_logits[1] # depth_preds
+        else:
+            return seg_logits
 
     def _auxiliary_head_forward_train(self, x, img_metas, gt_semantic_seg, **kwargs):
         """Run forward function and calculate loss for auxiliary head in
@@ -545,7 +565,15 @@ class EncoderDecoder(BaseSegmentor):
     def whole_inference(self, img, img_meta, rescale):
         """Inference with full image."""
 
-        seg_logit = self.encode_decode(img, img_meta)
+        logits = self.encode_decode(img, img_meta)
+
+        depth_pred = None
+
+        if isinstance(logits, tuple):
+            depth_pred = logits[1]
+            seg_logit = logits[0]
+        else:
+            seg_logit = logits
 
         if not 'video_name' in img_meta[0]: # not order prediction task
             if rescale:
@@ -557,6 +585,9 @@ class EncoderDecoder(BaseSegmentor):
                     resize_shape = img_meta[0]['img_shape'][:2]
                     seg_logit = seg_logit[:, :, :resize_shape[0], :resize_shape[1]]
                     size = img_meta[0]['ori_shape'][:2]
+
+                    if depth_pred is not None:
+                        depth_pred = depth_pred[:, :, :resize_shape[0], :resize_shape[1]]
 
                 # print("\n\n\n")
                 # print(f"Seg_logit shape: {seg_logit.shape}")
@@ -571,8 +602,21 @@ class EncoderDecoder(BaseSegmentor):
                     mode='bilinear',
                     align_corners=self.align_corners,
                     warning=False)
+                
+                if depth_pred is not None:
+                    depth_pred = resize(
+                        depth_pred,
+                        size=size,
+                        mode='bilinear',
+                        align_corners=self.align_corners,
+                        warning=False)
 
-        return seg_logit
+        # Fix this behavior to comprise a single type of return (the one that returns two values)
+        if depth_pred is not None:
+            return seg_logit, depth_pred
+        else:
+            return seg_logit
+
 
     def inference(self, img, img_meta, rescale):
         """Inference with slide/whole style.
