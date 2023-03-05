@@ -647,6 +647,9 @@ class EncoderDecoder(BaseSegmentor):
             if isinstance(logits, tuple):
                 seg_logit = logits[0]
                 depth_pred = logits[1]
+            else:
+                seg_logit = logits
+                
         if self.out_channels == 1:
             output = F.sigmoid(seg_logit)
         else:
