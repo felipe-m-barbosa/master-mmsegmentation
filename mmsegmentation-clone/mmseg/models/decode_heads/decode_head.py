@@ -288,9 +288,6 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         # print('Seg logit shape: ', seg_logit.shape)
         # print('Seg label shape: ', seg_label.shape)
         
-        print("losses - seg_logit shape: ", seg_logit.shape)
-        print("losses - seg label shape: ", seg_label.shape)
-        
         # THIS IS UNNECESSARY IN ORDER PREDICTION TASK
         if not(kwargs.get('is_order_pred', False)):
             seg_logit = resize(
@@ -333,6 +330,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         if 'gt_depth' in kwargs:
             gt_depth = kwargs['gt_depth']
             depth_pred = kwargs['depth_pred']
+
+            print("losses - gt_depth shape: ", gt_depth.shape)
+            print("losses - depth_pred shape: ", depth_pred.shape)
             
             # resize preds and gts, if necessary, to the same dimensions
             dim_gt_depth = gt_depth.shape[2]*gt_depth.shape[3] # H*W
