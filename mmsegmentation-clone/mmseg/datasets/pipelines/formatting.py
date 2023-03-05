@@ -415,7 +415,7 @@ class newDefaultFormatBundle(object):
             gt_depth = results['gt_depth']
             if len(gt_depth.shape) < 3:
                   gt_depth = np.expand_dims(gt_depth, -1)
-            # gt_depth = np.ascontiguousarray(gt_depth.transpose(2, 0, 1))
+            gt_depth = np.ascontiguousarray(gt_depth.transpose(2, 0, 1))
             results['gt_depth'] = DC(to_tensor(gt_depth), stack=True) # here, we adopt 'opt_flow' instead of 'optflow'
 
 
