@@ -466,8 +466,8 @@ class newLoadAnnotations(object):
             img_bytes, flag='unchanged',
             backend=self.imdecode_backend)
 
-            print(np.sum(gt_depth[2][gt_depth[0] == gt_depth[1]] == gt_depth[2].flatten()))
-            exit(0)
+            print(np.sum(gt_depth[:,:,2][gt_depth[:,:,0] == gt_depth[:,:,1]] == gt_depth[:,:,0].flatten()))
+            
 
             # print('gt_depth.shape: ', gt_depth.shape, end='\n\n')
 
