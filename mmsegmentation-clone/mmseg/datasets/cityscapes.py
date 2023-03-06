@@ -607,7 +607,7 @@ class newCityscapesDataset1(newCityscapesDataset):
             
             if len(set(metric).intersection({'mIoU','mDice','mFscore'})) > 0:
                 if gt_seg_maps is None:
-                    gt_seg_maps = self.get_gt_seg_maps()
+                    gt_seg_maps, gt_depth = self.get_gt_seg_maps()
 
             num_classes = len(self.CLASSES)
             ret_metrics = eval_metrics(
