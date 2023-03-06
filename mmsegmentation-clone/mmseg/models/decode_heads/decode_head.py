@@ -205,6 +205,9 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         elif self.input_transform == 'multiple_select':
             inputs = [inputs[i] for i in self.in_index]
         else:
+            print("INPUTS SHAPES")
+            for inp in inputs:
+                print(inp.shape)
             inputs = inputs[self.in_index]
 
         return inputs
