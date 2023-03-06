@@ -64,6 +64,7 @@ def intersect_and_union(pred_label,
         label = torch.from_numpy(
             mmcv.imread(label, flag='unchanged', backend='pillow'))
     else:
+        print("LABEL: ", label)
         label = torch.from_numpy(label)
 
     if label_map is not None:
