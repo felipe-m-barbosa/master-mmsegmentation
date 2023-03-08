@@ -656,7 +656,7 @@ class EncoderDecoder(BaseSegmentor):
             output = F.softmax(seg_logit, dim=1)
         
         if depth_pred is not None:
-            output_depth = F.sigmoid(depth_pred) # is this correct? or should I keep the logits?
+            output_depth = depth_pred # should I normalize the depth value? or just keep the logits?
         
         if not 'video_name' in img_meta[0]: # just for non-order prediction task
             flip = img_meta[0]['flip']
