@@ -516,7 +516,7 @@ class newCityscapesDataset1(newCityscapesDataset):
                         img_info['s2'] = dict(filename=osp.join(seq_dir, seq_name, seqs_list[idx+1]))
                         
                         if optflow_dir is not None:
-                            optflow_list = sorted(os.listdir(optflow_dir, seq_name))
+                            optflow_list = sorted(os.listdir(osp.join(optflow_dir, seq_name)))
                             img_info['optflow'] = dict(filename=osp.join(optflow_dir, seq_name, optflow_list[idx])) # the optical flow is computed from frame in t to t+1,
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
                 
