@@ -500,6 +500,10 @@ class newCityscapesDataset1(newCityscapesDataset):
 
                         if optflow_dir is not None:
                             optflow_name = osp.join(optflow_dir, city_name, prev_img_name.replace('leftImg8bit', 'opt_flow')+flow_suffix)
+                            
+                            if not osp.exists(optflow_name):
+                                continue
+
                             img_info['optflow'] = dict(filename=optflow_name) # the optical flow is computed from frame in t to t+1,
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
 
@@ -521,7 +525,12 @@ class newCityscapesDataset1(newCityscapesDataset):
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
                 
                 if depth_dir is not None:
-                    img_info['gt_depth'] = dict(filename=osp.join(depth_dir, img_name.split('_')[0], img_name.replace('leftImg8bit', 'disparity') + depth_suffix))
+                    depth_name = osp.join(depth_dir, img_name.split('_')[0], img_name.replace('leftImg8bit', 'disparity') + depth_suffix)
+
+                    if not osp.exists(depth_name):
+                        continue
+                    
+                    img_info['gt_depth'] = dict(filename=depth_name)
 
                 img_infos.append(img_info)
 
