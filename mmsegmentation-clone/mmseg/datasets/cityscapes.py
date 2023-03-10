@@ -489,8 +489,8 @@ class newCityscapesDataset1(newCityscapesDataset):
                     if 'Cityscapes' in seq_dir:
                         city_name = img_name.split('_')[0]
                         img_name_parts = img_name.split('_')
-                        prev_idx = int(img_name_parts[2])-1 # img_name_parts[2] encodes the frame position in the sequence
-                        img_name_parts[2] = '0000'+str(prev_idx)
+                        # prev_idx = int(img_name_parts[2])-1 # img_name_parts[2] encodes the frame position in the sequence
+                        img_name_parts[2] = '000018' # we know current frame idx is 000019
                         prev_img_name = '_'.join(img_name_parts)
                         s1_name = osp.join(seq_dir, city_name, prev_img_name+img_suffix) # previous frame in the sequence
                         s2_name = osp.join(seq_dir, city_name, img_name+img_suffix)
