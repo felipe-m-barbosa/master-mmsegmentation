@@ -113,7 +113,11 @@ class Resize(object):
                  multiscale_mode='range',
                  ratio_range=None,
                  keep_ratio=True,
-                 min_size=None):
+                 min_size=None,
+                 resize_input=True):
+        
+        self.resize_input = resize_input
+        
         if img_scale is None:
             self.img_scale = None
         else:
@@ -266,17 +270,30 @@ class Resize(object):
                     new_h, new_w = new_short, new_short * w / h
                 results['scale'] = (new_h, new_w)
 
-            img, scale_factor = mmcv.imrescale(
-                results['img'], results['scale'], return_scale=True)
+            if self.resize_input:
+                img, scale_factor = mmcv.imrescale(
+                    results['img'], results['scale'], return_scale=True)
             # the w_scale and h_scale has minor difference
             # a real fix should be done in the mmcv.imrescale in the future
-            new_h, new_w = img.shape[:2]
-            h, w = results['img'].shape[:2]
-            w_scale = new_w / w
-            h_scale = new_h / h
+                new_h, new_w = img.shape[:2]
+                h, w = results['img'].shape[:2]
+                w_scale = new_w / w
+                h_scale = new_h / h
+            else:
+                img = results['img']
+                new_h, new_w = results['img'].shape[:2]
+                h, w = results['img'].shape[:2]
+                w_scale = 1.0
+                h_scale = 1.0
         else:
-            img, w_scale, h_scale = mmcv.imresize(
-                results['img'], results['scale'], return_scale=True)
+            if self.resize_input:
+                img, w_scale, h_scale = mmcv.imresize(
+                    results['img'], results['scale'], return_scale=True)
+            else:
+                img = results['img']
+                w_scale = 1.0
+                h_scale = 1.0
+            
         scale_factor = np.array([w_scale, h_scale, w_scale, h_scale],
                                 dtype=np.float32)
         results['img'] = img
@@ -287,20 +304,22 @@ class Resize(object):
 
     def _resize_seg(self, results):
         """Resize semantic segmentation map with ``results['scale']``."""
-        for key in results.get('seg_fields', []):
-            if self.keep_ratio:
-                gt_seg = mmcv.imrescale(
-                    results[key], results['scale'], interpolation='nearest')
-            else:
-                gt_seg = mmcv.imresize(
-                    results[key], results['scale'], interpolation='nearest')
-            results[key] = gt_seg
+        if self.resize_input:
+            for key in results.get('seg_fields', []):
+                if self.keep_ratio:
+                    gt_seg = mmcv.imrescale(
+                        results[key], results['scale'], interpolation='nearest')
+                else:
+                    gt_seg = mmcv.imresize(
+                        results[key], results['scale'], interpolation='nearest')
+                results[key] = gt_seg
 
 
     def _resize_depth(self, results):
-        gt_depth = mmcv.imresize(
-                results['gt_depth'], results['scale'], interpolation='nearest')
-        results['gt_depth'] = gt_depth
+        if self.resize_input:
+            gt_depth = mmcv.imresize(
+                    results['gt_depth'], results['scale'], interpolation='nearest')
+            results['gt_depth'] = gt_depth
 
 
     def __call__(self, results):
@@ -707,11 +726,12 @@ class RandomCrop(object):
             occupy.
     """
 
-    def __init__(self, crop_size, cat_max_ratio=1., ignore_index=255):
+    def __init__(self, crop_size, cat_max_ratio=1., ignore_index=255, crop_input=True):
         assert crop_size[0] > 0 and crop_size[1] > 0
         self.crop_size = crop_size
         self.cat_max_ratio = cat_max_ratio
         self.ignore_index = ignore_index
+        self.crop_input = crop_input
 
     def get_crop_bbox(self, img):
 
@@ -784,7 +804,9 @@ class RandomCrop(object):
                         crop_bbox = self.get_crop_bbox(img)
 
             # crop the image
-            img = self.crop(img, crop_bbox)
+            if self.crop_input:
+                img = self.crop(img, crop_bbox)
+            
             img_shape = img.shape
 
             # print("SHAPE AFTER CROPPING: ", img_shape)
@@ -802,11 +824,13 @@ class RandomCrop(object):
 
         # crop semantic seg
         if not(is_order_pred):
-            for key in results.get('seg_fields', []):
-                results[key] = self.crop(results[key], crop_bbox)
+            if self.crop_input:
+                for key in results.get('seg_fields', []):
+                    results[key] = self.crop(results[key], crop_bbox)
         
-        if 'gt_depth' in results:
-            results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
+        if self.crop_input:
+            if 'gt_depth' in results:
+                results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
 
         return results
 
@@ -1613,7 +1637,11 @@ class newResize(object):
                  multiscale_mode='range',
                  ratio_range=None,
                  keep_ratio=True,
-                 min_size=None):
+                 min_size=None,
+                 resize_input=True):
+        
+        self.resize_input = resize_input
+
         if img_scale is None:
             self.img_scale = None
         else:
@@ -1756,9 +1784,21 @@ class newResize(object):
                     new_h, new_w = new_short, new_short * w / h
                 results['scale'] = (new_h, new_w)
 
-            img, scale_factor = mmcv.imrescale(
-                results['img'], results['scale'], return_scale=True)
             
+            if self.resize_input:
+                img, scale_factor = mmcv.imrescale(
+                    results['img'], results['scale'], return_scale=True)
+                new_h, new_w = img.shape[:2]
+                h, w = results['img'].shape[:2]
+                w_scale = new_w / w
+                h_scale = new_h / h
+            else:
+                img = results['img']
+                new_h, new_w = results['img'].shape[:2]
+                h, w = results['img'].shape[:2]
+                w_scale = 1.0
+                h_scale = 1.0
+
             # for the sequential images
             if 's1_img' in results:
                 s1_img, scale_factor = mmcv.imrescale(
@@ -1776,13 +1816,16 @@ class newResize(object):
 
             # the w_scale and h_scale has minor difference
             # a real fix should be done in the mmcv.imrescale in the future
-            new_h, new_w = img.shape[:2]
-            h, w = results['img'].shape[:2]
-            w_scale = new_w / w
-            h_scale = new_h / h
+            
+            
         else:
-            img, w_scale, h_scale = mmcv.imresize(
-                results['img'], results['scale'], return_scale=True)
+            if self.resize_input:
+                img, w_scale, h_scale = mmcv.imresize(
+                    results['img'], results['scale'], return_scale=True)
+            else:
+                img = results['img']
+                w_scale = 1.0
+                h_scale = 1.0
         
             # for the sequential images
             if 's1_img' in results:
@@ -1828,21 +1871,22 @@ class newResize(object):
 
     def _resize_seg(self, results):
         """Resize semantic segmentation map with ``results['scale']``."""
-        for key in results.get('seg_fields', []):
-            if self.keep_ratio:
-                gt_seg = mmcv.imrescale(
-                    results[key], results['scale'], interpolation='nearest')
-            else:
-                gt_seg = mmcv.imresize(
-                    results[key], results['scale'], interpolation='nearest')
-            results[key] = gt_seg
+        if self.resize_input:
+            for key in results.get('seg_fields', []):
+                if self.keep_ratio:
+                    gt_seg = mmcv.imrescale(
+                        results[key], results['scale'], interpolation='nearest')
+                else:
+                    gt_seg = mmcv.imresize(
+                        results[key], results['scale'], interpolation='nearest')
+                results[key] = gt_seg
     
     def _resize_depth(self, results):
         """Resize semantic segmentation map with ``results['scale']``."""
-        
-        gt_depth = mmcv.imrescale(
-                    results['gt_depth'], results['scale'], interpolation='nearest')
-        results['gt_depth'] = gt_depth
+        if self.resize_input:
+            gt_depth = mmcv.imrescale(
+                        results['gt_depth'], results['scale'], interpolation='nearest')
+            results['gt_depth'] = gt_depth
 
     def __call__(self, results):
         """Call function to resize images, bounding boxes, masks, semantic
@@ -1858,6 +1902,7 @@ class newResize(object):
             self._random_scale(results)
         self._resize_img(results)
         self._resize_seg(results)
+
         if 'gt_depth' in results:
             self._resize_depth(results)
         
@@ -1881,11 +1926,12 @@ class newRandomCrop(object):
             occupy.
     """
 
-    def __init__(self, crop_size, cat_max_ratio=1., ignore_index=255):
+    def __init__(self, crop_size, cat_max_ratio=1., ignore_index=255, crop_input=True):
         assert crop_size[0] > 0 and crop_size[1] > 0
         self.crop_size = crop_size
         self.cat_max_ratio = cat_max_ratio
         self.ignore_index = ignore_index
+        self.crop_input = crop_input
 
     def get_crop_bbox(self, img):
         """Randomly get a crop bounding box."""
@@ -1926,8 +1972,10 @@ class newRandomCrop(object):
                     break
                 crop_bbox = self.get_crop_bbox(img)
 
-        # crop the image
-        img = self.crop(img, crop_bbox)
+        if self.crop_input:
+            # crop the image
+            img = self.crop(img, crop_bbox)
+        
         img_shape = img.shape
         results['img'] = img
         results['img_shape'] = img_shape
@@ -1956,12 +2004,13 @@ class newRandomCrop(object):
                 results['optflow_shape'] = optflow_img_shape
 
 
-        # crop semantic seg
-        for key in results.get('seg_fields', []):
-            results[key] = self.crop(results[key], crop_bbox)
-        
-        if 'gt_depth' in results:
-            results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
+        if self.crop_input:
+            # crop semantic seg
+            for key in results.get('seg_fields', []):
+                results[key] = self.crop(results[key], crop_bbox)
+            
+            if 'gt_depth' in results:
+                results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
 
         return results
 
