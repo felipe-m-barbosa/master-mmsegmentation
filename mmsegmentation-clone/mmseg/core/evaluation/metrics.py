@@ -412,7 +412,7 @@ def eval_metrics(results,
             pred, _ = warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
             preds.append(pred)
 
-        print(f"preds.shape: {preds[0].shape}")
+        # print(f"preds.shape: {preds[0].shape}")
         # time.sleep(50)
 
         targets = results[1:]

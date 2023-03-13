@@ -176,7 +176,6 @@ class LoadAnnotations(object):
 
         # load depth annotations, if needed
 
-        print(results.keys())
 
         if 'img_info' in results:
             if results['img_info'].get('gt_depth', None) is not None:
