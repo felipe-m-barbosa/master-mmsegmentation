@@ -175,19 +175,23 @@ class LoadAnnotations(object):
             self.file_client = mmcv.FileClient(**self.file_client_args)
 
         # load depth annotations, if needed
-        if results['img_info'].get('gt_depth', None) is not None:
-            filename = results['img_info']['gt_depth']['filename']
-        
-            img_bytes = self.file_client.get(filename)
-            gt_depth = mmcv.imfrombytes(
-            img_bytes, flag='unchanged',
-            backend=self.imdecode_backend)
 
-            # print('gt_depth.shape: ', gt_depth.shape, end='\n\n')
+        print(results.keys())
 
-            gt_depth = gt_depth[:,:,0] # assuming all channels store the same information, we can select a single one
+        if 'img_info' in results:
+            if results['img_info'].get('gt_depth', None) is not None:
+                filename = results['img_info']['gt_depth']['filename']
+            
+                img_bytes = self.file_client.get(filename)
+                gt_depth = mmcv.imfrombytes(
+                img_bytes, flag='unchanged',
+                backend=self.imdecode_backend)
 
-            results['gt_depth'] = gt_depth.astype(np.float32)
+                # print('gt_depth.shape: ', gt_depth.shape, end='\n\n')
+
+                gt_depth = gt_depth[:,:,0] # assuming all channels store the same information, we can select a single one
+
+                results['gt_depth'] = gt_depth.astype(np.float32)
 
 
         if results.get('seg_prefix', None) is not None:
