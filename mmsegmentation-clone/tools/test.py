@@ -44,6 +44,11 @@ def parse_args():
         nargs='+',
         help='evaluation metrics, which depends on the dataset, e.g., "mIoU"'
         ' for generic datasets, and "cityscapes" for Cityscapes')
+    parser.add_argument(
+        '--iter_number',
+        type=int,
+        default=0,
+        help='iteration number corresponding to the saved model')
     parser.add_argument('--show', action='store_true', help='show results')
     parser.add_argument(
         '--show-dir', help='directory where painted images will be saved')
@@ -173,8 +178,12 @@ def main():
             json_file = osp.join(args.work_dir,
                                  f'eval_multi_scale_{timestamp}.json')
         else:
-            json_file = osp.join(args.work_dir,
-                                 f'eval_single_scale_{timestamp}.json')
+            if args.iter_number != 0:
+                json_file = osp.join(args.work_dir,
+                                    f'eval_single_scale_{args.iter_number}.json')
+            else:
+                json_file = osp.join(args.work_dir,
+                                    f'eval_single_scale_{timestamp}.json')
     elif rank == 0:
         work_dir = osp.join('./work_dirs',
                             osp.splitext(osp.basename(args.config))[0])
@@ -185,7 +194,7 @@ def main():
                                  f'eval_multi_scale_{timestamp}.json')
         else:
             json_file = osp.join(work_dir,
-                                 f'eval_single_scale_{timestamp}.json')
+                                f'eval_single_scale_{timestamp}.json')
 
     # build the dataloader
     # TODO: support multiple images per gpu (only minor changes are needed)
