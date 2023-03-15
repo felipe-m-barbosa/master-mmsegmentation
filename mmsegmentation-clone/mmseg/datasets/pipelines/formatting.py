@@ -91,39 +91,43 @@ class ImageToTensor(object):
                 to :obj:`torch.Tensor` and transposed to (C, H, W) order.
         """
 
+        # print(results.keys())
+
         for key in self.keys:
-            imgs = results[key]
-            if imgs is not None:
-                
-                if key == 'optflow':
-                    img_tmp = img
-                    if len(img.shape) < 3:
-                        img = np.expand_dims(img, -1)
+            if key in results:
+                imgs = results[key]
+                if imgs is not None:
+                    
+                    if key == 'optflow':
+                        if len(imgs.shape) < 3:
+                            imgs = np.expand_dims(img, -1)
 
-                    converted_imgs = to_tensor(img) # optical flow preserves channels in the last dimension
-
-                else:
-                    if isinstance(imgs, list):
-                        is_order_pred = True
-                        converted_imgs = []
+                        converted_imgs = to_tensor(imgs) # optical flow preserves channels in the last dimension
                     else:
-                        is_order_pred = False
-                        imgs = [imgs]
-
-                    for img in imgs:
-                        if len(img.shape) < 3:
-                            img = np.expand_dims(img, -1)
-
-                        img = to_tensor(img.transpose(2, 0, 1))
-
-                        if is_order_pred:
-                            converted_imgs.append(img)
+                        if isinstance(imgs, list):
+                            is_order_pred = True
+                            converted_imgs = []
                         else:
-                            converted_imgs = img
+                            is_order_pred = False
+                            imgs = [imgs]
 
-                results[key] = converted_imgs
+                        for img in imgs:
+                            if len(img.shape) < 3:
+                                img = np.expand_dims(img, -1)
+
+                            img = to_tensor(img.transpose(2, 0, 1))
+
+                            if is_order_pred:
+                                converted_imgs.append(img)
+                            else:
+                                converted_imgs = img
+
+                    results[key] = converted_imgs
+                    
+                else:
+                    results[key] = torch.zeros((160,320,2))
             else:
-                results[key] = torch.zeros_like(torch.from_numpy(img_tmp))
+                results[key] = torch.zeros((160,320,2))
 
         return results
 
