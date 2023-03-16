@@ -201,7 +201,7 @@ class DiceLoss(nn.Module):
 
             pred = torch.stack(tuple(preds), 0).to('cuda')
 
-            print("PRED SHAPE: ", pred.shape)
+            # print("PRED SHAPE: ", pred.shape)
 
             # pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
 
