@@ -198,7 +198,9 @@ class DiceLoss(nn.Module):
                 p = p.unsqueeze(0)
                 preds.append(pw)
 
-            pred = torch.stack((p for p in preds), 0).to('cuda')
+            preds = (p for p in preds)
+
+            pred = torch.stack(preds, 0).to('cuda')
 
             # pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
 
