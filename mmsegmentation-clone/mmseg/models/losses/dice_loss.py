@@ -182,6 +182,7 @@ class DiceLoss(nn.Module):
             opt_flow = kwargs['opt_flow']
 
             # using mmcv built-in flow warp
+            print("OPTFLOW SHAPE: ", opt_flow.shape)
             pred = mmcv.flow_warp(pred, opt_flow)
 
             # pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
