@@ -409,7 +409,7 @@ def eval_metrics(results,
         # optical flow-based seg-pred warping
         preds = []
         for r1, r2, optf in zip(results[:-1], results[1:], optflows[:-1]):
-            pred, _ = warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
+            pred, _ = mmcv.flow_warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
             preds.append(pred)
 
         # print(f"preds.shape: {preds[0].shape}")
