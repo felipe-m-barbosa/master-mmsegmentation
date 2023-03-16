@@ -4,6 +4,7 @@ segmentron/solver/loss.py (Apache-2.0 License)"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import mmcv
 
 from ..builder import LOSSES
 from .utils import get_class_weight, weighted_loss
@@ -179,7 +180,11 @@ class DiceLoss(nn.Module):
 
         if 'tc' in self._loss_name:
             opt_flow = kwargs['opt_flow']
-            pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
+
+            # using mmcv built-in flow warp
+            pred = mmcv.flow_warp(pred, opt_flow)
+
+            # pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
 
         pred = F.softmax(pred, dim=1)
         target = F.softmax(target, dim=1)
