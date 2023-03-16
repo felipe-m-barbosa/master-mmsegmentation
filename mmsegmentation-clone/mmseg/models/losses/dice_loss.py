@@ -186,6 +186,11 @@ class DiceLoss(nn.Module):
             preds = []
             for p, of in zip(pred, opt_flow):
                 p = p.squeeze(0)
+                of = of.squeeze(0)
+                print('P SHAPE: ', p.shape)
+                print('OF SHAPE: ', of.shape)
+                print(type(p))
+                print(type(of))
                 pw = mmcv.flow_warp(p, of)
                 p = p.unsqueeze(0)
                 preds.append(pw)
