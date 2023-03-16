@@ -187,6 +187,8 @@ class DiceLoss(nn.Module):
             for p, of in zip(pred, opt_flow):
                 p = p.squeeze(0)
                 of = of.squeeze(0)
+                p = p.numpy()
+                of = of.numpy()
                 print('P SHAPE: ', p.shape)
                 print('OF SHAPE: ', of.shape)
                 print(type(p))
