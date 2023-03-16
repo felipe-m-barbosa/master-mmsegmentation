@@ -189,10 +189,10 @@ class DiceLoss(nn.Module):
                 of = of.squeeze(0)
                 p = p.detach().cpu().numpy()
                 of = of.detach().cpu().numpy()
-                print('P SHAPE: ', p.shape)
-                print('OF SHAPE: ', of.shape)
-                print(type(p))
-                print(type(of))
+                # print('P SHAPE: ', p.shape)
+                # print('OF SHAPE: ', of.shape)
+                # print(type(p))
+                # print(type(of))
                 pw = mmcv.flow_warp(p, of)
                 pw = torch.as_tensor(pw).permute(2,0,1) # back to torch tensor
                 pw = pw.unsqueeze(0)
@@ -200,6 +200,8 @@ class DiceLoss(nn.Module):
 
 
             pred = torch.stack(tuple(preds), 0).to('cuda')
+
+            print("PRED SHAPE: ", pred.shape)
 
             # pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
 
