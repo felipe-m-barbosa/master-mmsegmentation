@@ -194,8 +194,8 @@ class DiceLoss(nn.Module):
                 print(type(p))
                 print(type(of))
                 pw = mmcv.flow_warp(p, of)
-                p = torch.as_tensor(p).permute(2,0,1) # back to torch tensor
-                p = p.unsqueeze(0)
+                pw = torch.as_tensor(pw).permute(2,0,1) # back to torch tensor
+                pw = pw.unsqueeze(0)
                 preds.append(pw)
 
 
