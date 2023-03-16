@@ -185,7 +185,7 @@ class DiceLoss(nn.Module):
             # print("OPTFLOW SHAPE: ", opt_flow.shape)
             preds = []
             for p, of in zip(pred, opt_flow):
-                p = p.squeeze(0)
+                p = p.squeeze(0).permute(1,2,0) # channels last
                 of = of.squeeze(0)
                 p = p.detach().cpu().numpy()
                 of = of.detach().cpu().numpy()
@@ -194,6 +194,7 @@ class DiceLoss(nn.Module):
                 print(type(p))
                 print(type(of))
                 pw = mmcv.flow_warp(p, of)
+                p = torch.as_tensor(p).permute(2,0,1) # back to torch tensor
                 p = p.unsqueeze(0)
                 preds.append(pw)
 
