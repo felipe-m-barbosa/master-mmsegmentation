@@ -187,8 +187,8 @@ class DiceLoss(nn.Module):
             for p, of in zip(pred, opt_flow):
                 p = p.squeeze(0)
                 of = of.squeeze(0)
-                p = p.numpy()
-                of = of.numpy()
+                p = p.detach().cpu().numpy()
+                of = of.detach().cpu().numpy()
                 print('P SHAPE: ', p.shape)
                 print('OF SHAPE: ', of.shape)
                 print(type(p))
@@ -197,7 +197,7 @@ class DiceLoss(nn.Module):
                 p = p.unsqueeze(0)
                 preds.append(pw)
 
-            pred = torch.stack(preds, 0)
+            pred = torch.stack(preds, 0).to('cuda')
 
             # pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
 
