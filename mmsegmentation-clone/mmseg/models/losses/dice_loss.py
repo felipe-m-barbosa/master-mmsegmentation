@@ -182,8 +182,15 @@ class DiceLoss(nn.Module):
             opt_flow = kwargs['opt_flow']
 
             # using mmcv built-in flow warp
-            print("OPTFLOW SHAPE: ", opt_flow.shape)
-            pred = mmcv.flow_warp(pred, opt_flow)
+            # print("OPTFLOW SHAPE: ", opt_flow.shape)
+            preds = []
+            for p, of in zip(pred, opt_flow):
+                p = p.squeeze(0)
+                pw = mmcv.flow_warp(p, of)
+                p = p.unsqueeze(0)
+                preds.append(pw)
+
+            pred = torch.stack(preds, 0)
 
             # pred, _ = warp(pred, opt_flow, inp1=kwargs['s1'], inp2=kwargs['s2'])
 
