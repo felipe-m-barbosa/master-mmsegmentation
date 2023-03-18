@@ -504,7 +504,7 @@ class newCityscapesDataset1(newCityscapesDataset):
                             if not osp.exists(optflow_name):
                                 continue
 
-                            img_info['optflow'] = dict(filename=optflow_name) # the optical flow is computed from frame in t to t+1,
+                            img_info['optflow'] = dict(filename=optflow_name) # the optical flow is computed from frame in t to t+1, (SURE?)
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
 
                     else: # for now, if not Cityscapes, it must be ZED2... in the future, we will also consider the SYNTHIA dataset
