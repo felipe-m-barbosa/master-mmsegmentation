@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from ..builder import LOSSES
 from .utils import get_class_weight, weight_reduce_loss
 
+import mmcv
 
 def warp(x, flo):
     """
@@ -168,7 +169,42 @@ class TCLoss(nn.Module):
         opt_flow = kwargs['opt_flow']
         # print(preds.shape)
         # print(opt_flow.shape)
-        preds_to_targets, valid_mask = warp(preds, opt_flow)
+        # preds_to_targets, _ = warp(preds, opt_flow) # TROCAR AQUI PARA O MMCV.FLOW_WARP
+
+        print("")
+
+        preds_list = []
+        for p, of in preds, opt_flow:
+            of = of.squeeze(0)
+            of = of.detach().cpu().numpy()
+            p = p.detach().cpu().numpy()
+            
+            # warp predictions
+            pw = mmcv.flow_warp(p, of)
+            
+            # back to torch tensor
+            pw = torch.as_tensor(pw).permute(2,0,1) 
+
+            preds_list.append(pw)
+        
+        preds_to_targets = torch.stack(tuple(preds_list), 0).to('cuda')
+
+        # p = p.squeeze(0).permute(1,2,0) # channels last
+        #         of = of.squeeze(0)
+        #         p = p.detach().cpu().numpy()
+        #         of = of.detach().cpu().numpy()
+        #         # print('P SHAPE: ', p.shape)
+        #         # print('OF SHAPE: ', of.shape)
+        #         # print(type(p))
+        #         # print(type(of))
+        #         pw = mmcv.flow_warp(p, of)
+        #         pw = torch.as_tensor(pw).permute(2,0,1) # back to torch tensor
+        #         # pw = pw.unsqueeze(0)
+        #         preds.append(pw)
+
+
+        #     pred = torch.stack(tuple(preds), 0).to('cuda')
+
 
         # COMPUTE (WEIGHTED) LOSS
         loss_cls = self.loss_weight * self.cls_criterion(preds_to_targets, 
