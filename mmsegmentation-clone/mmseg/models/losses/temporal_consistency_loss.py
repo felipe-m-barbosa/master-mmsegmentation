@@ -176,6 +176,8 @@ class TCLoss(nn.Module):
             of = of.squeeze(0)
             of = of.detach().cpu().numpy()
             p = p.detach().cpu().numpy()
+
+            print(p.shape)
             
             # warp predictions
             pw = mmcv.flow_warp(p, of)
