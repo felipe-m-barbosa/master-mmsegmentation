@@ -218,8 +218,6 @@ class TCLoss(nn.Module):
             ignore_index=ignore_index,
             avg_non_ignore=self.avg_non_ignore)
 
-        print("passou por aqui")
-
         return loss_cls
 
 
