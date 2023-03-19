@@ -98,8 +98,6 @@ def temporal_miou(preds,
 
     targets = targets * non_ignore_mask
 
-    # TENTAR IMPLEMENTAR COMO DICE LOSS
-
     # soft mIoU
     num = torch.sum(torch.abs(preds * targets), dim=(2,3))
     den = torch.sum(torch.abs(preds + targets - (preds * targets)), dim=(2,3))
@@ -174,7 +172,7 @@ class TCLoss(nn.Module):
         print("")
 
         preds_list = []
-        for p, of in preds, opt_flow:
+        for p, of in zip(preds, opt_flow):
             of = of.squeeze(0)
             of = of.detach().cpu().numpy()
             p = p.detach().cpu().numpy()
