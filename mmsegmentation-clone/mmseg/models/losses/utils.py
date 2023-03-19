@@ -37,7 +37,7 @@ def reduce_loss(loss, reduction):
     """
     reduction_enum = F._Reduction.get_enum(reduction)
 
-    print("REDUCTION ENUM: ", reduction_enum)
+    # print("REDUCTION ENUM: ", reduction_enum)
 
     # none: 0, elementwise_mean:1, sum: 2
     if reduction_enum == 0:
