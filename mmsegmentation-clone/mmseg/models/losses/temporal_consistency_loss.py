@@ -175,9 +175,10 @@ class TCLoss(nn.Module):
         for p, of in zip(preds, opt_flow):
             of = of.squeeze(0)
             of = of.detach().cpu().numpy()
+            p = p.permute(1,2,0) # channels last
             p = p.detach().cpu().numpy()
 
-            print(p.shape)
+            # print(p.shape)
             
             # warp predictions
             pw = mmcv.flow_warp(p, of)
