@@ -169,8 +169,6 @@ class TCLoss(nn.Module):
         # print(opt_flow.shape)
         # preds_to_targets, _ = warp(preds, opt_flow) # TROCAR AQUI PARA O MMCV.FLOW_WARP
 
-        print("")
-
         preds_list = []
         for p, of in zip(preds, opt_flow):
             of = of.squeeze(0)
