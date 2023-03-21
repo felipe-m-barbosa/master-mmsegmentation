@@ -445,6 +445,7 @@ class RandomFlip(object):
                         results['gt_depth'], direction=results['flip_direction']).copy()
                     
         print("FLIP OUT: ", results.keys(), end='\n')
+        time.sleep(2)
 
         return results
 
@@ -1237,6 +1238,7 @@ class PhotoMetricDistortion(object):
         results['img'] = distorted_imgs
     
         print("DISTORTION OUT: ", results.keys(), end='\n')
+        time.sleep(2)
 
         return results
 
@@ -1925,6 +1927,7 @@ class newResize(object):
             self._resize_depth(results)
         
         print("RESIZE OUT: ", results.keys(), end='\n')
+        time.sleep(2)
 
         return results
 
@@ -2035,6 +2038,7 @@ class newRandomCrop(object):
                 results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
 
         print("CROP OUT: ", results.keys(), end='\n')
+        time.sleep(2)
 
         return results
 
@@ -2082,6 +2086,7 @@ class newNormalize(object):
                                             self.to_rgb)
 
         print("NORMALIZE OUT: ", results.keys(), end='\n')
+        time.sleep(2)
 
         return results
 
@@ -2202,6 +2207,7 @@ class newPad(object):
             self._pad_depth(results)
         
         print("PAD OUT: ", results.keys(), end='\n')
+        time.sleep(2)
 
         return results
 

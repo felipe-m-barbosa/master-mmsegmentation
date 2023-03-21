@@ -434,6 +434,7 @@ class newDefaultFormatBundle(object):
         
 
         print("BUNDLE OUT: ", results.keys(), end='\n')
+        time.sleep(2)
 
         return results
 
