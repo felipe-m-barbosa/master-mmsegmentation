@@ -386,8 +386,6 @@ class newDefaultFormatBundle(object):
                 default bundle.
         """
 
-        print("BUNDLE IN: ", results.keys(), end='\n')
-
         if 'img' in results:
             img = results['img']
             if len(img.shape) < 3:
@@ -433,8 +431,8 @@ class newDefaultFormatBundle(object):
                 stack=True)
         
 
-        print("BUNDLE OUT: ", results.keys(), end='\n')
-        time.sleep(2)
+        if 's1_img' not in results: 
+            print("BUNDLE")
 
         return results
 

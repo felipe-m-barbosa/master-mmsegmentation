@@ -388,8 +388,6 @@ class RandomFlip(object):
                 result dict.
         """
 
-        print("FLIP IN: ", results.keys(), end='\n')
-
         is_order_pred = True
         if isinstance(results['img'], list):
             imgs = results['img']
@@ -444,8 +442,9 @@ class RandomFlip(object):
                 results['gt_depth'] = mmcv.imflip(
                         results['gt_depth'], direction=results['flip_direction']).copy()
                     
-        print("FLIP OUT: ", results.keys(), end='\n')
-        time.sleep(2)
+
+        if 's1_img' not in results: 
+            print("FLIP")
 
         return results
 
@@ -1184,7 +1183,6 @@ class PhotoMetricDistortion(object):
             dict: Result dict with images distorted.
         """
 
-        print("DISTORTION IN: ", results.keys(), end='\n')
 
         imgs = results['img']
         
@@ -1237,8 +1235,8 @@ class PhotoMetricDistortion(object):
 
         results['img'] = distorted_imgs
     
-        print("DISTORTION OUT: ", results.keys(), end='\n')
-        time.sleep(2)
+        if 's1_img' not in results: 
+            print("DISTORTION")
 
         return results
 
@@ -1916,8 +1914,6 @@ class newResize(object):
                 'keep_ratio' keys are added into result dict.
         """
 
-        print("RESIZE IN: ", results.keys(), end='\n')
-
         if 'scale' not in results:
             self._random_scale(results)
         self._resize_img(results)
@@ -1926,8 +1922,8 @@ class newResize(object):
         if 'gt_depth' in results:
             self._resize_depth(results)
         
-        print("RESIZE OUT: ", results.keys(), end='\n')
-        time.sleep(2)
+        if 's1_img' not in results: 
+            print("RESIZE")
 
         return results
 
@@ -1982,8 +1978,6 @@ class newRandomCrop(object):
                 updated according to crop size.
         """
 
-        print("CROP IN: ", results.keys(), end='\n')
-
         img = results['img']
         crop_bbox = self.get_crop_bbox(img)
         if self.cat_max_ratio < 1.:
@@ -2037,8 +2031,8 @@ class newRandomCrop(object):
             if 'gt_depth' in results:
                 results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
 
-        print("CROP OUT: ", results.keys(), end='\n')
-        time.sleep(2)
+        if 's1_img' not in results: 
+            print("CROP")
 
         return results
 
@@ -2071,8 +2065,6 @@ class newNormalize(object):
                 result dict.
         """
 
-        print("NORMALIZE IN: ", results.keys(), end='\n')
-
         results['img'] = mmcv.imnormalize(results['img'], self.mean, self.std,
                                           self.to_rgb)
         results['img_norm_cfg'] = dict(
@@ -2085,8 +2077,9 @@ class newNormalize(object):
             results['s2_img'] = mmcv.imnormalize(results['s2_img'], self.mean, self.std,
                                             self.to_rgb)
 
-        print("NORMALIZE OUT: ", results.keys(), end='\n')
-        time.sleep(2)
+
+        if 's1_img' not in results: 
+            print("NORMALIZE")
 
         return results
 
@@ -2199,15 +2192,14 @@ class newPad(object):
             dict: Updated result dict.
         """
 
-        print("PAD IN: ", results.keys(), end='\n')
 
         self._pad_img(results)
         self._pad_seg(results)
         if 'gt_depth' in results:
             self._pad_depth(results)
         
-        print("PAD OUT: ", results.keys(), end='\n')
-        time.sleep(2)
+        if 's1_img' not in results: 
+            print("PAD")
 
         return results
 
