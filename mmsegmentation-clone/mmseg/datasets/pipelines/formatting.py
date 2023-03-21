@@ -355,6 +355,7 @@ class Collect(object):
         data['img_metas'] = DC(img_meta, cpu_only=True)
         
 
+        # print(results.keys())
         for key in self.keys:
             data[key] = results[key]
         return data
@@ -428,11 +429,6 @@ class newDefaultFormatBundle(object):
                 to_tensor(results['gt_semantic_seg'][None,
                                                      ...].astype(np.int64)),
                 stack=True)
-        
-
-        if 's1_img' not in results: 
-            print("BUNDLE")
-
         return results
 
     def __repr__(self):

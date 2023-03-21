@@ -419,14 +419,6 @@ class RandomFlip(object):
             if is_order_pred:
                 results['img'] = flipped_imgs
 
-            if 's1_img' in results:
-                results['s1_img'] = mmcv.imflip(
-                    results['s1_img'], direction=results['flip_direction'])
-            
-            if 's2_img' in results:
-                results['s2_img'] = mmcv.imflip(
-                    results['s2_img'], direction=results['flip_direction'])
-
             if 'optflow' in results:
                 results['optflow'] = mmcv.imflip(
                     results['optflow'], direction=results['flip_direction'])
@@ -442,10 +434,6 @@ class RandomFlip(object):
                 results['gt_depth'] = mmcv.imflip(
                         results['gt_depth'], direction=results['flip_direction']).copy()
                     
-
-        if 's1_img' not in results: 
-            print("FLIP")
-
         return results
 
     def __repr__(self):
@@ -1183,7 +1171,6 @@ class PhotoMetricDistortion(object):
             dict: Result dict with images distorted.
         """
 
-
         imgs = results['img']
         
 
@@ -1234,9 +1221,6 @@ class PhotoMetricDistortion(object):
                 distorted_imgs = img
 
         results['img'] = distorted_imgs
-    
-        if 's1_img' not in results: 
-            print("DISTORTION")
 
         return results
 
@@ -1922,9 +1906,6 @@ class newResize(object):
         if 'gt_depth' in results:
             self._resize_depth(results)
         
-        if 's1_img' not in results: 
-            print("RESIZE")
-
         return results
 
     def __repr__(self):
@@ -2031,9 +2012,6 @@ class newRandomCrop(object):
             if 'gt_depth' in results:
                 results['gt_depth'] = self.crop(results['gt_depth'], crop_bbox)
 
-        if 's1_img' not in results: 
-            print("CROP")
-
         return results
 
     def __repr__(self):
@@ -2077,9 +2055,6 @@ class newNormalize(object):
             results['s2_img'] = mmcv.imnormalize(results['s2_img'], self.mean, self.std,
                                             self.to_rgb)
 
-
-        if 's1_img' not in results: 
-            print("NORMALIZE")
 
         return results
 
@@ -2192,15 +2167,10 @@ class newPad(object):
             dict: Updated result dict.
         """
 
-
         self._pad_img(results)
         self._pad_seg(results)
         if 'gt_depth' in results:
             self._pad_depth(results)
-        
-        if 's1_img' not in results: 
-            print("PAD")
-
         return results
 
     def __repr__(self):
