@@ -419,6 +419,14 @@ class RandomFlip(object):
             if is_order_pred:
                 results['img'] = flipped_imgs
 
+            if 's1_img' in results:
+                results['s1_img'] = mmcv.imflip(
+                    results['s1_img'], direction=results['flip_direction'])
+            
+            if 's2_img' in results:
+                results['s2_img'] = mmcv.imflip(
+                    results['s2_img'], direction=results['flip_direction'])
+
             if 'optflow' in results:
                 results['optflow'] = mmcv.imflip(
                     results['optflow'], direction=results['flip_direction'])
