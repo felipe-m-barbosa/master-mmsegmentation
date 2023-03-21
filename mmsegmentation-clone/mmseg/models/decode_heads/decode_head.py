@@ -375,7 +375,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             # temporal consistency loss
             if loss_decode.loss_name == 'loss_tc':
 
-                # considering optical flow from t+1 to t
+                # considering optical flow from t+1 to t (backward)
                 # input_2 = torch.argmax(kwargs['s2_logits'], dim=1)
                 input_2 = s1_logits
                 input_1 = s2_logits
