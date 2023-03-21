@@ -386,6 +386,8 @@ class newDefaultFormatBundle(object):
                 default bundle.
         """
 
+        print("BUNDLE IN: ", results.keys(), end='\n')
+
         if 'img' in results:
             img = results['img']
             if len(img.shape) < 3:
@@ -429,6 +431,10 @@ class newDefaultFormatBundle(object):
                 to_tensor(results['gt_semantic_seg'][None,
                                                      ...].astype(np.int64)),
                 stack=True)
+        
+
+        print("BUNDLE OUT: ", results.keys(), end='\n')
+
         return results
 
     def __repr__(self):
