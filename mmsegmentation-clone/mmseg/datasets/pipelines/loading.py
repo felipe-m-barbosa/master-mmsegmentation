@@ -334,10 +334,6 @@ class newLoadImageFromFile(object):
             s1_filename = None
             s2_filename = None
         
-
-        print(s1_filename)
-        print(s2_filename)
-        
         # optflow
         if results['img_info'].get('optflow', None) is not None:
             optflow_filename = results['img_info']['optflow']['filename']
@@ -415,8 +411,6 @@ class newLoadImageFromFile(object):
                 mean=np.zeros(num_channels, dtype=np.float32),
                 std=np.ones(num_channels, dtype=np.float32),
                 to_rgb=False)
-
-        print(results.keys())
 
         return results
 

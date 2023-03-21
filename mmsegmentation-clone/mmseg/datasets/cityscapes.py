@@ -498,6 +498,8 @@ class newCityscapesDataset1(newCityscapesDataset):
                         img_info['s1'] = dict(filename=s1_name)
                         img_info['s2'] = dict(filename=s2_name)
 
+
+
                         if optflow_dir is not None:
                             # assuming backward optical flow
                             optflow_name = osp.join(optflow_dir, city_name, img_name.replace('leftImg8bit', 'opt_flow')+flow_suffix)
@@ -507,6 +509,21 @@ class newCityscapesDataset1(newCityscapesDataset):
 
                             img_info['optflow'] = dict(filename=optflow_name) # the optical flow is computed from frame in t to t+1, (SURE?)
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
+                        
+
+                        try:
+                            s1_bytes = self.file_client.get(s1_name)
+                            s1_img = mmcv.imfrombytes(
+                                    s1_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                        
+                            s2_bytes = self.file_client.get(s2_name)
+                            s2_img = mmcv.imfrombytes(
+                                    s2_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                        
+                            flow_bytes = self.file_client.get(optflow_name)
+                            flow_img = mmcv.imfrombytes(flow_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                        except:
+                            continue
 
                     else: # for now, if not Cityscapes, it must be ZED2... in the future, we will also consider the SYNTHIA dataset
                         # ZED2 dataset
@@ -520,12 +537,30 @@ class newCityscapesDataset1(newCityscapesDataset):
                         img_info['s1'] = dict(filename=osp.join(seq_dir, seq_name, seq_file_name))
                         img_info['s2'] = dict(filename=osp.join(seq_dir, seq_name, seqs_list[idx+1]))
                         
+                        try:
+                            s1_bytes = self.file_client.get(osp.join(seq_dir, seq_name, seq_file_name))
+                            s1_img = mmcv.imfrombytes(
+                                    s1_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                        
+                            s2_bytes = self.file_client.get(osp.join(seq_dir, seq_name, seqs_list[idx+1]))
+                            s2_img = mmcv.imfrombytes(
+                                    s2_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                        except:
+                            continue
+
                         if optflow_dir is not None:
                             # assuming backward optical flow
                             optflow_list = sorted(os.listdir(osp.join(optflow_dir, seq_name)))
                             img_info['optflow'] = dict(filename=osp.join(optflow_dir, seq_name, optflow_list[idx+1])) # the optical flow is computed from frame in t to t+1,
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
-                
+
+                            try:
+                                flow_bytes = self.file_client.get(osp.join(optflow_dir, seq_name, optflow_list[idx+1]))
+                                flow_img = mmcv.imfrombytes(flow_bytes, flag=self.color_type, backend=self.imdecode_backend)
+                            except:
+                                continue
+
+
                 if depth_dir is not None:
                     depth_name = osp.join(depth_dir, img_name.split('_')[0], img_name.replace('leftImg8bit', 'disparity') + depth_suffix)
 
