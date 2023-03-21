@@ -2180,6 +2180,9 @@ class newPad(object):
         self._pad_seg(results)
         if 'gt_depth' in results:
             self._pad_depth(results)
+        
+        print("PAD: ", results.keys(), end='\n')
+
         return results
 
     def __repr__(self):
