@@ -412,6 +412,8 @@ class newLoadImageFromFile(object):
                 std=np.ones(num_channels, dtype=np.float32),
                 to_rgb=False)
 
+        print(results.keys())
+
         return results
 
     def __repr__(self):
