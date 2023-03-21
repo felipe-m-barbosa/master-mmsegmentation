@@ -355,7 +355,7 @@ class Collect(object):
         data['img_metas'] = DC(img_meta, cpu_only=True)
         
 
-        # print(results.keys())
+        print("COLLECT: ", results.keys())
         for key in self.keys:
             data[key] = results[key]
         return data
