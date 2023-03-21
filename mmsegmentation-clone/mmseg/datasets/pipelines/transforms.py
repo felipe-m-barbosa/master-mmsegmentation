@@ -2175,8 +2175,6 @@ class newPad(object):
             dict: Updated result dict.
         """
 
-        print(results.keys())
-
 
         self._pad_img(results)
         self._pad_seg(results)
