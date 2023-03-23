@@ -372,45 +372,45 @@ class newLoadImageFromFile(object):
         
         if s1_filename is not None:
             results['s1_filename'] = s1_filename
-            results['s1_ori_filename'] = results['img_info']['s1']['filename']
+            # results['s1_ori_filename'] = results['img_info']['s1']['filename']
             results['s1_img'] = s1_img
-            results['s1_img_shape'] = s1_img.shape
-            results['s1_ori_shape'] = s1_img.shape
-            # Set initial values for default meta_keys
-            results['s1_pad_shape'] = s1_img.shape
-            results['s1_scale_factor'] = 1.0
-            results['s1_img_norm_cfg'] = dict(
-                mean=np.zeros(num_channels, dtype=np.float32),
-                std=np.ones(num_channels, dtype=np.float32),
-                to_rgb=False)
+            # results['s1_img_shape'] = s1_img.shape
+            # results['s1_ori_shape'] = s1_img.shape
+            # # Set initial values for default meta_keys
+            # results['s1_pad_shape'] = s1_img.shape
+            # results['s1_scale_factor'] = 1.0
+            # results['s1_img_norm_cfg'] = dict(
+            #     mean=np.zeros(num_channels, dtype=np.float32),
+            #     std=np.ones(num_channels, dtype=np.float32),
+            #     to_rgb=False)
             
 
             results['s2_filename'] = s2_filename
-            results['s2_ori_filename'] = results['img_info']['s2']['filename']
+            # results['s2_ori_filename'] = results['img_info']['s2']['filename']
             results['s2_img'] = s2_img
-            results['s2_img_shape'] = s2_img.shape
-            results['s2_ori_shape'] = s2_img.shape
-            # Set initial values for default meta_keys
-            results['s2_pad_shape'] = s2_img.shape
-            results['s2_scale_factor'] = 1.0
-            results['s2_img_norm_cfg'] = dict(
-                mean=np.zeros(num_channels, dtype=np.float32),
-                std=np.ones(num_channels, dtype=np.float32),
-                to_rgb=False)
+            # results['s2_img_shape'] = s2_img.shape
+            # results['s2_ori_shape'] = s2_img.shape
+            # # Set initial values for default meta_keys
+            # results['s2_pad_shape'] = s2_img.shape
+            # results['s2_scale_factor'] = 1.0
+            # results['s2_img_norm_cfg'] = dict(
+            #     mean=np.zeros(num_channels, dtype=np.float32),
+            #     std=np.ones(num_channels, dtype=np.float32),
+            #     to_rgb=False)
 
         if optflow_filename is not None:
             results['optflow_filename'] = optflow_filename
-            results['optflow_ori_filename'] = optflow_filename
+            # results['optflow_ori_filename'] = optflow_filename
             results['optflow'] = optflow_img
-            results['optflow_shape'] = optflow_img.shape if optflow_img is not None else None
-            results['optflow_ori_shape'] = optflow_img.shape if optflow_img is not None else None
-            # Set initial values for default meta_keys
-            results['optflow_pad_shape'] = optflow_img.shape if optflow_img is not None else None
-            results['optflow_scale_factor'] = 1.0
-            results['optflow_norm_cfg'] = dict(
-                mean=np.zeros(num_channels, dtype=np.float32),
-                std=np.ones(num_channels, dtype=np.float32),
-                to_rgb=False)
+            # results['optflow_shape'] = optflow_img.shape if optflow_img is not None else None
+            # results['optflow_ori_shape'] = optflow_img.shape if optflow_img is not None else None
+            # # Set initial values for default meta_keys
+            # results['optflow_pad_shape'] = optflow_img.shape if optflow_img is not None else None
+            # results['optflow_scale_factor'] = 1.0
+            # results['optflow_norm_cfg'] = dict(
+            #     mean=np.zeros(num_channels, dtype=np.float32),
+            #     std=np.ones(num_channels, dtype=np.float32),
+            #     to_rgb=False)
 
         return results
 
@@ -475,8 +475,8 @@ class newLoadAnnotations(object):
             gt_depth = gt_depth[:,:,0] # assuming all channels store the same information, we can select a single one
 
             gt_depth = gt_depth.astype(np.float32)
-            gt_depth = (gt_depth-1)/256 # conversion described in https://github.com/mcordts/cityscapesScripts
-            results['gt_depth'] = gt_depth.astype(np.float32)
+            # gt_depth = (gt_depth-1)/256 # conversion described in https://github.com/mcordts/cityscapesScripts
+            results['gt_depth'] = gt_depth
             
 
             # print('\n\n')
