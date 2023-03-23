@@ -465,18 +465,18 @@ class newLoadAnnotations(object):
             filename = results['depth_info']['filename']
         
             img_bytes = self.file_client.get(filename)
-            gt_depth = mmcv.imfrombytes(
+            raw_disparity = mmcv.imfrombytes(
             img_bytes, flag='unchanged',
             backend=self.imdecode_backend)
 
             # print(np.sum(gt_depth[:,:,2][gt_depth[:,:,0] == gt_depth[:,:,1]] == gt_depth[:,:,0].flatten()))
             # print('gt_depth.shape: ', gt_depth.shape, end='\n\n')
 
-            gt_depth = gt_depth[:,:,0] # assuming all channels store the same information, we can select a single one
+            raw_disparity = raw_disparity[:,:,0] # assuming all channels store the same information, we can select a single one
 
-            gt_depth = gt_depth.astype(np.float32)
-            # gt_depth = (gt_depth-1)/256 # conversion described in https://github.com/mcordts/cityscapesScripts
-            results['gt_depth'] = gt_depth
+            raw_disparity = raw_disparity.astype(np.float32)
+            gt_disparity = np.where(raw_disparity!=0, raw_disparity-1/256, 0) # get disparity values described in https://github.com/mcordts/cityscapesScripts
+            results['gt_depth'] = gt_disparity # for depth: baseline*focal_length/disparity
             
 
             # print('\n\n')
