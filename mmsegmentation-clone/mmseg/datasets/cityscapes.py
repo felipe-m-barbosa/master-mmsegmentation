@@ -519,14 +519,25 @@ class newCityscapesDataset1(newCityscapesDataset):
                         seqs_list = sorted(os.listdir(osp.join(seq_dir, seq_name)), key=lambda x: int(x.split('_')[-2]))
                         idx = seqs_list.index(seq_file_name)
                         # sequences information
+                        if not osp.exists(osp.join(seq_dir, seq_name, seq_file_name)):
+                            continue
+                        
                         img_info['s1'] = dict(filename=osp.join(seq_dir, seq_name, seq_file_name))
 
                         if idx+1 < len(seqs_list):
+                            if not osp.exists(osp.join(seq_dir, seq_name, seqs_list[idx+1])):
+                                continue
+
                             img_info['s2'] = dict(filename=osp.join(seq_dir, seq_name, seqs_list[idx+1]))
+
                         else:
                             continue # skip to the next iteration, and discard the current content of img_info
                         
                         if optflow_dir is not None:
+
+                            if not osp.exists(osp.join(optflow_dir, seq_name, seq_file_name.replace('leftImg8bit.png', 'opt_flow.flo'))):
+                                continue
+
                             # forward optical flow
                             # optflow_list = sorted(os.listdir(osp.join(optflow_dir, seq_name)), key=lambda x: int(x.split('_')[-3]))
                             img_info['optflow'] = dict(filename=osp.join(optflow_dir, seq_name, seq_file_name.replace('leftImg8bit.png', 'opt_flow.flo'))) # the optical flow is computed from frame in t to t+1,
