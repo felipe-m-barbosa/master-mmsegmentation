@@ -525,7 +525,7 @@ class newCityscapesDataset1(newCityscapesDataset):
                         if optflow_dir is not None:
                             # forward optical flow
                             # optflow_list = sorted(os.listdir(osp.join(optflow_dir, seq_name)), key=lambda x: int(x.split('_')[-3]))
-                            img_info['optflow'] = dict(filename=osp.join(optflow_dir, seq_name, seq_file_name.replace('leftImg8bit.png', 'opt_flow.flo')[idx])) # the optical flow is computed from frame in t to t+1,
+                            img_info['optflow'] = dict(filename=osp.join(optflow_dir, seq_name, seq_file_name[idx].replace('leftImg8bit.png', 'opt_flow.flo'))) # the optical flow is computed from frame in t to t+1,
                             # hence, we select the optical flow corresponding to frame t (in this case, idx)
 
                 if depth_dir is not None:
