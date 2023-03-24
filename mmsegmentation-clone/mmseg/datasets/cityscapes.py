@@ -520,7 +520,11 @@ class newCityscapesDataset1(newCityscapesDataset):
                         idx = seqs_list.index(seq_file_name)
                         # sequences information
                         img_info['s1'] = dict(filename=osp.join(seq_dir, seq_name, seq_file_name))
-                        img_info['s2'] = dict(filename=osp.join(seq_dir, seq_name, seqs_list[idx+1]))
+
+                        if idx+1 < len(seqs_list):
+                            img_info['s2'] = dict(filename=osp.join(seq_dir, seq_name, seqs_list[idx+1]))
+                        else:
+                            continue # skip to the next iteration, and discard the current content of img_info
                         
                         if optflow_dir is not None:
                             # forward optical flow
