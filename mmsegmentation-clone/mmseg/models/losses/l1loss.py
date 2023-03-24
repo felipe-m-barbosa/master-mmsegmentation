@@ -20,7 +20,8 @@ class L1Loss(nn.Module):
                  class_weight=None,
                  loss_weight=1.0,
                  loss_name='loss_l1',
-                 avg_non_ignore=False):
+                 avg_non_ignore=False,
+                 ignore_value=0.0):
         super(L1Loss, self).__init__()
         assert (use_sigmoid is False) or (use_mask is False)
         self.use_sigmoid = use_sigmoid
@@ -29,12 +30,8 @@ class L1Loss(nn.Module):
         self.loss_weight = loss_weight
         self.class_weight = get_class_weight(class_weight)
         self.avg_non_ignore = avg_non_ignore
-        if not self.avg_non_ignore and self.reduction == 'mean':
-            warnings.warn(
-                'Default ``avg_non_ignore`` is False, if you would like to '
-                'ignore the certain label and average loss over non-ignore '
-                'labels, which is the same with PyTorch official '
-                'cross_entropy, set ``avg_non_ignore=True``.')
+        self.ignore_value = ignore_value
+        
 
         self.cls_criterion = nn.L1Loss()
         self._loss_name = loss_name
@@ -61,6 +58,11 @@ class L1Loss(nn.Module):
 
         # print(f"label dim {label.shape}")
         # print(f"cls_score dim {cls_score.shape}")
+
+        if self._loss_name == "loss_depth":
+            # where depth gt is 0 (invalid), also turn predicted depths into 0,
+            # so that they do not have impact on the loss
+            cls_score = torch.where(label == self.ignore_value, 0, cls_score)
 
         loss_cls = self.loss_weight * self.cls_criterion(
             cls_score,
