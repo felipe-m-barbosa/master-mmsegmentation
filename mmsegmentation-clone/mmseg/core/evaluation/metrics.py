@@ -4,6 +4,8 @@ from collections import OrderedDict
 import mmcv
 import numpy as np
 import torch
+import torch.nn.functional as F
+import cv2
 
 from mmseg.ops import resize
 
@@ -321,6 +323,8 @@ def warp(x, flo):
     vgrid = vgrid.to('cuda')
     output = torch.nn.functional.grid_sample(x, vgrid)
 
+    # print("output shape: ", output.shape)
+
 
     # VALIDITY MASK
 
@@ -351,6 +355,74 @@ def warp(x, flo):
     # print(f"warp-output.shape: {output.shape}")
 
     return output, mask
+
+from mmseg.core.evaluation import get_palette
+import matplotlib.pyplot as plt
+
+def verify_warp(pred, wpred, target):
+    PALETTE = get_palette('cityscapes')
+    print(PALETTE)
+    
+    if len(pred.shape) > 2:
+        pred = pred.squeeze(2)
+    
+    if len(wpred.shape) > 2:
+        wpred = wpred.squeeze(2)
+    
+    if len(target.shape) > 2:
+        target = target.squeeze(2)
+    
+    # plt.imshow(pred, cmap='gray')
+    # plt.show()
+
+    # print(np.unique(pred))
+
+    from PIL import Image
+
+    output_pred = Image.fromarray(pred.astype(np.uint8)).convert('P')
+    output_wpred = Image.fromarray(wpred.astype(np.uint8)).convert('P')
+    output_target = Image.fromarray(target.astype(np.uint8)).convert('P')
+    import cityscapesscripts.helpers.labels as CSLabels
+    palette = np.zeros((len(CSLabels.trainId2label), 3), dtype=np.uint8)
+    for label_id, label in CSLabels.trainId2label.items():
+        if label_id != 255:
+            palette[label_id] = label.color
+
+    output_pred.putpalette(palette)
+    output_wpred.putpalette(palette)
+    output_target.putpalette(palette)
+
+    cv_pred = np.array(output_pred)
+    cv_wpred = np.array(output_wpred)
+    cv_target = np.array(output_target)
+
+    # concat = cv2.hconcat([cv_pred, cv_target])
+    # concat = 0.5*cv_pred + 0.5*cv_target
+
+    concat = cv2.vconcat([cv_pred, cv_wpred, cv_target])
+
+    pil_concat = Image.fromarray(concat.astype(np.uint8))
+
+    plt.imshow(pil_concat)
+    plt.axis('off')
+    plt.show()
+
+    # for idx_cls in range(19):
+    #     print(f"idx {idx_cls} | count: {np.sum(pred == idx_cls)} | color: {PALETTE[idx_cls]}")
+    #     color_pred[pred == idx_cls] = PALETTE[idx_cls]
+    
+    # for idx_cls in range(19):
+    #     color_target[target == idx_cls] = PALETTE[idx_cls]
+    
+    # color_pred = cv2.cvtColor(color_pred, cv2.COLOR_RGB2BGR)
+    # color_target = cv2.cvtColor(color_target, cv2.COLOR_RGB2BGR)
+
+    # concat = cv2.hconcat([color_pred, color_target])
+    # plt.imshow(concat)
+    # plt.show()
+
+
+
 
 def eval_metrics(results,
                  gt_seg_maps,
@@ -408,14 +480,65 @@ def eval_metrics(results,
         # generating (warped) predictions and targets for temporal consistency computation
         # optical flow-based seg-pred warping
         preds = []
-        for r1, r2, optf in zip(results[:-1], results[1:], optflows[:-1]):
-            pred, _ = mmcv.flow_warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
+        # print(len(results))
+
+        # 0 -> 1
+        for r1, optf in zip(results[:-1], optflows[:-1]):
+
+            # print(r1.shape)
+
+            optf = optf.squeeze(0)
+            optf = optf.detach().cpu().numpy()
+            r1 = torch.as_tensor(r1).unsqueeze(2).type(torch.float32)
+            r1 = r1.detach().cpu().numpy()
+            pred = mmcv.flow_warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
             preds.append(pred)
+
+            # pred, _ = warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
+            # preds.append(pred)
 
         # print(f"preds.shape: {preds[0].shape}")
         # time.sleep(50)
 
-        targets = results[1:]
+        targets = [torch.as_tensor(r).unsqueeze(2).type(torch.float32) for r in results[1:]]
+        targets = [t.detach().cpu().numpy() for t in targets]
+
+        # orig_preds = results[:-1]
+
+
+        # for p, wp, t in zip(orig_preds, preds, targets):
+        #     verify_warp(p, wp, t)
+        
+
+        # 1 -> 0
+        # for r2, optf in zip(results[1:], optflows[:-1]):
+
+        #     # print(r1.shape)
+
+        #     optf = optf.squeeze(0)
+        #     optf = optf.detach().cpu().numpy()
+        #     r2 = torch.as_tensor(r2).unsqueeze(2).type(torch.float32)
+        #     r2 = r2.detach().cpu().numpy()
+        #     pred = mmcv.flow_warp(r2, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
+        #     preds.append(pred)
+
+        #     # pred, _ = warp(r1, optf) # prediction is seg(t0)->seg'(t1), while the target is seg(t1)
+        #     # preds.append(pred)
+
+        # # print(f"preds.shape: {preds[0].shape}")
+        # # time.sleep(50)
+
+        # targets = [torch.as_tensor(r).unsqueeze(2).type(torch.float32) for r in results[:-1]]
+        # targets = [t.detach().cpu().numpy() for t in targets]
+
+        # orig_preds = results[1:]
+
+
+        # for p, wp, t in zip(orig_preds, preds, targets):
+        #     verify_warp(p, wp, t)
+
+
+
 
         # compute losses similar to what was previously done, but for TC metrics
         total_area_intersect, total_area_union, total_area_pred_label, \
