@@ -497,6 +497,7 @@ class newCityscapesDataset1(newCityscapesDataset):
 
                         img_info['s1'] = dict(filename=s1_name)
                         img_info['s2'] = dict(filename=s2_name)
+                        img_info['from_target'] = False
 
 
 
@@ -523,6 +524,7 @@ class newCityscapesDataset1(newCityscapesDataset):
                             continue
                         
                         img_info['s1'] = dict(filename=osp.join(seq_dir, seq_name, seq_file_name))
+                        img_info['from_target'] = True
 
                         if idx+1 < len(seqs_list):
                             if not osp.exists(osp.join(seq_dir, seq_name, seqs_list[idx+1])):

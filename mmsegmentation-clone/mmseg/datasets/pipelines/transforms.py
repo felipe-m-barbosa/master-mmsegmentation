@@ -2049,10 +2049,20 @@ class newNormalize(object):
             mean=self.mean, std=self.std, to_rgb=self.to_rgb)
         
         if 's1_img' in results:
-            results['s1_img'] = mmcv.imnormalize(results['s1_img'], self.mean, self.std,
+            # how to condition it only for data from the target data (using the results dict -> modify data loading)
+            print("\n\n\n")
+            print(results.keys())
+            print("\n\n\n")
+            if results['from_target']:
+                mean = [102.4890, 102.9852,  96.2737]
+                std = [88.5729, 86.4109, 81.2531]
+            else:
+                mean = self.mean
+                std = self.std
+            results['s1_img'] = mmcv.imnormalize(results['s1_img'], mean, std,
                                             self.to_rgb)
             
-            results['s2_img'] = mmcv.imnormalize(results['s2_img'], self.mean, self.std,
+            results['s2_img'] = mmcv.imnormalize(results['s2_img'], mean, std,
                                             self.to_rgb)
 
 
