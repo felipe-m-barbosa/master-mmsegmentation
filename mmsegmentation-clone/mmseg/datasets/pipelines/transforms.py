@@ -2054,8 +2054,8 @@ class newNormalize(object):
             print(results.keys())
             print("\n\n\n")
             if results['from_target']:
-                mean = [102.4890, 102.9852,  96.2737]
-                std = [88.5729, 86.4109, 81.2531]
+                mean = np.array([102.4890, 102.9852,  96.2737])
+                std = np.array([88.5729, 86.4109, 81.2531])
             else:
                 mean = self.mean
                 std = self.std
