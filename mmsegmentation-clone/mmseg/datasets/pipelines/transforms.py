@@ -2051,7 +2051,7 @@ class newNormalize(object):
         if 's1_img' in results:
             # how to condition it only for data from the target data (using the results dict -> modify data loading)
             print("\n\n\n")
-            print(results.keys())
+            print(f"self.mean: {self.mean}")
             print("\n\n\n")
             if results['from_target']:
                 mean = np.array([102.4890, 102.9852,  96.2737])
