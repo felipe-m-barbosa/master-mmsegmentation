@@ -371,6 +371,9 @@ class newLoadImageFromFile(object):
             to_rgb=False)
         
         if s1_filename is not None:
+
+            results['from_target'] = results['img_info']['from_target']
+
             results['s1_filename'] = s1_filename
             # results['s1_ori_filename'] = results['img_info']['s1']['filename']
             results['s1_img'] = s1_img
