@@ -731,6 +731,11 @@ class newCustomDataset(Dataset):
         """
 
         img_info = self.img_infos[idx]
+
+        print("\n\n\n")
+        print(img_info)
+        print("\n\n\n")
+
         ann_info, depth_info = self.get_ann_info(idx)
         if depth_info is not None:
             results = dict(img_info=img_info, ann_info=ann_info, depth_info=depth_info)
