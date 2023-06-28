@@ -63,8 +63,8 @@ class OrderPredHead(BaseDecodeHead):
 
         inputs = [i[self.in_index] for i in inputs]
 
-        for i in inputs:
-            print(i.shape)
+        # for i in inputs:
+        #     print(i.shape)
 
         # print("Inputs2: ", end='\n')
 #         for i in inputs:
