@@ -10,14 +10,14 @@
 ## Related publications
 
 For a more detailed description of the method and the technical training/testing aspects, please consider reading: 
-[Estudo de Estrat\'egia de Aprendizado Auto-supervisionado para Aprimoramento da Consist\^encia Temporal em Modelo de Segmenta\c{c}\~ao Sem\^antica Baseado em Deep Learning](https://doi.org/10.5753/semish.2023.230573)
+[Estudo de Estratégia de Aprendizado Auto-supervisionado para Aprimoramento da Consistência Temporal em Modelo de Segmentaçao Semântica Baseado em Deep Learning](https://doi.org/10.5753/semish.2023.230573)
 
 ## Citation
 
 If you find this project useful in your research, please consider citing:
 
 ```bibtex
-@inproceedings{semish,
+@inproceedings{barbosa_and_osorio_semish,
  author = {Felipe Barbosa and Fernando Osório},
  title = {Estudo de Estratégia de Aprendizado Auto-supervisionado para Aprimoramento da Consistência Temporal em Modelo de Segmentação Semântica Baseado em Deep Learning},
  booktitle = {Anais do L Seminário Integrado de Software e Hardware},
