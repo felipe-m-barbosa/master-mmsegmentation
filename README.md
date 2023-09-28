@@ -5,10 +5,16 @@
 
 ## Our proposed solution
 
+![Proposed architecture](/images/proposed_model.jpg "Proposed architecture, built on top of a BiseNet V2 model.")
+
+## Related publications
+
+For a more detailed description of the method and the technical training/testing aspects, please consider reading: 
+[Estudo de Estrat\'egia de Aprendizado Auto-supervisionado para Aprimoramento da Consist\^encia Temporal em Modelo de Segmenta\c{c}\~ao Sem\^antica Baseado em Deep Learning](https://doi.org/10.5753/semish.2023.230573)
 
 ## Citation
 
-If you find this project useful in your research, please consider cite:
+If you find this project useful in your research, please consider citing:
 
 ```bibtex
 @inproceedings{semish,
