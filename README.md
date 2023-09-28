@@ -22,6 +22,13 @@ In light of that, this work addresses all previous problems by implementing a se
     <img src="/images/tc_after.jpg">
 </p>
 
+### Domain Adaptation
+<p align="center">
+    <img src="/images/domain_adaptation_results.png"><br>
+    <b>Results of Domain Adaptation performed in a real-to-real scenario. We consider <a href="https://www.cityscapes-dataset.com/">Cityscapes</a> and <a href="https://bit.ly/zed2dataset">ZED2</a> as source and target datasets, respectively.<b>
+</p>
+
+
 ## Related publications
 
 For a more detailed description of the method and the technical training/testing aspects, please consider reading: 
