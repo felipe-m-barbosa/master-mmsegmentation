@@ -1,27 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-* {
-  box-sizing: border-box;
-}
-
-.column {
-  float: left;
-  width: 33.33%;
-  padding: 5px;
-}
-
-/* Clearfix (clear floats) */
-.row::after {
-  content: "";
-  clear: both;
-  display: table;
-}
-</style>
-</head>
-<body>
-
 # Unsupervised Domain Adaptation through the exploration of Temporal Consistency
 
 ## The problem
@@ -29,8 +5,9 @@ Deep Learning-based Semantic Segmentation has reached remarkable levels of accur
 \par Lastly, since the majority of works in semantic segmentation rely on single-frame predictions, they miss a huge opportunity offered by reasoning on the temporal properties of video data. Ultimately, this leads to unstable perception models, which may harm overall performance and represent risks to the correct actuation of autonomous systems.
 
 
-
-</p>
+![]("/images/domain_shift.png")  |  ![]("/images/stable_and_unstable_predictions.png")
+     Domain shift                |   Temporal (in)stability
+<!-- </p>
 <div class="row">
   <div class="column">
     <p align="center">
@@ -44,7 +21,7 @@ Deep Learning-based Semantic Segmentation has reached remarkable levels of accur
         <b>Temporal (in)stability<b>
     </p>
   </div>
-</div>
+</div> -->
 
 ## Proposed solution
 In light of that, this work addresses all previous problems by implementing a self-supervised auxiliary supervision strategy for learning temporal consistency in videos. The results show that, besides promoting temporal stability, our strategy greatly improves model precision in an Unsupervised Domain Adaptation (UDA) scenario.
@@ -97,6 +74,3 @@ If you find this project useful in your research, please consider citing:
  url = {https://sol.sbc.org.br/index.php/semish/article/view/25075}
 }
 ```
-
-</body>
-</html>
