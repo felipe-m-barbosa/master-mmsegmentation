@@ -5,7 +5,7 @@ Deep Learning-based Semantic Segmentation has reached remarkable levels of accur
 \par Lastly, since the majority of works in semantic segmentation rely on single-frame predictions, they miss a huge opportunity offered by reasoning on the temporal properties of video data. Ultimately, this leads to unstable perception models, which may harm overall performance and represent risks to the correct actuation of autonomous systems.
 
 
-<img src="/images/domain_shift.png" alt="Domain Shift" style="width:60%">  <img src="/images/stable_and_unstable_predictions.png" alt="Temporal Stability" style="width:30%"><br>
+<img src="/images/domain_shift.png" alt="Domain Shift" style="width:60%">  <img src="/images/stable_and_unstable_predictions.png" alt="Temporal Stability" style="width:38%"><br>
      Domain shift                |   Temporal (in)stability
 <!-- </p>
 <div class="row">
