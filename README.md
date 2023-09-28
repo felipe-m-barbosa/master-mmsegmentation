@@ -8,11 +8,11 @@ Deep Learning-based Semantic Segmentation has reached remarkable levels of accur
 </p>
 <div class="row">
   <div class="column">
-    <img src="/images/domain_shift.png" alt="Domain Shift" style="width:100%">
+    <img src="/images/domain_shift.png" alt="Domain Shift" style="width:50%">
     <b>Domain shift<b>
   </div>
   <div class="column">
-    <img src="/images/stable_and_unstable_predictions.jpg" alt="Temporal Stability" style="width:100%">
+    <img src="/images/stable_and_unstable_predictions.png" alt="Temporal Stability" style="width:50%">
     <b>Temporal (in)stability<b>
   </div>
 </div>
