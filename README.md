@@ -44,7 +44,7 @@ In light of that, this work addresses all previous problems by implementing a se
 
 For a more detailed description of the method and the technical training/testing aspects, please consider reading: 
 * [Estudo de Estratégia de Aprendizado Auto-supervisionado para Aprimoramento da Consistência Temporal em Modelo de Segmentaçao Semântica Baseado em Deep Learning](https://doi.org/10.5753/semish.2023.230573)
-* Soon, more ...
+* Soon ...
 
 ## Citation
 
