@@ -8,7 +8,7 @@
 
 <p align="center">
   <img src="/images/proposed_model.jpg">
-  <b>Proposed architecture, built on top of a BiseNet V2 model.<\b>
+  <b>Proposed architecture, built on top of a BiseNet V2 model.<b>
 </p>
 
 
