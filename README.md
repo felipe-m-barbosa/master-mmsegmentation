@@ -4,7 +4,7 @@
 Deep Learning-based Semantic Segmentation has reached remarkable levels of accuracy throughout the years. Nonetheless, applying pretrained models to new domains---even though related---leads to considerable drops in performance due to domain shift. In addition to that, semantic labels are costly to obtain for new application scenarios, what makes the process of transfer learning even harder.
 \par Lastly, since the majority of works in semantic segmentation rely on single-frame predictions, they miss a huge opportunity offered by reasoning on the temporal properties of video data. Ultimately, this leads to unstable perception models, which may harm overall performance and represent risks to the correct actuation of autonomous systems.
 
-## Our proposed solution
+## Proposed solution
 In light of that, this work addresses all previous problems by implementing a self-supervised auxiliary supervision strategy for learning temporal consistency in videos. The results show that, besides promoting temporal stability, our strategy greatly improves model precision in an Unsupervised Domain Adaptation (UDA) scenario.
 
 <p align="center">
