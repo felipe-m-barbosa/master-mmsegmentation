@@ -1,30 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+</style>
+</head>
+<body>
+
 # Unsupervised Domain Adaptation through the exploration of Temporal Consistency
 
 ## The problem
 Deep Learning-based Semantic Segmentation has reached remarkable levels of accuracy throughout the years. Nonetheless, applying pretrained models to new domains---even though related---leads to considerable drops in performance due to domain shift. In addition to that, semantic labels are costly to obtain for new application scenarios, what makes the process of transfer learning even harder.
 \par Lastly, since the majority of works in semantic segmentation rely on single-frame predictions, they miss a huge opportunity offered by reasoning on the temporal properties of video data. Ultimately, this leads to unstable perception models, which may harm overall performance and represent risks to the correct actuation of autonomous systems.
 
-<!-- <!DOCTYPE html>
-<html> -->
-<head>
-<!-- <link rel="stylesheet" type="text/css" href="styles.css" /> -->
-    <style>
-    * {
-    box-sizing: border-box;
-    }
-    .column {
-    float: left;
-    width: 33.33%;
-    padding: 5px;
-    }
-    /* Clearfix (clear floats) */
-    .row::after {
-    content: "";
-    clear: both;
-    display: table;
-    }
-    </style>
-</head>
+
 
 </p>
 <div class="row">
@@ -93,3 +97,6 @@ If you find this project useful in your research, please consider citing:
  url = {https://sol.sbc.org.br/index.php/semish/article/view/25075}
 }
 ```
+
+</body>
+</html>
