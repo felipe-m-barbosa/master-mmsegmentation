@@ -692,8 +692,8 @@ class EncoderDecoder(BaseSegmentor):
         if self.out_channels == 1:
             seg_pred = (seg_logit >
                         self.decode_head.threshold).to(seg_logit).squeeze(1)
-        else:
-            seg_pred = seg_logit.argmax(dim=1) # the integer class
+        # else:
+        #     seg_pred = seg_logit.argmax(dim=1) # the integer class
         
 
         if torch.onnx.is_in_onnx_export():
